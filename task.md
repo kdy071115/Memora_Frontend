@@ -1,0 +1,26 @@
+# Memora 프론트엔드 개발 Task List
+
+- `[ ]` 1. Next.js 프로젝트 설정
+  - `[x]` 1.1 `memora-frontend` 디렉토리 생성 및 Next.js 앱 초기화 (TypeScipt, Tailwind CSS, App Router)
+  - `[x]` 1.2 필요 라이브러리 설치 (Zustand, React Query, UI 라이브러리 등)
+  - `[x]` 1.3 기본 폴더 구조(`src/app`, `src/components`, `src/lib`, `src/types`) 및 정적 폴더 설정
+- `[x]` 2. 글로벌 UI/UX 설정
+  - `[x]` 2.1 Tailwind CSS 전역 스타일 및 색상 변수 적용 (다크 모드, 포인트 그라데이션)
+  - `[x]` 2.2 공통 Layout (Header, Navigation, Footer 등) 적용
+  - `[x]` 2.3 커스텀 폰트(Inter), 공통 에셋 적용
+- `[ ]` 3. 핵심 페이지 MVP 구현 및 라우팅 연결
+  - `[x]` 3.1 회원가입 / 로그인 뷰 (`/login`, `/signup`)
+  - `[x]` 3.2 역할별 통합 대시보드 뷰 (`/dashboard`)
+  - `[x]` 3.3 코스 목록 및 생성 뷰 리뉴얼 (`/courses`, `/courses/create`)
+  - `[x]` 3.4 고정형 사이드바 기반 학습 뷰 (`/learn/[lectureId]`, `AiSidebar.tsx`)
+  - `[x]` 3.5 단일 문항 포커스 퀴즈 뷰 (`/learn/[lectureId]/quiz`)
+  - `[x]` 3.6 Recharts 기반 학습 분석 대시보드 (`/analysis`)
+- `[x]` 4. API 클라이언트 연동 준비
+  - `[x]` 4.1 Axios 인스턴스 구성 및 Interceptor 적용 (`memoraApi`)
+  - `[x]` 4.2 Zustand 스토어(전역 상태) 구축 (`useAuthStore`)
+  - `[x]` 4.3 React Query Provider 세팅 및 Mock API 테스트 폼(`courses.ts`) 작성
+- `[x]` 5. 랜딩페이지 전면 재설계 (Light / Brand-oriented)
+  - `[x]` 5.1 `layout.tsx` 및 `globals.css` 다크모드 해제 및 Light 톤 적용
+  - `[x]` 5.2 섹션 컴포넌트 구조 설정 (`Hero`, `Feature`, `Step`, `Benefit`, `CTA`)
+  - `[x]` 5.3 기존 `app/page.tsx`를 도메인 컴포넌트를 조립하는 구조로 변경
+  - `[x]` 5.4 추가 UI 모듈 (로그인/가입 폼) 다크 모드 속성 제거 및 밝은 톤으로 통일
