@@ -1,14 +1,15 @@
+"use client";
 import MainLayout from "@/components/layout/MainLayout";
 import Link from "next/link";
-import { BookOpen, Search, Plus, Filter } from "lucide-react";
+import { BookOpen, Search, Plus, Filter, Loader2 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { getCourses } from "@/lib/api/courses";
 
 export default function CoursesPage() {
-  const courses = [
-    { id: 1, title: "인공지능 개론", desc: "신경망 구조와 딥러닝의 이해", progress: 45, color: "blue", tag: "전공 필수" },
-    { id: 2, title: "알고리즘 및 자료구조", desc: "그래프 탐색과 시간 복잡도 분석", progress: 80, color: "pink", tag: "교양 필수" },
-    { id: 3, title: "운영체제 이해", desc: "프로세스 관리와 메모리 할당 기법", progress: 12, color: "indigo", tag: "전공 필수" },
-    { id: 4, title: "오픈소스 기여 전략", desc: "GithHub 생태계 이해 및 기여 방법론", progress: 100, color: "green", tag: "특강" },
-  ];
+  const { data: courses = [], isLoading } = useQuery({
+    queryKey: ['courses'],
+    queryFn: getCourses,
+  });
 
   const getColorClasses = (color: string) => {
     switch (color) {
@@ -50,8 +51,23 @@ export default function CoursesPage() {
            </button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {courses.map((course) => {
+        {isLoading ? (
+          <div className="w-full py-20 flex flex-col items-center justify-center">
+             <Loader2 className="w-10 h-10 animate-spin text-primary mb-4" />
+             <p className="text-slate-500 font-medium">강의 데이터를 불러오는 중입니다...</p>
+          </div>
+        ) : courses.length === 0 ? (
+          <div className="w-full py-20 flex flex-col items-center justify-center bg-white border border-slate-100 rounded-[2rem] shadow-sm">
+             <BookOpen className="w-16 h-16 text-slate-200 mb-4" />
+             <h3 className="text-xl font-bold text-slate-800 mb-2">아직 추가된 강의가 없습니다</h3>
+             <p className="text-slate-500 font-medium mb-6">새 강의를 추가하여 AI 학습을 시작해보세요.</p>
+             <Link href="/courses/create" className="h-12 px-6 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-full font-bold transition-colors flex items-center">
+                <Plus className="w-4 h-4 mr-2" /> 새 강의 추가
+             </Link>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {courses.map((course: any) => {
             const colors = getColorClasses(course.color);
             return (
               <Link key={course.id} href={`/learn/${course.id}`} className="group bg-white border border-slate-100 rounded-[2rem] overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col">
@@ -61,18 +77,18 @@ export default function CoursesPage() {
                 </div>
                 <div className="p-6 flex flex-col flex-1">
                   <span className={`text-xs font-bold ${colors.lightBg} ${colors.text} px-3 py-1 rounded-full mb-3 inline-block w-max`}>
-                    {course.tag}
+                    {course.category || "기본 카테고리"}
                   </span>
                   <h3 className="font-bold text-xl mb-1 truncate text-slate-800">{course.title}</h3>
-                  <p className="text-sm text-slate-500 mb-6 line-clamp-2 font-medium flex-1">{course.desc}</p>
+                  <p className="text-sm text-slate-500 mb-6 line-clamp-2 font-medium flex-1">{course.description || "강의 설명이 없습니다."}</p>
                   
                   <div className="space-y-2 mt-auto">
                     <div className="flex justify-between text-sm font-bold">
                       <span className="text-slate-700">진도율</span>
-                      <span className={colors.text}>{course.progress}%</span>
+                      <span className={colors.text}>{course.progress || 0}%</span>
                     </div>
                     <div className="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
-                      <div className={`${colors.bg} h-2.5 rounded-full transition-all duration-1000`} style={{ width: `${course.progress}%` }} />
+                      <div className={`${colors.bg} h-2.5 rounded-full transition-all duration-1000`} style={{ width: `${course.progress || 0}%` }} />
                     </div>
                   </div>
                 </div>
@@ -80,6 +96,7 @@ export default function CoursesPage() {
             );
           })}
         </div>
+        )}
       </div>
     </MainLayout>
   );

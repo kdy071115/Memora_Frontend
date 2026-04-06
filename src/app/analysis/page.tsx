@@ -1,26 +1,58 @@
 "use client";
-import React from "react";
+import React, { useMemo } from "react";
 import MainLayout from "@/components/layout/MainLayout";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts';
-import { Target, TrendingUp, AlertTriangle } from "lucide-react";
+import { Target, TrendingUp, AlertTriangle, Loader2 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { getAnalysis } from "@/lib/api/analysis";
 
 export default function AnalysisPage() {
-  const lineData = [
-    { name: '1주차', score: 65 },
-    { name: '2주차', score: 72 },
-    { name: '3주차', score: 68 },
-    { name: '4주차', score: 85 },
-    { name: '이번주', score: 92 },
-  ];
+  const { data: analysis, isLoading } = useQuery({
+    queryKey: ['analysis'],
+    queryFn: getAnalysis,
+  });
 
-  const radarData = [
-    { subject: '개념 이해력', A: 120, fullMark: 150 },
-    { subject: '수학적 사고', A: 98, fullMark: 150 },
-    { subject: '비판적 추론', A: 86, fullMark: 150 },
-    { subject: '암기력', A: 99, fullMark: 150 },
-    { subject: '응용력', A: 85, fullMark: 150 },
-    { subject: '문제 해결', A: 65, fullMark: 150 },
-  ];
+  // 꺾은선 차트 (Line Chart) 데이터 가공
+  const lineData = useMemo(() => {
+    if (!analysis?.weeklyProgress) return [];
+    return analysis.weeklyProgress.map(w => ({
+      name: w.week,
+      score: w.quizScore
+    }));
+  }, [analysis]);
+
+  // 방사형 차트 (Radar Chart) 역량 데이터 가공
+  const radarData = useMemo(() => {
+    if (!analysis?.competencies) return [];
+    return Object.entries(analysis.competencies).map(([subject, value]) => ({
+      subject,
+      A: value,
+      fullMark: 150
+    }));
+  }, [analysis]);
+
+  const getGrade = (score?: number) => {
+    if (!score) return { grade: "N/A", label: "분석 중" };
+    if (score >= 95) return { grade: "A+", label: "최상위권" };
+    if (score >= 90) return { grade: "A0", label: "상위 10%" };
+    if (score >= 85) return { grade: "B+", label: "상위 30%" };
+    if (score >= 80) return { grade: "B0", label: "평균 이상" };
+    if (score >= 70) return { grade: "C+", label: "평균 수준" };
+    return { grade: "C0", label: "노력 필요" };
+  };
+
+  const achievement = getGrade(analysis?.overallScore);
+
+  if (isLoading) {
+    return (
+      <MainLayout>
+        <div className="flex flex-col w-full h-[60vh] items-center justify-center">
+          <Loader2 className="w-12 h-12 animate-spin text-primary mb-4" />
+          <p className="text-slate-500 font-medium">AI가 학습 데이터를 분석하는 중입니다...</p>
+        </div>
+      </MainLayout>
+    );
+  }
 
   return (
     <MainLayout>
@@ -40,7 +72,7 @@ export default function AnalysisPage() {
               <div>
                 <p className="text-slate-500 font-bold mb-1">예측 최종 성취도</p>
                 <div className="text-4xl font-black text-slate-800 flex items-end">
-                  A- <span className="text-lg text-slate-400 font-medium ml-2 mb-1">상위 15%</span>
+                  {achievement.grade} <span className="text-lg text-slate-400 font-medium ml-2 mb-1">{achievement.label}</span>
                 </div>
               </div>
            </div>
@@ -50,9 +82,9 @@ export default function AnalysisPage() {
                 <TrendingUp className="w-6 h-6 text-green-500" />
               </div>
               <div>
-                <p className="text-slate-500 font-bold mb-1">최대 성장 지표</p>
+                <p className="text-slate-500 font-bold mb-1">추천 성장 지표</p>
                 <div className="text-2xl font-black text-slate-800 leading-tight">
-                  개념 이해력이<br/>지난주 대비 30% 상승
+                  {analysis?.maxGrowthIndicator || "충분한 누적 데이터가 필요해요"}
                 </div>
               </div>
            </div>
@@ -64,7 +96,9 @@ export default function AnalysisPage() {
               <div>
                 <p className="text-orange-700 font-bold mb-1">AI 맞춤 처방</p>
                 <div className="text-lg font-black text-orange-950 leading-tight">
-                  문제 해결 및 응용 능력이 부족해요.<br/>심화 문제를 위주로 복습을 세팅할게요.
+                  {analysis?.recommendations && analysis.recommendations.length > 0 
+                    ? analysis.recommendations[0] 
+                    : "아직 취합된 맞춤 처방 데이터가 없습니다."}
                 </div>
               </div>
            </div>

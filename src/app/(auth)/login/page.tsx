@@ -1,8 +1,35 @@
-import React from "react";
+"use client";
+import React, { useState } from "react";
 import Link from "next/link";
-import { ArrowRight, BookOpen, Mail, Lock } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { ArrowRight, BookOpen, Mail, Lock, Loader2 } from "lucide-react";
+import { useAuthStore } from "@/lib/store/useAuthStore";
+import Image from "next/image";
+import { useMutation } from "@tanstack/react-query";
+import { login } from "@/lib/api/auth";
 
 export default function LoginPage() {
+  const router = useRouter();
+  const loginStore = useAuthStore((state) => state.login);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const loginMutation = useMutation({
+    mutationFn: login,
+    onSuccess: (data) => {
+      loginStore(data.data.user, data.data.accessToken);
+      router.push("/dashboard");
+    },
+    onError: (error) => {
+      console.error(error);
+      alert("로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요.");
+    }
+  });
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    loginMutation.mutate({ email, password });
+  };
   return (
     <div className="flex min-h-screen w-full items-center justify-center p-4 relative overflow-hidden bg-background">
       {/* Background Gradients */}
@@ -12,10 +39,10 @@ export default function LoginPage() {
       <div className="w-full max-w-md relative z-10">
         <div className="flex justify-center mb-8">
           <Link href="/" className="flex items-center space-x-2">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-blue-500 flex items-center justify-center shadow-lg shadow-primary/20">
-              <BookOpen className="w-6 h-6 text-primary-foreground" />
+            <div className="w-10 h-10 rounded-xl overflow-hidden relative shadow-lg border border-slate-200">
+               <Image src="/images/logo.png" alt="Memora Logo" fill sizes="40px" className="object-cover" />
             </div>
-            <span className="font-bold text-3xl tracking-tight bg-gradient-to-r from-primary to-blue-400 bg-clip-text text-transparent">
+            <span className="font-bold text-3xl tracking-tight text-slate-800">
               Memora
             </span>
           </Link>
@@ -31,12 +58,14 @@ export default function LoginPage() {
             </p>
           </div>
 
-          <form className="space-y-4">
+          <form className="space-y-4" onSubmit={handleLogin}>
             <div className="space-y-2 relative">
               <Mail className="absolute left-3 top-3 h-5 w-5 text-muted-foreground" />
               <input
                 type="email"
                 placeholder="이메일을 입력하세요"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="w-full h-11 bg-background/50 border border-border rounded-lg pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all placeholder:text-muted-foreground"
                 required
               />
@@ -46,6 +75,8 @@ export default function LoginPage() {
               <input
                 type="password"
                 placeholder="비밀번호를 입력하세요"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 className="w-full h-11 bg-background/50 border border-border rounded-lg pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all placeholder:text-muted-foreground"
                 required
               />
@@ -62,10 +93,11 @@ export default function LoginPage() {
             
             <button
               type="submit"
-              className="w-full h-11 bg-gradient-to-r from-primary to-blue-600 text-primary-foreground rounded-lg font-medium shadow-md shadow-primary/25 hover:shadow-lg hover:shadow-primary/40 hover:-translate-y-0.5 transition-all text-sm flex justify-center items-center group"
+              disabled={loginMutation.isPending}
+              className="w-full h-11 bg-gradient-to-r from-primary to-blue-600 text-primary-foreground rounded-lg font-medium shadow-md shadow-primary/25 hover:shadow-lg hover:shadow-primary/40 hover:-translate-y-0.5 transition-all text-sm flex justify-center items-center group disabled:opacity-50"
             >
-              로그인
-              <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              {loginMutation.isPending ? <Loader2 className="w-5 h-5 animate-spin" /> : "로그인"}
+              {!loginMutation.isPending && <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />}
             </button>
           </form>
 
