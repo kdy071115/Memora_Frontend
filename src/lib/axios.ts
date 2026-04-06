@@ -2,7 +2,7 @@ import axios from "axios";
 import { useAuthStore } from "./store/useAuthStore";
 
 // 백엔드 API 호스트가 없을 경우 로컬(기본 8080)을 바라보게 합니다.
-export const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/v1";
+export const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
 
 export const memoraApi = axios.create({
   baseURL: BASE_URL,
