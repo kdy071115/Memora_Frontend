@@ -2,11 +2,13 @@
 import React, { use, useRef, useState, useCallback } from "react";
 import AiSidebar from "@/components/domain/learn/AiSidebar";
 import Link from "next/link";
-import { ArrowLeft, BookOpen, CheckCircle, Loader2, FileText, AlertCircle, GripVertical } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
-import { getDocuments, getDocumentSummary } from "@/lib/api/lectures";
+import { ArrowLeft, BookOpen, CheckCircle, Loader2, FileText, AlertCircle, GripVertical, UploadCloud, Plus, Settings } from "lucide-react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { getDocuments, getDocumentSummary, uploadDocument } from "@/lib/api/lectures";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import type { DocumentItem } from "@/types/document";
+import { useAuthStore } from "@/lib/store/useAuthStore";
 
 const DocumentSummaryView = ({ document }: { document: DocumentItem }) => {
   const { data, isLoading } = useQuery({
@@ -32,20 +34,8 @@ const DocumentSummaryView = ({ document }: { document: DocumentItem }) => {
   }
 
   return (
-    <div className="
-      prose prose-slate max-w-none
-      prose-h1:text-2xl prose-h1:font-black prose-h1:text-slate-800 prose-h1:mb-4 prose-h1:mt-6
-      prose-h2:text-xl prose-h2:font-bold prose-h2:text-slate-800 prose-h2:mt-8 prose-h2:mb-3
-      prose-h3:text-lg prose-h3:font-bold prose-h3:text-slate-700 prose-h3:mt-5 prose-h3:mb-2
-      prose-p:text-base prose-p:leading-relaxed prose-p:text-slate-600 prose-p:font-medium prose-p:my-2
-      prose-ul:text-slate-600 prose-ul:font-medium prose-ul:my-2
-      prose-ol:text-slate-600 prose-ol:font-medium prose-ol:my-2
-      prose-li:my-1 prose-li:text-slate-600
-      prose-strong:text-slate-800 prose-strong:font-bold
-      prose-blockquote:border-l-4 prose-blockquote:border-primary/30 prose-blockquote:bg-blue-50/50 prose-blockquote:rounded-r-lg prose-blockquote:pl-4 prose-blockquote:py-1 prose-blockquote:text-slate-600 prose-blockquote:not-italic
-      [&>*:first-child]:mt-0
-    ">
-      <ReactMarkdown>{data.summary || "문서 내용이 비어있습니다."}</ReactMarkdown>
+    <div className="markdown-body text-slate-700 text-[15px] leading-[1.85]">
+      <ReactMarkdown remarkPlugins={[remarkGfm]}>{data.summary || "문서 내용이 비어있습니다."}</ReactMarkdown>
     </div>
   );
 };
@@ -57,11 +47,34 @@ const DEFAULT_SIDEBAR_WIDTH = 420;
 export default function LearnPage({ params }: { params: Promise<{ lectureId: string }> }) {
   const resolvedParams = use(params);
   const lectureId = Number(resolvedParams.lectureId);
+  const queryClient = useQueryClient();
+  const user = useAuthStore((state) => state.user);
+  const isInstructor = user?.role === "INSTRUCTOR";
 
   // 드래그 리사이즈 상태
   const [sidebarWidth, setSidebarWidth] = useState(DEFAULT_SIDEBAR_WIDTH);
   const isDragging = useRef(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const uploadDocumentMutation = useMutation({
+    mutationFn: (file: File) => uploadDocument(lectureId, file),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["documents", lectureId] });
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    },
+    onError: (error: any) => {
+      const msg = error?.response?.data?.message;
+      alert(msg ? `자료 업로드 실패: ${msg}` : "자료 업로드에 실패했습니다.");
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    },
+  });
+
+  const handleFilePick = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    uploadDocumentMutation.mutate(file);
+  };
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
@@ -120,13 +133,51 @@ export default function LearnPage({ params }: { params: Promise<{ lectureId: str
             <h1 className="font-bold text-slate-800">강의 상세 및 요약</h1>
           </div>
         </div>
-        <Link
-          href={`/learn/${resolvedParams.lectureId}/quiz`}
-          className="px-5 h-9 bg-gradient-to-r from-slate-700 to-slate-900 text-white text-sm font-bold rounded-full hover:opacity-90 transition-all shadow-sm flex items-center gap-2"
-        >
-          <CheckCircle className="w-4 h-4" />
-          복습 퀴즈 풀기
-        </Link>
+        <div className="flex items-center gap-2">
+          {isInstructor && (
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploadDocumentMutation.isPending}
+              className="px-4 h-9 bg-white border border-primary/30 text-primary text-sm font-bold rounded-full hover:bg-primary/5 transition-all shadow-sm flex items-center gap-2 disabled:opacity-50"
+            >
+              {uploadDocumentMutation.isPending ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  업로드 중...
+                </>
+              ) : (
+                <>
+                  <Plus className="w-4 h-4" />
+                  자료 추가
+                </>
+              )}
+            </button>
+          )}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".pdf,.txt"
+            className="hidden"
+            onChange={handleFilePick}
+          />
+          {isInstructor && (
+            <Link
+              href={`/learn/${resolvedParams.lectureId}/quiz/manage`}
+              className="px-4 h-9 bg-white border border-slate-200 text-slate-700 text-sm font-bold rounded-full hover:bg-slate-50 transition-all shadow-sm flex items-center gap-2"
+            >
+              <Settings className="w-4 h-4" />
+              퀴즈 관리
+            </Link>
+          )}
+          <Link
+            href={`/learn/${resolvedParams.lectureId}/quiz`}
+            className="px-5 h-9 bg-gradient-to-r from-slate-700 to-slate-900 text-white text-sm font-bold rounded-full hover:opacity-90 transition-all shadow-sm flex items-center gap-2"
+          >
+            <CheckCircle className="w-4 h-4" />
+            {isInstructor ? "학생 시점 미리보기" : "복습 퀴즈 풀기"}
+          </Link>
+        </div>
       </header>
 
       {/* Main Body - flex row */}
@@ -143,7 +194,31 @@ export default function LearnPage({ params }: { params: Promise<{ lectureId: str
               <div className="bg-white border border-slate-200 rounded-3xl p-16 flex flex-col items-center justify-center text-center shadow-sm">
                 <BookOpen className="w-16 h-16 text-slate-200 mb-5" />
                 <h2 className="text-xl font-bold text-slate-700 mb-2">등록된 학습 자료가 없습니다</h2>
-                <p className="text-slate-400 font-medium">교강사가 아직 자료를 업로드하지 않았습니다.</p>
+                {isInstructor ? (
+                  <>
+                    <p className="text-slate-400 font-medium mb-6">PDF 또는 텍스트 파일을 올려 AI 분석을 시작하세요.</p>
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={uploadDocumentMutation.isPending}
+                      className="px-6 h-12 bg-gradient-to-r from-blue-600 to-primary text-white font-bold rounded-full shadow-md hover:shadow-lg transition-all flex items-center gap-2 disabled:opacity-50"
+                    >
+                      {uploadDocumentMutation.isPending ? (
+                        <>
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                          업로드 중...
+                        </>
+                      ) : (
+                        <>
+                          <UploadCloud className="w-5 h-5" />
+                          자료 업로드하기
+                        </>
+                      )}
+                    </button>
+                  </>
+                ) : (
+                  <p className="text-slate-400 font-medium">교강사가 아직 자료를 업로드하지 않았습니다.</p>
+                )}
               </div>
             ) : (
               <div className="space-y-8">
