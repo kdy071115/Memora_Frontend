@@ -2,14 +2,17 @@
 import React, { useState, use, useEffect } from "react";
 import MainLayout from "@/components/layout/MainLayout";
 import Link from "next/link";
-import { ArrowLeft, CheckCircle2, ChevronRight, Loader2, Play } from "lucide-react";
+import { ArrowLeft, CheckCircle2, ChevronRight, Loader2, Settings, Sparkles } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getQuizzes, submitQuiz } from "@/lib/api/quiz";
+import { useAuthStore } from "@/lib/store/useAuthStore";
 
 export default function QuizPage({ params }: { params: Promise<{ lectureId: string }> }) {
   const resolvedParams = use(params);
   const lectureId = Number(resolvedParams.lectureId);
   const queryClient = useQueryClient();
+  const user = useAuthStore((state) => state.user);
+  const isInstructor = user?.role === "INSTRUCTOR";
 
   const [currentQuizIndex, setCurrentQuizIndex] = useState(0);
   const [selectedOptIndex, setSelectedOptIndex] = useState<number | null>(null);
@@ -84,11 +87,45 @@ export default function QuizPage({ params }: { params: Promise<{ lectureId: stri
   if (quizzes.length === 0) {
     return (
       <MainLayout>
-        <div className="flex flex-col items-center justify-center min-h-[80vh] text-center">
-          <h2 className="text-2xl font-bold text-slate-800 mb-2">등록된 퀴즈가 없습니다.</h2>
-          <Link href={`/learn/${lectureId}`} className="text-primary font-medium hover:underline">
-            학습 뷰로 돌아가기
-          </Link>
+        <div className="flex flex-col items-center justify-center min-h-[80vh] text-center max-w-lg mx-auto px-6">
+          <div className="w-20 h-20 rounded-3xl bg-primary/10 flex items-center justify-center mb-5">
+            <Sparkles className="w-10 h-10 text-primary" />
+          </div>
+          <h2 className="text-2xl font-black text-slate-800 mb-2">등록된 퀴즈가 없습니다</h2>
+          {isInstructor ? (
+            <>
+              <p className="text-slate-500 font-medium mb-6">
+                학생들이 풀 복습 퀴즈를 직접 출제하거나, AI 자동 출제로 빠르게 시작해보세요.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <Link
+                  href={`/learn/${lectureId}/quiz/manage`}
+                  className="px-6 h-12 bg-gradient-to-r from-blue-600 to-primary text-white font-bold rounded-full shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2"
+                >
+                  <Settings className="w-4 h-4" />
+                  퀴즈 관리 페이지로 이동
+                </Link>
+                <Link
+                  href={`/learn/${lectureId}`}
+                  className="px-6 h-12 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-full transition-colors flex items-center justify-center"
+                >
+                  학습 뷰로 돌아가기
+                </Link>
+              </div>
+            </>
+          ) : (
+            <>
+              <p className="text-slate-500 font-medium mb-6">
+                담당 교강사가 아직 복습 문제를 출제하지 않았습니다. 곧 추가될 예정입니다!
+              </p>
+              <Link
+                href={`/learn/${lectureId}`}
+                className="text-primary font-bold hover:underline"
+              >
+                학습 뷰로 돌아가기
+              </Link>
+            </>
+          )}
         </div>
       </MainLayout>
     );
