@@ -1,33 +1,20 @@
 import { memoraApi } from "../axios";
+import type { MyAnalysis, CourseOverview } from "../../types/analysis";
 
-export interface WeeklyProgress {
-  week: string; // e.g. "2026-W14" or "1주차"
-  studyTime: number;
-  quizScore: number;
-}
-
-export interface AnalysisData {
-  overallScore: number;
-  totalStudyTime: number; // in seconds
-  quizStats: {
-    totalAttempts: number;
-    correctRate: number;
-  };
-  weakConcepts: Array<{
-    concept: string;
-    correctRate: number;
-  }>;
-  recommendations: string[];
-  weeklyProgress: WeeklyProgress[];
-  
-  // Custom Frontend Extensions
+// 프론트엔드 임시 확장을 위한 타입
+export type AnalysisData = MyAnalysis & {
   competencies?: {
-    [key: string]: number; // e.g. "개념 이해력": 120
+    [key: string]: number;
   };
   maxGrowthIndicator?: string;
-}
+};
 
 export const getAnalysis = async (): Promise<AnalysisData> => {
   const { data } = await memoraApi.get("/analysis/me");
   return data.data || data;
+};
+
+export const getCourseOverview = async (courseId: number): Promise<CourseOverview> => {
+  const { data } = await memoraApi.get(`/analysis/courses/${courseId}/overview`);
+  return data.data;
 };

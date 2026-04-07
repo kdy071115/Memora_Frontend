@@ -27,7 +27,7 @@ memoraApi.interceptors.request.use(
   }
 );
 
-// Response Interceptor: 401 권한 없음 에러 시 자동 로그아웃 처리 등
+// Response Interceptor: 401 권한 없음 에러 시 자동 로그아웃 처리 및 리프레시 토큰 처리
 memoraApi.interceptors.response.use(
   (response) => {
     return response;
@@ -39,9 +39,38 @@ memoraApi.interceptors.response.use(
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
       
-      // TODO: Refresh Token 갱신 로직 필요. 지금은 간단히 로그아웃 처리만 시연
-      // useAuthStore.getState().logout();
-      // window.location.href = '/login';
+      const refreshToken = useAuthStore.getState().refreshToken;
+      if (refreshToken) {
+        try {
+          // 원래의 axios를 사용해서 auth/refresh 호출 (인터셉터를 타지 않도록 처리)
+          const { data } = await axios.post(`${BASE_URL}/auth/refresh`, { refreshToken });
+          
+          if (data.success && data.data) {
+            const newAccessToken = data.data.accessToken;
+            const newRefreshToken = data.data.refreshToken;
+            
+            // 토큰 업데이트
+            useAuthStore.getState().updateTokens(newAccessToken, newRefreshToken);
+            
+            // 원래 요청의 헤더 토큰 수정 후 재요청
+            originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+            return memoraApi(originalRequest);
+          }
+        } catch (refreshError) {
+          // 리프레시 토큰 요청도 실패한 경우 완전 로그아웃
+          useAuthStore.getState().logout();
+          if (typeof window !== "undefined") {
+            window.location.href = "/login";
+          }
+          return Promise.reject(refreshError);
+        }
+      } else {
+        // 리프레시 토큰조차 없는 경우 로그아웃
+        useAuthStore.getState().logout();
+        if (typeof window !== "undefined") {
+          window.location.href = "/login";
+        }
+      }
     }
 
     return Promise.reject(error);
