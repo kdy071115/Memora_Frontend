@@ -51,10 +51,38 @@ export default function AnalysisPage() {
     ? isCoursesLoading || isOverviewLoading
     : isStudentLoading;
 
+  // "2026-W14" 같은 ISO week 문자열을 "4/1주" 처럼 한국 사용자가 읽기 쉬운 라벨로 변환
+  const formatIsoWeekLabel = (weekStr: string): string => {
+    const match = /^(\d{4})-W(\d{1,2})$/.exec(weekStr);
+    if (!match) return weekStr;
+    const year = Number(match[1]);
+    const week = Number(match[2]);
+
+    // ISO 8601: 1월 4일은 항상 1주차에 속한다 → 그 주의 월요일이 1주차 월요일
+    const jan4 = new Date(year, 0, 4);
+    const jan4Day = jan4.getDay() || 7; // 1=월 ~ 7=일
+    const week1Monday = new Date(jan4);
+    week1Monday.setDate(jan4.getDate() - jan4Day + 1);
+
+    const target = new Date(week1Monday);
+    target.setDate(week1Monday.getDate() + (week - 1) * 7);
+
+    const month = target.getMonth() + 1;
+    // 해당 월의 몇 번째 주인지 계산 (월요일 기준)
+    const firstOfMonth = new Date(target.getFullYear(), target.getMonth(), 1);
+    const firstMonOffset = ((8 - (firstOfMonth.getDay() || 7)) % 7);
+    const firstMon = new Date(firstOfMonth);
+    firstMon.setDate(1 + firstMonOffset);
+    const weekOfMonth = Math.floor((target.getDate() - firstMon.getDate()) / 7) + 1;
+
+    return `${month}월 ${weekOfMonth}주`;
+  };
+
   // ===== 데이터 가공 =====
   const studentLineData = useMemo(() => {
     if (!analysis?.weeklyProgress) return [];
-    return analysis.weeklyProgress.map((w) => ({ name: w.week, score: w.quizScore || 0 }));
+    return analysis.weeklyProgress.map((w) => ({ name: formatIsoWeekLabel(w.week), score: w.quizScore || 0 }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [analysis]);
 
   const studentRadarData = useMemo(() => {
@@ -68,7 +96,8 @@ export default function AnalysisPage() {
 
   const instructorLineData = useMemo(() => {
     if (!courseOverview?.weeklyProgress) return [];
-    return courseOverview.weeklyProgress.map((w) => ({ name: w.week, score: w.quizScore || 0 }));
+    return courseOverview.weeklyProgress.map((w) => ({ name: formatIsoWeekLabel(w.week), score: w.quizScore || 0 }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [courseOverview]);
 
   const instructorRadarData = useMemo(() => {
