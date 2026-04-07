@@ -1,57 +1,111 @@
 "use client";
-import React, { useState, use } from "react";
+import React, { useState, use, useEffect } from "react";
 import MainLayout from "@/components/layout/MainLayout";
 import Link from "next/link";
-import { ArrowLeft, CheckCircle2, ChevronRight, Play } from "lucide-react";
+import { ArrowLeft, CheckCircle2, ChevronRight, Loader2, Play } from "lucide-react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { getQuizzes, submitQuiz } from "@/lib/api/quiz";
 
 export default function QuizPage({ params }: { params: Promise<{ lectureId: string }> }) {
   const resolvedParams = use(params);
-  const [currentQuiz, setCurrentQuiz] = useState(0);
-  const [selectedOpt, setSelectedOpt] = useState<number | null>(null);
-  const [showResult, setShowResult] = useState(false);
+  const lectureId = Number(resolvedParams.lectureId);
+  const queryClient = useQueryClient();
 
-  const quizzes = [
-    {
-      q: "인공 신경망에서 입력층에서 전달받은 데이터를 비선형적으로 변환하는 핵심 역할을 하는 층은?",
-      opts: ["입력층", "은닉층", "출력층", "완전연결층"],
-      answer: 1,
-      explanation: "은닉층(Hidden Layer)은 전달받은 입력을 비선형 활성화 함수를 통해 변환하여 복잡한 패턴(예: XOR 문제)을 학습할 수 있게 합니다."
+  const [currentQuizIndex, setCurrentQuizIndex] = useState(0);
+  const [selectedOptIndex, setSelectedOptIndex] = useState<number | null>(null);
+  const [textAnswer, setTextAnswer] = useState("");
+  const [showResult, setShowResult] = useState(false);
+  const [startTime, setStartTime] = useState<number>(0);
+
+  const { data: quizzes = [], isLoading } = useQuery({
+    queryKey: ['quizzes', lectureId],
+    queryFn: () => getQuizzes(lectureId)
+  });
+
+  const submitMutation = useMutation({
+    mutationFn: (args: { answer: string; timeSpent: number }) => 
+      submitQuiz(quizzes[currentQuizIndex].id, { userAnswer: args.answer, timeSpent: args.timeSpent }),
+    onSuccess: () => {
+      setShowResult(true);
+      // Refetch quizzes to get updated feedback/history if needed
+      queryClient.invalidateQueries({ queryKey: ['analysis'] });
     },
-    {
-      q: "다음 중 활성화 함수로 주로 쓰이는 것이 아닌 것은?",
-      opts: ["ReLU", "Sigmoid", "Softmax", "Linear Regression"],
-      answer: 3,
-      explanation: "Linear Regression(선형 회귀)은 머신러닝 알고리즘의 하나일 뿐, 그 자체로 뉴런의 출력값을 비선형적으로 만들어주는 활성화 함수는 아닙니다."
+    onError: () => {
+      alert("답안 제출에 실패했습니다.");
     }
-  ];
+  });
+
+  useEffect(() => {
+    setStartTime(Date.now());
+  }, [currentQuizIndex]);
 
   const handleSelect = (idx: number) => {
     if (showResult) return;
-    setSelectedOpt(idx);
+    setSelectedOptIndex(idx);
   };
 
   const handleSubmit = () => {
-    if (selectedOpt === null) return;
-    setShowResult(true);
+    const quiz = quizzes[currentQuizIndex];
+    let answer = "";
+    if (quiz.quizType === "MULTIPLE_CHOICE") {
+      if (selectedOptIndex === null) return;
+      answer = quiz.options?.[selectedOptIndex] || "";
+    } else {
+      if (!textAnswer.trim()) return;
+      answer = textAnswer.trim();
+    }
+
+    const timeSpentSeconds = Math.floor((Date.now() - startTime) / 1000);
+    submitMutation.mutate({ answer, timeSpent: timeSpentSeconds });
   };
 
   const handleNext = () => {
-    if (currentQuiz < quizzes.length - 1) {
-      setCurrentQuiz(p => p + 1);
-      setSelectedOpt(null);
+    if (currentQuizIndex < quizzes.length - 1) {
+      setCurrentQuizIndex(p => p + 1);
+      setSelectedOptIndex(null);
+      setTextAnswer("");
       setShowResult(false);
     } else {
       window.location.href = "/analysis";
     }
   };
 
-  const quiz = quizzes[currentQuiz];
-  const isCorrect = selectedOpt === quiz.answer;
+  if (isLoading) {
+    return (
+      <MainLayout>
+        <div className="flex flex-col items-center justify-center min-h-[80vh]">
+          <Loader2 className="w-12 h-12 text-primary animate-spin mb-4" />
+          <p className="text-slate-500 font-medium">퀴즈를 불러오는 중입니다...</p>
+        </div>
+      </MainLayout>
+    );
+  }
+
+  if (quizzes.length === 0) {
+    return (
+      <MainLayout>
+        <div className="flex flex-col items-center justify-center min-h-[80vh] text-center">
+          <h2 className="text-2xl font-bold text-slate-800 mb-2">등록된 퀴즈가 없습니다.</h2>
+          <Link href={`/learn/${lectureId}`} className="text-primary font-medium hover:underline">
+            학습 뷰로 돌아가기
+          </Link>
+        </div>
+      </MainLayout>
+    );
+  }
+
+  const quiz = quizzes[currentQuizIndex];
+  
+  // 제출 후 결과 (임시로 프론트엔드에서 판단하거나, Mutation 응답 결과를 사용)
+  // 백엔드 명세상 submitQuiz 응답(QuizResult)에 isCorrect, explanation이 들어있으므로 이를 참고해야 하지만 
+  // 여기서는 빠른 UI 제공을 위해 mutation response를 기다리지 않고 바로 표시하는 형태였다면 수정 필요.
+  // submitMutation.data 안에 QuizResult 가 들어있다.
+  const resultData = submitMutation.data;
 
   return (
     <MainLayout>
        <div className="flex flex-col w-full py-8 text-slate-800 max-w-3xl mx-auto min-h-[80vh]">
-          <Link href={`/learn/${resolvedParams.lectureId}`} className="inline-flex items-center text-slate-500 font-bold hover:text-primary mb-6 transition-colors w-max">
+          <Link href={`/learn/${lectureId}`} className="inline-flex items-center text-slate-500 font-bold hover:text-primary mb-6 transition-colors w-max">
              <ArrowLeft className="w-4 h-4 mr-2" />
              학습 뷰로 돌아가기
           </Link>
@@ -62,16 +116,16 @@ export default function QuizPage({ params }: { params: Promise<{ lectureId: stri
                   복습 타이밍!
                 </span>
                 <h1 className="text-3xl md:text-4xl font-black tracking-tight leading-tight">
-                   인공지능 개론 <br/>1회독 마스터 점검
+                   핵심 개념 마스터 점검
                 </h1>
              </div>
              <div className="text-xl font-black text-slate-400 bg-slate-100 px-4 py-2 rounded-[1rem]">
-                {currentQuiz + 1} / {quizzes.length}
+                {currentQuizIndex + 1} / {quizzes.length}
              </div>
           </div>
 
           <div className="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden mb-10">
-             <div className="bg-orange-500 h-2.5 rounded-full transition-all duration-500" style={{ width: `${((currentQuiz + 1) / quizzes.length) * 100}%` }} />
+             <div className="bg-orange-500 h-2.5 rounded-full transition-all duration-500" style={{ width: `${((currentQuizIndex + 1) / quizzes.length) * 100}%` }} />
           </div>
 
           <div className="bg-white border border-slate-100 rounded-[2.5rem] p-8 md:p-12 shadow-xl relative overflow-hidden flex-1 flex flex-col">
@@ -79,36 +133,57 @@ export default function QuizPage({ params }: { params: Promise<{ lectureId: stri
              {/* Decorative blob */}
              <div className="absolute right-0 top-0 w-64 h-64 bg-orange-50/50 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none" />
 
-             <h2 className="text-2xl md:text-3xl font-bold text-slate-800 mb-10 leading-relaxed z-10 relative">
-               <span className="text-orange-500 font-black mr-2">Q.</span>
-               {quiz.q}
-             </h2>
+             <div className="mb-10 z-10 relative">
+               <span className="inline-block px-3 py-1 bg-slate-100 text-slate-500 font-bold text-xs rounded-full mb-4">
+                  {quiz.difficulty === 'HARD' ? '어려움' : quiz.difficulty === 'MEDIUM' ? '보통' : '쉬움'} • {quiz.conceptTag || '일반'}
+               </span>
+               <h2 className="text-2xl md:text-3xl font-bold text-slate-800 leading-relaxed">
+                 <span className="text-orange-500 font-black mr-2">Q.</span>
+                 {quiz.question}
+               </h2>
+             </div>
 
              <div className="space-y-4 mb-8 z-10 relative flex-1">
-               {quiz.opts.map((opt, idx) => {
+               {quiz.quizType === "MULTIPLE_CHOICE" && quiz.options && quiz.options.map((opt, idx) => {
                  let btnClasses = "w-full text-left p-5 border-2 rounded-[1.5rem] font-bold text-lg transition-all ";
                  
                  if (!showResult) {
-                   btnClasses += selectedOpt === idx 
+                   btnClasses += selectedOptIndex === idx 
                      ? "border-orange-500 bg-orange-50 text-orange-700 shadow-md scale-[1.02]" 
                      : "border-slate-200 bg-white hover:bg-slate-50 hover:border-slate-300 text-slate-600";
                  } else {
-                   // Results mode
-                   if (idx === quiz.answer) {
-                     btnClasses += "border-green-500 bg-green-50 text-green-700";
-                   } else if (idx === selectedOpt && selectedOpt !== quiz.answer) {
-                     btnClasses += "border-red-400 bg-red-50 text-red-600";
-                   } else {
-                     btnClasses += "border-slate-100 bg-slate-50 text-slate-400 opacity-50";
-                   }
+                    const isSelected = selectedOptIndex === idx;
+                    // For multiple choice, if we don't have resultData yet, we show pending
+                    if (resultData) {
+                       const isCorrectAnswer = resultData.correctAnswer === opt;
+                       if (isCorrectAnswer) {
+                          btnClasses += "border-green-500 bg-green-50 text-green-700";
+                       } else if (isSelected && !isCorrectAnswer) {
+                          btnClasses += "border-red-400 bg-red-50 text-red-600";
+                       } else {
+                          btnClasses += "border-slate-100 bg-slate-50 text-slate-400 opacity-50";
+                       }
+                    } else {
+                       btnClasses += "border-slate-100 bg-slate-50 text-slate-400 opacity-50";
+                    }
                  }
 
                  return (
-                   <button key={idx} onClick={() => handleSelect(idx)} disabled={showResult} className={btnClasses}>
+                   <button key={idx} onClick={() => handleSelect(idx)} disabled={showResult || submitMutation.isPending} className={btnClasses}>
                       {opt}
                    </button>
                  );
                })}
+
+               {quiz.quizType !== "MULTIPLE_CHOICE" && (
+                 <textarea
+                    className="w-full h-40 p-5 border-2 border-slate-200 rounded-[1.5rem] font-medium text-lg focus:outline-none focus:border-orange-500 focus:ring-4 focus:ring-orange-50 transition-all resize-none disabled:bg-slate-50 disabled:text-slate-500"
+                    placeholder="여기에 답안을 작성해주세요..."
+                    value={textAnswer}
+                    onChange={(e) => setTextAnswer(e.target.value)}
+                    disabled={showResult || submitMutation.isPending}
+                 />
+               )}
              </div>
 
              {/* Result Area */}
@@ -116,30 +191,39 @@ export default function QuizPage({ params }: { params: Promise<{ lectureId: stri
                {!showResult ? (
                  <button 
                    onClick={handleSubmit} 
-                   disabled={selectedOpt === null}
-                   className="w-full h-16 bg-slate-800 text-white rounded-[1.5rem] font-bold text-lg shadow-lg disabled:opacity-50 disabled:bg-slate-300 transition-all hover:bg-slate-700 hover:-translate-y-1"
+                   disabled={(quiz.quizType === "MULTIPLE_CHOICE" ? selectedOptIndex === null : textAnswer.trim() === "") || submitMutation.isPending}
+                   className="w-full h-16 bg-slate-800 text-white rounded-[1.5rem] font-bold text-lg shadow-lg disabled:opacity-50 disabled:bg-slate-300 transition-all hover:bg-slate-700 hover:-translate-y-1 flex items-center justify-center"
                  >
-                   정답 확인하기
+                   {submitMutation.isPending ? <Loader2 className="w-6 h-6 animate-spin" /> : "정답 제출하기"}
                  </button>
                ) : (
                  <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                    <div className={`p-6 rounded-[1.5rem] mb-6 flex items-start ${isCorrect ? 'bg-green-100 border border-green-200' : 'bg-red-50 border border-red-100'}`}>
-                       <CheckCircle2 className={`w-8 h-8 mr-4 shrink-0 ${isCorrect ? 'text-green-600' : 'text-red-500'}`} />
-                       <div>
-                         <h3 className={`text-xl font-bold mb-2 ${isCorrect ? 'text-green-800' : 'text-red-700'}`}>
-                           {isCorrect ? '정답입니다! 완벽해요✨' : '아쉽지만 오답이에요!'}
-                         </h3>
-                         <p className="text-slate-700 font-medium leading-relaxed">
-                           {quiz.explanation}
-                         </p>
-                       </div>
-                    </div>
+                    {resultData && (
+                      <div className={`p-6 rounded-[1.5rem] mb-6 flex flex-col items-start ${resultData.isCorrect ? 'bg-green-100 border border-green-200' : 'bg-red-50 border border-red-100'}`}>
+                         <div className="flex items-start mb-4">
+                           <CheckCircle2 className={`w-8 h-8 mr-4 shrink-0 ${resultData.isCorrect ? 'text-green-600' : 'text-red-500'}`} />
+                           <div>
+                             <h3 className={`text-xl font-bold mb-2 ${resultData.isCorrect ? 'text-green-800' : 'text-red-700'}`}>
+                               {resultData.isCorrect ? '정답입니다! 완벽해요✨' : '아쉽지만 오답이에요!'}
+                             </h3>
+                             <p className="text-slate-700 font-medium leading-relaxed mb-4">
+                               {resultData.explanation}
+                             </p>
+                           </div>
+                         </div>
+                         {resultData.aiFeedback && (
+                           <div className="w-full bg-white/60 p-4 rounded-xl border border-white/50 text-sm font-medium text-slate-700">
+                             <strong>AI 튜터 피드백:</strong> {resultData.aiFeedback}
+                           </div>
+                         )}
+                      </div>
+                    )}
                     
                     <button 
                       onClick={handleNext}
                       className="w-full h-16 bg-primary text-white rounded-[1.5rem] font-bold text-lg shadow-lg transition-all hover:shadow-xl hover:-translate-y-1 flex items-center justify-center group"
                     >
-                      {currentQuiz < quizzes.length - 1 ? '다음 문제로 넘어가기' : '학습 분석 보러가기'}
+                      {currentQuizIndex < quizzes.length - 1 ? '다음 문제로 넘어가기' : '학습 분석 보러가기'}
                       <ChevronRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
                     </button>
                  </div>
