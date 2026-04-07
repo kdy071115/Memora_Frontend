@@ -17,7 +17,7 @@ export default function LoginPage() {
   const loginMutation = useMutation({
     mutationFn: login,
     onSuccess: (data) => {
-      loginStore(data.data.user, data.data.accessToken);
+      loginStore(data.user, data.accessToken, data.refreshToken);
       router.push("/dashboard");
     },
     onError: (error) => {

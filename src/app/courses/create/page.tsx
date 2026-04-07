@@ -4,15 +4,32 @@ import MainLayout from "@/components/layout/MainLayout";
 import Link from "next/link";
 import { UploadCloud, FileText, ArrowLeft, Loader2 } from "lucide-react";
 
-export default function CreateCoursePage() {
-  const [isUploading, setIsUploading] = useState(false);
+import { useRouter } from "next/navigation";
+import { createCourse } from "@/lib/api/courses";
+import { createLecture, uploadDocument } from "@/lib/api/lectures";
 
-  // 로딩 목업
-  const handleSimulateUpload = () => {
+export default function CreateCoursePage() {
+  const router = useRouter();
+  const [isUploading, setIsUploading] = useState(false);
+  const [title, setTitle] = useState("");
+
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
     setIsUploading(true);
-    setTimeout(() => {
-      window.location.href = "/learn/99";
-    }, 2000);
+    try {
+      const courseTitle = title.trim() || "새로운 강의";
+      const course = await createCourse({ title: courseTitle, description: "사용자가 업로드한 자료로 생성된 강의입니다." });
+      const lecture = await createLecture(course.id, { title: `1차시: ${file.name.replace(/\.[^/.]+$/, "")}`, description: "" });
+      await uploadDocument(lecture.id, file);
+
+      router.push(`/learn/${lecture.id}`);
+    } catch (error) {
+      console.error(error);
+      alert("업로드 중 오류가 발생했습니다.");
+      setIsUploading(false);
+    }
   };
 
   return (
@@ -32,10 +49,12 @@ export default function CreateCoursePage() {
         </div>
 
         <div className="bg-white border border-slate-100 rounded-[2rem] p-8 shadow-sm">
-           <div className="mb-8">
+            <div className="mb-8">
               <label className="block font-bold text-slate-700 mb-2">코스 제목 (선택)</label>
               <input 
                 type="text" 
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
                 placeholder="예: 2026년 1학기 인공지능 개론 중간고사" 
                 className="w-full h-14 px-5 bg-slate-50 border border-slate-200 rounded-2xl shadow-inner focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all text-slate-800 font-medium"
               />
@@ -44,7 +63,7 @@ export default function CreateCoursePage() {
            <div>
               <label className="block font-bold text-slate-700 mb-2">PDF 또는 텍스트 문서 업로드</label>
               <div className="border-3 border-dashed border-slate-200 rounded-[2rem] bg-slate-50 p-12 flex flex-col items-center justify-center text-center transition-all hover:bg-slate-100 hover:border-primary/50 relative">
-                 <input type="file" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onChange={handleSimulateUpload} />
+                 <input type="file" accept=".pdf,.txt" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onChange={handleUpload} />
                  
                  <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-sm mb-6 text-primary">
                     <UploadCloud className="w-10 h-10" />
