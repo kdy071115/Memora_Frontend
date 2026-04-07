@@ -18,8 +18,9 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
   const user = useAuthStore((state) => state.user);
 
   const [newLectureTitle, setNewLectureTitle] = useState("");
-  const [newLectureFile, setNewLectureFile] = useState<File | null>(null);
+  const [newLectureFiles, setNewLectureFiles] = useState<File[]>([]);
   const [lectureCreateStep, setLectureCreateStep] = useState<"idle" | "creating" | "uploading">("idle");
+  const [lectureUploadProgress, setLectureUploadProgress] = useState<{ current: number; total: number } | null>(null);
 
   // 강의 제목 인라인 편집
   const [isEditingCourseTitle, setIsEditingCourseTitle] = useState(false);
@@ -63,24 +64,29 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
   });
 
   const createLectureMutation = useMutation({
-    mutationFn: async ({ title, description, file }: { title: string; description: string; file: File | null }) => {
+    mutationFn: async ({ title, description, files }: { title: string; description: string; files: File[] }) => {
       setLectureCreateStep("creating");
       const lecture = await createLecture(courseId, { title, description });
-      if (file) {
+      if (files.length > 0) {
         setLectureCreateStep("uploading");
-        await uploadDocument(lecture.id, file);
+        for (let i = 0; i < files.length; i++) {
+          setLectureUploadProgress({ current: i + 1, total: files.length });
+          await uploadDocument(lecture.id, files[i]);
+        }
       }
       return lecture;
     },
     onSuccess: (newLecture) => {
       queryClient.invalidateQueries({ queryKey: ['lectures', courseId] });
       setNewLectureTitle("");
-      setNewLectureFile(null);
+      setNewLectureFiles([]);
       setLectureCreateStep("idle");
+      setLectureUploadProgress(null);
       router.push(`/learn/${newLecture.id}`);
     },
     onError: (error: any) => {
       setLectureCreateStep("idle");
+      setLectureUploadProgress(null);
       const msg = error?.response?.data?.message;
       alert(msg ? `차시 생성 실패: ${msg}` : "차시 생성에 실패했습니다.");
     }
@@ -182,15 +188,20 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
   const handleCreateLecture = (e: React.FormEvent) => {
     e.preventDefault();
     const trimmedTitle = newLectureTitle.trim();
-    const fallbackTitle = newLectureFile
-      ? `${lectures.length + 1}차시: ${newLectureFile.name.replace(/\.[^/.]+$/, "")}`
-      : "";
+    const fallbackTitle = (() => {
+      if (newLectureFiles.length === 0) return "";
+      const nextOrder = lectures.length + 1;
+      if (newLectureFiles.length === 1) {
+        return `${nextOrder}차시: ${newLectureFiles[0].name.replace(/\.[^/.]+$/, "")}`;
+      }
+      return `${nextOrder}차시: 강의 자료 (${newLectureFiles.length}개)`;
+    })();
     const finalTitle = trimmedTitle || fallbackTitle;
     if (!finalTitle) {
       alert("차시 제목을 입력하거나 파일을 선택해주세요.");
       return;
     }
-    createLectureMutation.mutate({ title: finalTitle, description: "", file: newLectureFile });
+    createLectureMutation.mutate({ title: finalTitle, description: "", files: newLectureFiles });
   };
 
   const handleCreateNotice = (e: React.FormEvent) => {
@@ -538,54 +549,76 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                 disabled={createLectureMutation.isPending}
               />
 
-              {/* 파일 업로드 영역 */}
-              <label
-                className={`block border-2 border-dashed rounded-2xl bg-white p-6 transition-all cursor-pointer ${
-                  newLectureFile
+              {/* 파일 업로드 영역 (다중 선택) */}
+              <div
+                className={`block border-2 border-dashed rounded-2xl bg-white p-6 transition-all ${
+                  newLectureFiles.length > 0
                     ? "border-primary/40 bg-primary/5"
                     : "border-slate-200 hover:border-primary/40 hover:bg-slate-50"
                 } ${createLectureMutation.isPending ? "opacity-50 cursor-not-allowed" : ""}`}
               >
-                <input
-                  type="file"
-                  accept=".pdf,.txt"
-                  className="hidden"
-                  disabled={createLectureMutation.isPending}
-                  onChange={(e) => setNewLectureFile(e.target.files?.[0] ?? null)}
-                />
-                {newLectureFile ? (
-                  <div className="flex items-center justify-between gap-4">
-                    <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                        <FileText className="w-5 h-5 text-primary" />
-                      </div>
-                      <div className="min-w-0">
-                        <p className="font-bold text-slate-800 truncate">{newLectureFile.name}</p>
-                        <p className="text-xs text-slate-500 font-medium">
-                          {(newLectureFile.size / 1024 / 1024).toFixed(2)} MB
-                        </p>
-                      </div>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        setNewLectureFile(null);
-                      }}
+                {newLectureFiles.length === 0 ? (
+                  <label className="flex items-center justify-center gap-3 text-slate-500 cursor-pointer">
+                    <input
+                      type="file"
+                      accept=".pdf,.txt"
+                      multiple
+                      className="hidden"
                       disabled={createLectureMutation.isPending}
-                      className="w-9 h-9 rounded-lg bg-slate-100 hover:bg-red-100 hover:text-red-500 text-slate-500 flex items-center justify-center shrink-0 transition-colors"
-                      aria-label="파일 제거"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                  </div>
-                ) : (
-                  <div className="flex items-center justify-center gap-3 text-slate-500">
+                      onChange={(e) => setNewLectureFiles(Array.from(e.target.files ?? []))}
+                    />
                     <UploadCloud className="w-6 h-6" />
-                    <span className="font-bold text-sm">PDF 또는 텍스트 파일 첨부 (선택, 최대 50MB)</span>
+                    <span className="font-bold text-sm">PDF 또는 텍스트 파일 첨부 (여러 개 가능, 최대 50MB)</span>
+                  </label>
+                ) : (
+                  <div className="space-y-2">
+                    {newLectureFiles.map((file, idx) => (
+                      <div key={`${file.name}-${idx}`} className="flex items-center justify-between gap-4 bg-white border border-slate-100 rounded-xl px-3 py-2">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                            <FileText className="w-4 h-4 text-primary" />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="font-bold text-slate-800 truncate text-sm">{file.name}</p>
+                            <p className="text-xs text-slate-500 font-medium">
+                              {(file.size / 1024 / 1024).toFixed(2)} MB
+                            </p>
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setNewLectureFiles((prev) => prev.filter((_, i) => i !== idx))}
+                          disabled={createLectureMutation.isPending}
+                          className="w-8 h-8 rounded-lg bg-slate-100 hover:bg-red-100 hover:text-red-500 text-slate-500 flex items-center justify-center shrink-0 transition-colors"
+                          aria-label="파일 제거"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    ))}
+                    <div className="flex items-center justify-between pt-2">
+                      <p className="text-xs font-bold text-slate-500">
+                        총 {newLectureFiles.length}개 파일 · {(newLectureFiles.reduce((s, f) => s + f.size, 0) / 1024 / 1024).toFixed(2)} MB
+                      </p>
+                      <label className="text-xs font-bold text-primary hover:underline cursor-pointer">
+                        <input
+                          type="file"
+                          accept=".pdf,.txt"
+                          multiple
+                          className="hidden"
+                          disabled={createLectureMutation.isPending}
+                          onChange={(e) => {
+                            const more = Array.from(e.target.files ?? []);
+                            if (more.length > 0) setNewLectureFiles((prev) => [...prev, ...more]);
+                            e.target.value = "";
+                          }}
+                        />
+                        + 파일 추가
+                      </label>
+                    </div>
                   </div>
                 )}
-              </label>
+              </div>
 
               <div className="flex justify-end">
                 <button
@@ -596,7 +629,11 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                   {createLectureMutation.isPending ? (
                     <>
                       <Loader2 className="w-5 h-5 animate-spin mr-2" />
-                      {lectureCreateStep === "uploading" ? "AI 분석 시작 중..." : "차시 생성 중..."}
+                      {lectureCreateStep === "uploading"
+                        ? lectureUploadProgress
+                          ? `자료 업로드 중 (${lectureUploadProgress.current}/${lectureUploadProgress.total})...`
+                          : "AI 분석 시작 중..."
+                        : "차시 생성 중..."}
                     </>
                   ) : (
                     <>

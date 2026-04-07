@@ -1,5 +1,5 @@
 "use client";
-import React, { use, useRef, useState, useCallback } from "react";
+import React, { use, useRef, useState, useCallback, useEffect } from "react";
 import AiSidebar from "@/components/domain/learn/AiSidebar";
 import Link from "next/link";
 import { ArrowLeft, BookOpen, CheckCircle, Loader2, FileText, AlertCircle, GripVertical, UploadCloud, Plus, Settings } from "lucide-react";
@@ -56,14 +56,29 @@ export default function LearnPage({ params }: { params: Promise<{ lectureId: str
   const isDragging = useRef(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const documentScrollRef = useRef<HTMLDivElement>(null);
+  const lastDocCardRef = useRef<HTMLDivElement>(null);
+  const prevDocCountRef = useRef<number>(0);
+  const shouldScrollOnNextLoadRef = useRef(false);
+
+  const [uploadProgress, setUploadProgress] = useState<{ current: number; total: number } | null>(null);
 
   const uploadDocumentMutation = useMutation({
-    mutationFn: (file: File) => uploadDocument(lectureId, file),
+    mutationFn: async (files: File[]) => {
+      for (let i = 0; i < files.length; i++) {
+        setUploadProgress({ current: i + 1, total: files.length });
+        await uploadDocument(lectureId, files[i]);
+      }
+    },
     onSuccess: () => {
+      // 다음 documents refetch 가 끝나면 새 카드로 스크롤 이동
+      shouldScrollOnNextLoadRef.current = true;
       queryClient.invalidateQueries({ queryKey: ["documents", lectureId] });
+      setUploadProgress(null);
       if (fileInputRef.current) fileInputRef.current.value = "";
     },
     onError: (error: any) => {
+      setUploadProgress(null);
       const msg = error?.response?.data?.message;
       alert(msg ? `자료 업로드 실패: ${msg}` : "자료 업로드에 실패했습니다.");
       if (fileInputRef.current) fileInputRef.current.value = "";
@@ -71,9 +86,9 @@ export default function LearnPage({ params }: { params: Promise<{ lectureId: str
   });
 
   const handleFilePick = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    uploadDocumentMutation.mutate(file);
+    const files = Array.from(e.target.files ?? []);
+    if (files.length === 0) return;
+    uploadDocumentMutation.mutate(files);
   };
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
@@ -115,6 +130,20 @@ export default function LearnPage({ params }: { params: Promise<{ lectureId: str
     },
   });
 
+  // 새 자료 업로드 후 documents 가 늘어나면 마지막 카드로 부드럽게 스크롤
+  useEffect(() => {
+    const prev = prevDocCountRef.current;
+    const curr = documents.length;
+    if (shouldScrollOnNextLoadRef.current && curr > prev) {
+      shouldScrollOnNextLoadRef.current = false;
+      // DOM 반영 후 다음 프레임에 스크롤
+      requestAnimationFrame(() => {
+        lastDocCardRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    }
+    prevDocCountRef.current = curr;
+  }, [documents.length]);
+
   return (
     <div className="h-screen flex flex-col bg-background font-sans">
       {/* Top Header */}
@@ -144,7 +173,9 @@ export default function LearnPage({ params }: { params: Promise<{ lectureId: str
               {uploadDocumentMutation.isPending ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  업로드 중...
+                  {uploadProgress
+                    ? `업로드 중 (${uploadProgress.current}/${uploadProgress.total})`
+                    : "업로드 중..."}
                 </>
               ) : (
                 <>
@@ -158,6 +189,7 @@ export default function LearnPage({ params }: { params: Promise<{ lectureId: str
             ref={fileInputRef}
             type="file"
             accept=".pdf,.txt"
+            multiple
             className="hidden"
             onChange={handleFilePick}
           />
@@ -183,7 +215,7 @@ export default function LearnPage({ params }: { params: Promise<{ lectureId: str
       {/* Main Body - flex row */}
       <div ref={containerRef} className="flex-1 overflow-hidden flex w-full relative">
         {/* Document Area (남은 공간 전체) */}
-        <div className="flex-1 h-full bg-slate-50 overflow-y-auto custom-scrollbar min-w-0">
+        <div ref={documentScrollRef} className="flex-1 h-full bg-slate-50 overflow-y-auto custom-scrollbar min-w-0">
           <div className="max-w-[820px] mx-auto py-10 px-4 md:px-8">
             {docLoading ? (
               <div className="flex flex-col items-center justify-center py-32">
@@ -222,8 +254,12 @@ export default function LearnPage({ params }: { params: Promise<{ lectureId: str
               </div>
             ) : (
               <div className="space-y-8">
-                {documents.map((doc) => (
-                  <div key={doc.id} className="bg-white border border-slate-200 rounded-3xl shadow-sm overflow-hidden">
+                {documents.map((doc, idx) => (
+                  <div
+                    key={doc.id}
+                    ref={idx === documents.length - 1 ? lastDocCardRef : undefined}
+                    className="bg-white border border-slate-200 rounded-3xl shadow-sm overflow-hidden scroll-mt-20"
+                  >
                     {/* Document Header */}
                     <div className="flex items-center justify-between px-8 py-5 border-b border-slate-100 bg-slate-50/50">
                       <div className="flex items-center gap-3 min-w-0">

@@ -34,9 +34,11 @@ export default function CreateCoursePage() {
     );
   }
 
+  const [uploadProgress, setUploadProgress] = useState<{ current: number; total: number } | null>(null);
+
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = Array.from(e.target.files ?? []);
+    if (files.length === 0) return;
 
     setIsUploading(true);
     try {
@@ -45,13 +47,21 @@ export default function CreateCoursePage() {
       const course = await createCourse({ title: courseTitle, description: "사용자가 업로드한 자료로 생성된 강의입니다." });
 
       setUploadStep("lecture");
+      // 첫 번째 파일명을 기반으로 차시 제목 (여러 개면 "1차시: 강의 자료")
+      const lectureTitle = files.length === 1
+        ? `1차시: ${files[0].name.replace(/\.[^/.]+$/, "")}`
+        : `1차시: 강의 자료 (${files.length}개)`;
       const lecture = await createLecture(course.id, {
-        title: `1차시: ${file.name.replace(/\.[^/.]+$/, "")}`,
+        title: lectureTitle,
         description: "",
       });
 
       setUploadStep("document");
-      await uploadDocument(lecture.id, file);
+      // 모든 파일을 같은 차시에 순차 업로드 (백엔드 부하 분산)
+      for (let i = 0; i < files.length; i++) {
+        setUploadProgress({ current: i + 1, total: files.length });
+        await uploadDocument(lecture.id, files[i]);
+      }
 
       router.push(`/learn/${lecture.id}`);
     } catch (error: any) {
@@ -67,13 +77,16 @@ export default function CreateCoursePage() {
       }
       setIsUploading(false);
       setUploadStep(null);
+      setUploadProgress(null);
     }
   };
 
   const stepLabel = {
     course: "강의 생성 중...",
     lecture: "차시 생성 중...",
-    document: "AI가 문서를 분석하는 중...",
+    document: uploadProgress
+      ? `AI가 문서를 분석하는 중... (${uploadProgress.current}/${uploadProgress.total})`
+      : "AI가 문서를 분석하는 중...",
   };
 
   return (
@@ -112,6 +125,7 @@ export default function CreateCoursePage() {
               <input
                 type="file"
                 accept=".pdf,.txt"
+                multiple
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                 onChange={handleUpload}
                 disabled={isUploading}
@@ -120,7 +134,7 @@ export default function CreateCoursePage() {
                 <UploadCloud className="w-10 h-10" />
               </div>
               <h3 className="text-xl font-black text-slate-700 mb-2">파일을 이곳으로 드래그 앤 드롭하세요</h3>
-              <p className="text-slate-500 font-medium mb-6">또는 클릭하여 파일을 선택하세요 (최대 50MB, PDF 지원)</p>
+              <p className="text-slate-500 font-medium mb-6">한 번에 여러 개 선택 가능 · 최대 50MB · PDF / TXT 지원</p>
               <div className="h-12 px-8 bg-white border border-slate-200 rounded-full flex items-center justify-center shadow-sm text-slate-600 font-bold pointer-events-none">
                 찾아보기
               </div>
