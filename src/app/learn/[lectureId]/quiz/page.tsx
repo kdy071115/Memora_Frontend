@@ -1,11 +1,21 @@
 "use client";
-import React, { useState, use, useEffect } from "react";
+import React, { useState, use, useEffect, useMemo } from "react";
 import MainLayout from "@/components/layout/MainLayout";
 import Link from "next/link";
 import { ArrowLeft, CheckCircle2, ChevronRight, Loader2, Settings, Sparkles } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getQuizzes, submitQuiz } from "@/lib/api/quiz";
 import { useAuthStore } from "@/lib/store/useAuthStore";
+
+// Fisher–Yates 셔플 (불변 — 새 배열 반환)
+function shuffleArray<T>(arr: T[]): T[] {
+  const next = [...arr];
+  for (let i = next.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [next[i], next[j]] = [next[j], next[i]];
+  }
+  return next;
+}
 
 export default function QuizPage({ params }: { params: Promise<{ lectureId: string }> }) {
   const resolvedParams = use(params);
@@ -24,6 +34,15 @@ export default function QuizPage({ params }: { params: Promise<{ lectureId: stri
     queryKey: ['quizzes', lectureId],
     queryFn: () => getQuizzes(lectureId)
   });
+
+  // 현재 문제가 바뀔 때마다 객관식 보기 순서를 새로 셔플 (정답 위치 편향 제거)
+  const shuffledOptions = useMemo(() => {
+    const quiz = quizzes[currentQuizIndex];
+    if (!quiz || quiz.quizType !== "MULTIPLE_CHOICE" || !quiz.options) return null;
+    return shuffleArray(quiz.options);
+    // currentQuizIndex 가 바뀔 때 + quiz.id 가 바뀔 때만 재셔플
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [quizzes[currentQuizIndex]?.id, currentQuizIndex]);
 
   const submitMutation = useMutation({
     mutationFn: (args: { answer: string; timeSpent: number }) => 
@@ -52,7 +71,8 @@ export default function QuizPage({ params }: { params: Promise<{ lectureId: stri
     let answer = "";
     if (quiz.quizType === "MULTIPLE_CHOICE") {
       if (selectedOptIndex === null) return;
-      answer = quiz.options?.[selectedOptIndex] || "";
+      // 셔플된 보기에서 사용자가 고른 텍스트
+      answer = shuffledOptions?.[selectedOptIndex] || "";
     } else {
       if (!textAnswer.trim()) return;
       answer = textAnswer.trim();
@@ -181,7 +201,7 @@ export default function QuizPage({ params }: { params: Promise<{ lectureId: stri
              </div>
 
              <div className="space-y-4 mb-8 z-10 relative flex-1">
-               {quiz.quizType === "MULTIPLE_CHOICE" && quiz.options && quiz.options.map((opt, idx) => {
+               {quiz.quizType === "MULTIPLE_CHOICE" && shuffledOptions && shuffledOptions.map((opt, idx) => {
                  let btnClasses = "w-full text-left p-5 border-2 rounded-[1.5rem] font-bold text-lg transition-all ";
                  
                  if (!showResult) {
