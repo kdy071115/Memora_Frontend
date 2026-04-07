@@ -15,6 +15,20 @@ export const createLecture = async (courseId: number, lectureData: { title: stri
   return data.data;
 };
 
+// 차시 수정 (교강사) — PUT /api/lectures/{lectureId}
+export const updateLecture = async (
+  lectureId: number,
+  lectureData: { title: string; description: string }
+): Promise<Lecture> => {
+  const { data } = await memoraApi.put<ApiResponse<Lecture>>(`/lectures/${lectureId}`, lectureData);
+  return data.data;
+};
+
+// 차시 삭제 (교강사) — DELETE /api/lectures/{lectureId}
+export const deleteLecture = async (lectureId: number): Promise<void> => {
+  await memoraApi.delete(`/lectures/${lectureId}`);
+};
+
 // 파일 업로드 (교강사)
 export const uploadDocument = async (lectureId: number, file: File): Promise<DocumentItem> => {
   const formData = new FormData();

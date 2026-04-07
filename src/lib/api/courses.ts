@@ -24,6 +24,20 @@ export const createCourse = async (courseData: {
   return data.data;
 };
 
+// 강의 수정 (교강사) — PUT /api/courses/{courseId}
+export const updateCourse = async (
+  courseId: number,
+  courseData: { title: string; description: string }
+): Promise<Course> => {
+  const { data } = await memoraApi.put<ApiResponse<Course>>(`/courses/${courseId}`, courseData);
+  return data.data;
+};
+
+// 강의 삭제 (교강사) — DELETE /api/courses/{courseId}
+export const deleteCourse = async (courseId: number): Promise<void> => {
+  await memoraApi.delete(`/courses/${courseId}`);
+};
+
 // 수강 등록 (학생) — POST /api/courses/{courseId}/enroll
 export const enrollCourse = async (courseId: number): Promise<void> => {
   await memoraApi.post(`/courses/${courseId}/enroll`);
