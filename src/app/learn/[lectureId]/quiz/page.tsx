@@ -6,6 +6,7 @@ import { ArrowLeft, CheckCircle2, ChevronRight, Loader2, Settings, Sparkles } fr
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getQuizzes, submitQuiz } from "@/lib/api/quiz";
 import { useAuthStore } from "@/lib/store/useAuthStore";
+import { useLearningHeartbeat } from "@/lib/hooks/useLearningHeartbeat";
 
 // Fisher–Yates 셔플 (불변 — 새 배열 반환)
 function shuffleArray<T>(arr: T[]): T[] {
@@ -23,6 +24,9 @@ export default function QuizPage({ params }: { params: Promise<{ lectureId: stri
   const queryClient = useQueryClient();
   const user = useAuthStore((state) => state.user);
   const isInstructor = user?.role === "INSTRUCTOR";
+
+  // 퀴즈를 푸는 동안 학습 시간 누적 (학생만)
+  useLearningHeartbeat(lectureId, "QUIZ");
 
   const [currentQuizIndex, setCurrentQuizIndex] = useState(0);
   const [selectedOptIndex, setSelectedOptIndex] = useState<number | null>(null);
