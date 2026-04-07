@@ -16,9 +16,16 @@ export const memoraApi = axios.create({
 memoraApi.interceptors.request.use(
   (config) => {
     // Zustand persist에서 토큰 꺼내오기
-    const token = useAuthStore.getState().accessToken;
-    if (token && config.headers) {
-      config.headers.Authorization = `Bearer ${token}`;
+    const { accessToken, user } = useAuthStore.getState();
+    if (accessToken && config.headers) {
+      config.headers.Authorization = `Bearer ${accessToken}`;
+    }
+    // 개발 환경 디버그 로그
+    if (process.env.NODE_ENV === "development") {
+      console.log(`[API] ${config.method?.toUpperCase()} ${config.url}`, {
+        role: user?.role,
+        hasToken: !!accessToken,
+      });
     }
     return config;
   },
