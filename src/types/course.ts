@@ -6,7 +6,9 @@ export interface Course {
   studentCount: number;
   lectureCount: number;
   status: 'ACTIVE' | 'ARCHIVED';
-  isEnrolled: boolean;
+  // 백엔드 Lombok+Jackson 의 boolean 직렬화 이슈로 두 형태가 모두 들어올 수 있음
+  isEnrolled?: boolean;
+  enrolled?: boolean;
   inviteCode?: string;
   createdAt: string;
 }
