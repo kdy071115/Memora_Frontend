@@ -7,6 +7,12 @@ export interface Quiz {
   conceptTag: string;
 }
 
+// 강사 관리용: 정답/해설 포함
+export interface QuizDetail extends Quiz {
+  correctAnswer: string;
+  explanation: string;
+}
+
 export interface QuizGenerateRequest {
   count: number;
   types: string[];

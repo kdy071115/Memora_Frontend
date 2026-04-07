@@ -1,5 +1,5 @@
 import { memoraApi } from "../axios";
-import type { Quiz, QuizGenerateRequest, QuizSubmitRequest, QuizResult } from "../../types/quiz";
+import type { Quiz, QuizDetail, QuizCreateRequest, QuizUpdateRequest, QuizGenerateRequest, QuizSubmitRequest, QuizResult } from "../../types/quiz";
 import type { ApiResponse } from "../../types/api";
 
 // 퀴즈 자동 생성 (수강생)
@@ -11,9 +11,15 @@ export const generateQuiz = async (lectureId: number, request: QuizGenerateReque
   return data.data;
 };
 
-// 특정 강의의 퀴즈 목록 조회
+// 특정 강의의 퀴즈 목록 조회 (학생용 — 정답 미포함)
 export const getQuizzes = async (lectureId: number): Promise<Quiz[]> => {
   const { data } = await memoraApi.get<ApiResponse<Quiz[]>>(`/lectures/${lectureId}/quizzes`);
+  return data.data;
+};
+
+// 강사 관리용 퀴즈 목록 (정답·해설 포함)
+export const getQuizzesForManagement = async (lectureId: number): Promise<QuizDetail[]> => {
+  const { data } = await memoraApi.get<ApiResponse<QuizDetail[]>>(`/lectures/${lectureId}/quizzes/manage`);
   return data.data;
 };
 
@@ -35,8 +41,8 @@ export const getQuizAttempts = async (lectureId: number): Promise<QuizResult[]> 
 };
 
 // 문제 수동 생성 (교강사)
-export const createQuiz = async (lectureId: number, request: Omit<Quiz, "id">): Promise<Quiz> => {
-  const { data } = await memoraApi.post<ApiResponse<Quiz>>(
+export const createQuiz = async (lectureId: number, request: QuizCreateRequest): Promise<QuizDetail> => {
+  const { data } = await memoraApi.post<ApiResponse<QuizDetail>>(
     `/lectures/${lectureId}/quizzes`,
     request
   );
@@ -44,8 +50,8 @@ export const createQuiz = async (lectureId: number, request: Omit<Quiz, "id">): 
 };
 
 // 문제 수정 (교강사)
-export const updateQuiz = async (quizId: number, request: Partial<Quiz>): Promise<Quiz> => {
-  const { data } = await memoraApi.put<ApiResponse<Quiz>>(`/quizzes/${quizId}`, request);
+export const updateQuiz = async (quizId: number, request: QuizUpdateRequest): Promise<QuizDetail> => {
+  const { data } = await memoraApi.put<ApiResponse<QuizDetail>>(`/quizzes/${quizId}`, request);
   return data.data;
 };
 
