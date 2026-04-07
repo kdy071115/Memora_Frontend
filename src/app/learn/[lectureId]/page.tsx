@@ -9,6 +9,8 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import type { DocumentItem } from "@/types/document";
 import { useAuthStore } from "@/lib/store/useAuthStore";
+import { useLearningHeartbeat } from "@/lib/hooks/useLearningHeartbeat";
+import SelfExplanationPanel from "@/components/domain/learn/SelfExplanationPanel";
 
 const DocumentSummaryView = ({ document }: { document: DocumentItem }) => {
   const { data, isLoading } = useQuery({
@@ -50,6 +52,9 @@ export default function LearnPage({ params }: { params: Promise<{ lectureId: str
   const queryClient = useQueryClient();
   const user = useAuthStore((state) => state.user);
   const isInstructor = user?.role === "INSTRUCTOR";
+
+  // 학생이 이 페이지를 보고 있는 동안 학습 시간 누적 (강사는 자동 무시됨)
+  useLearningHeartbeat(lectureId, "LEARN");
 
   // 드래그 리사이즈 상태
   const [sidebarWidth, setSidebarWidth] = useState(DEFAULT_SIDEBAR_WIDTH);
@@ -312,6 +317,14 @@ export default function LearnPage({ params }: { params: Promise<{ lectureId: str
                 ))}
               </div>
             )}
+
+            {/* 자기 설명 코칭 — 학생만, 분석 완료 자료가 있을 때만 노출 */}
+            {!isInstructor && documents.some((d) => d.processingStatus === "COMPLETED") && (
+              <div className="mt-10">
+                <SelfExplanationPanel lectureId={lectureId} />
+              </div>
+            )}
+
             <div className="h-20" />
           </div>
         </div>

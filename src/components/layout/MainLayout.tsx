@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import { useRouter } from "next/navigation";
-import { User, LogOut, ChevronDown, LayoutDashboard, BookOpen, BarChart2 } from "lucide-react";
+import { User, LogOut, ChevronDown, LayoutDashboard, BookOpen, BarChart2, Brain } from "lucide-react";
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -67,6 +67,15 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
                 <BarChart2 className="w-3.5 h-3.5" />
                 분석
               </Link>
+              {user?.role === "STUDENT" && (
+                <Link
+                  href="/retrospective"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors hover:bg-slate-100 text-foreground/60 hover:text-foreground"
+                >
+                  <Brain className="w-3.5 h-3.5" />
+                  회고
+                </Link>
+              )}
             </nav>
           </div>
 
