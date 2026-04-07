@@ -34,7 +34,7 @@ export default function AiSidebar({ lectureId }: { lectureId: number }) {
 
   // 2. 세션 없으면 자동 생성 (한 번만)
   const createSessionMutation = useMutation({
-    mutationFn: () => createSession(lectureId, `강의 ${lectureId} 질문 세션`),
+    mutationFn: () => createSession(lectureId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["qaSessions"] });
     },

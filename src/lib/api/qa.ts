@@ -3,10 +3,9 @@ import type { QaSession, QaMessage, AskRequest } from "../../types/qa";
 import type { ApiResponse } from "../../types/api";
 
 // QA 세션 생성 — POST /api/lectures/{lectureId}/qa/sessions
-export const createSession = async (lectureId: number, title: string): Promise<QaSession> => {
+export const createSession = async (lectureId: number): Promise<QaSession> => {
   const { data } = await memoraApi.post<ApiResponse<QaSession>>(
-    `/lectures/${lectureId}/qa/sessions`,
-    { title }
+    `/lectures/${lectureId}/qa/sessions`
   );
   return data.data;
 };
