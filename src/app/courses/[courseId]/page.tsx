@@ -1,7 +1,7 @@
 "use client";
-import React, { useState } from "react";
+import React, { use, useState } from "react";
 import MainLayout from "@/components/layout/MainLayout";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getCourseById, enrollCourse } from "@/lib/api/courses";
 import { getLectures, createLecture } from "@/lib/api/lectures";
@@ -10,9 +10,9 @@ import { useAuthStore } from "@/lib/store/useAuthStore";
 import { BookOpen, Users, Key, AlertTriangle, Loader2, Plus, ArrowRight, Bell, Send } from "lucide-react";
 import Link from "next/link";
 
-export default function CourseDetailPage() {
-  const params = useParams();
-  const courseId = Number(params.courseId);
+export default function CourseDetailPage({ params }: { params: Promise<{ courseId: string }> }) {
+  const resolvedParams = use(params);
+  const courseId = Number(resolvedParams.courseId);
   const router = useRouter();
   const queryClient = useQueryClient();
   const user = useAuthStore((state) => state.user);
