@@ -1,8 +1,8 @@
 "use client";
 import React, { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { ArrowRight, BookOpen, Mail, Lock, Loader2 } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { ArrowRight, BookOpen, Mail, Lock, Loader2, AlertCircle, Eye, EyeOff } from "lucide-react";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import Image from "next/image";
 import { useMutation } from "@tanstack/react-query";
@@ -10,9 +10,12 @@ import { login } from "@/lib/api/auth";
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const expired = searchParams.get("expired") === "1";
   const loginStore = useAuthStore((state) => state.login);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const loginMutation = useMutation({
     mutationFn: login,
@@ -58,6 +61,15 @@ export default function LoginPage() {
             </p>
           </div>
 
+          {expired && (
+            <div className="mb-5 flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm">
+              <AlertCircle className="w-4 h-4 text-amber-600 mt-0.5 shrink-0" />
+              <p className="text-amber-800 font-medium leading-relaxed">
+                로그인 세션이 만료되었습니다. 다시 로그인해주세요.
+              </p>
+            </div>
+          )}
+
           <form className="space-y-4" onSubmit={handleLogin}>
             <div className="space-y-2 relative">
               <Mail className="absolute left-3 top-3 h-5 w-5 text-muted-foreground" />
@@ -73,13 +85,22 @@ export default function LoginPage() {
             <div className="space-y-2 relative">
               <Lock className="absolute left-3 top-3 h-5 w-5 text-muted-foreground" />
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 placeholder="비밀번호를 입력하세요"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full h-11 bg-background/50 border border-border rounded-lg pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all placeholder:text-muted-foreground"
+                className="w-full h-11 bg-background/50 border border-border rounded-lg pl-10 pr-11 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all placeholder:text-muted-foreground"
                 required
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword((v) => !v)}
+                tabIndex={-1}
+                aria-label={showPassword ? "비밀번호 숨기기" : "비밀번호 보기"}
+                className="absolute right-3 top-3 text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+              </button>
             </div>
             <div className="flex items-center justify-between text-sm">
               <label className="flex items-center space-x-2 text-muted-foreground cursor-pointer hover:text-foreground transition-colors">
