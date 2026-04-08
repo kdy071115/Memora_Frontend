@@ -1,5 +1,10 @@
 import { memoraApi } from "../axios";
-import type { MyAnalysis, CourseOverview } from "../../types/analysis";
+import type {
+  MyAnalysis,
+  CourseOverview,
+  CourseStudentSummary,
+  CourseStudentDetail,
+} from "../../types/analysis";
 import type { ApiResponse } from "../../types/api";
 
 export type AnalysisData = MyAnalysis & {
@@ -26,16 +31,21 @@ export const getCourseOverview = async (courseId: number): Promise<CourseOvervie
 };
 
 // 강의 수강생 목록 (교강사) — GET /api/analysis/courses/{courseId}/students
-export const getCourseStudents = async (courseId: number): Promise<any[]> => {
-  const { data } = await memoraApi.get<ApiResponse<any[]>>(
+export const getCourseStudents = async (
+  courseId: number
+): Promise<CourseStudentSummary[]> => {
+  const { data } = await memoraApi.get<ApiResponse<CourseStudentSummary[]>>(
     `/analysis/courses/${courseId}/students`
   );
-  return data.data;
+  return data.data ?? [];
 };
 
 // 수강생 개별 드릴다운 (교강사) — GET /api/analysis/courses/{courseId}/students/{userId}
-export const getStudentDetail = async (courseId: number, userId: number): Promise<any> => {
-  const { data } = await memoraApi.get<ApiResponse<any>>(
+export const getStudentDetail = async (
+  courseId: number,
+  userId: number
+): Promise<CourseStudentDetail> => {
+  const { data } = await memoraApi.get<ApiResponse<CourseStudentDetail>>(
     `/analysis/courses/${courseId}/students/${userId}`
   );
   return data.data;
