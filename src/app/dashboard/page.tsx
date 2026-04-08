@@ -84,7 +84,7 @@ export default function DashboardPage() {
                     <p className="text-slate-600 font-medium mb-6">
                       {isInstructor
                         ? "가장 최근에 개설한 강의입니다. 학생 현황과 공지사항을 확인하세요."
-                        : `진도율이 ${recentCourse.isEnrolled ? 100 : 0}%에 도달했습니다! 꾸준히 학습 중이시네요.`}
+                        : `진도율이 ${recentCourse.isEnrolled ? (recentCourse.progress ?? 0) : 0}%에 도달했습니다! 꾸준히 학습 중이시네요.`}
                     </p>
                     <Link
                       href={isInstructor ? `/courses/${recentCourse.id}` : `/learn/${recentCourse.id}`}
@@ -221,10 +221,15 @@ export default function DashboardPage() {
                         <div className="space-y-2">
                           <div className="flex justify-between text-sm font-bold">
                             <span className="text-slate-700">진도율</span>
-                            <span className={colorTheme.text}>{course.isEnrolled ? "100%" : "0%"}</span>
+                            <span className={colorTheme.text}>
+                              {course.isEnrolled ? `${course.progress ?? 0}%` : "미수강"}
+                            </span>
                           </div>
                           <div className="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
-                            <div className={`${colorTheme.bg} h-2.5 rounded-full`} style={{ width: course.isEnrolled ? "100%" : "0%" }} />
+                            <div
+                              className={`${colorTheme.bg} h-2.5 rounded-full`}
+                              style={{ width: `${course.isEnrolled ? (course.progress ?? 0) : 0}%` }}
+                            />
                           </div>
                         </div>
                       ) : (

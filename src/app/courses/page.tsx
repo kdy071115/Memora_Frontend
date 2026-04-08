@@ -167,12 +167,14 @@ export default function CoursesPage() {
                       <div className="space-y-2 mt-auto">
                         <div className="flex justify-between text-sm font-bold">
                           <span className="text-slate-700">진도율</span>
-                          <span className={colors.text}>{course.isEnrolled ? "100%" : "0%"}</span>
+                          <span className={colors.text}>
+                            {course.isEnrolled ? `${course.progress ?? 0}%` : "미수강"}
+                          </span>
                         </div>
                         <div className="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
                           <div
                             className={`${colors.bg} h-2.5 rounded-full transition-all duration-1000`}
-                            style={{ width: course.isEnrolled ? "100%" : "0%" }}
+                            style={{ width: `${course.isEnrolled ? (course.progress ?? 0) : 0}%` }}
                           />
                         </div>
                       </div>

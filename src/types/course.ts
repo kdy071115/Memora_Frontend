@@ -11,6 +11,8 @@ export interface Course {
   enrolled?: boolean;
   inviteCode?: string;
   createdAt: string;
+  /** 0~100. 학생일 때만 채워짐. 학습 50% + 퀴즈 30% + 과제 20% 가중. null/undefined 가능. */
+  progress?: number | null;
 }
 
 export interface EnrollByCodeRequest { inviteCode: string; }
