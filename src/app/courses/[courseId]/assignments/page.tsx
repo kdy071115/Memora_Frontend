@@ -1,5 +1,5 @@
 "use client";
-import React, { use, useState } from "react";
+import React, { use, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import MainLayout from "@/components/layout/MainLayout";
@@ -44,6 +44,33 @@ export default function AssignmentsListPage({
     queryKey: ["assignments", courseId],
     queryFn: () => getCourseAssignments(courseId),
   });
+
+  // 필터 — 학생: 미제출 / 제출완료 / 마감 임박,  강사: 진행 중 / 마감
+  type FilterKey = "ALL" | "PENDING" | "DONE" | "URGENT" | "OPEN" | "CLOSED";
+  const [filter, setFilter] = useState<FilterKey>("ALL");
+
+  const filtered = useMemo(() => {
+    return assignments.filter((a) => {
+      if (filter === "ALL") return true;
+      const dueMs = a.dueDate ? new Date(a.dueDate).getTime() : null;
+      const now = Date.now();
+      const urgent = dueMs !== null && dueMs - now <= 2 * 24 * 60 * 60 * 1000 && dueMs - now > 0;
+      switch (filter) {
+        case "PENDING":
+          return !a.mySubmissionExists && !a.closed;
+        case "DONE":
+          return a.mySubmissionExists;
+        case "URGENT":
+          return !a.closed && urgent;
+        case "OPEN":
+          return !a.closed;
+        case "CLOSED":
+          return a.closed;
+        default:
+          return true;
+      }
+    });
+  }, [assignments, filter]);
 
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [form, setForm] = useState<AssignmentInput>({
@@ -209,6 +236,38 @@ export default function AssignmentsListPage({
           </form>
         )}
 
+        {/* 필터 칩 */}
+        {!isLoading && assignments.length > 0 && (
+          <div className="flex items-center gap-2 mb-4 overflow-x-auto pb-1">
+            <FilterChip current={filter} value="ALL" onClick={setFilter}>
+              전체 ({assignments.length})
+            </FilterChip>
+            {!isInstructor && (
+              <>
+                <FilterChip current={filter} value="PENDING" onClick={setFilter}>
+                  미제출 ({assignments.filter((a) => !a.mySubmissionExists && !a.closed).length})
+                </FilterChip>
+                <FilterChip current={filter} value="DONE" onClick={setFilter}>
+                  제출 완료 ({assignments.filter((a) => a.mySubmissionExists).length})
+                </FilterChip>
+              </>
+            )}
+            <FilterChip current={filter} value="URGENT" onClick={setFilter}>
+              마감 임박
+            </FilterChip>
+            {isInstructor && (
+              <>
+                <FilterChip current={filter} value="OPEN" onClick={setFilter}>
+                  진행 중 ({assignments.filter((a) => !a.closed).length})
+                </FilterChip>
+                <FilterChip current={filter} value="CLOSED" onClick={setFilter}>
+                  마감 ({assignments.filter((a) => a.closed).length})
+                </FilterChip>
+              </>
+            )}
+          </div>
+        )}
+
         {/* 목록 */}
         {isLoading ? (
           <div className="py-32 flex flex-col items-center justify-center">
@@ -225,9 +284,13 @@ export default function AssignmentsListPage({
                 : "강사님이 과제를 출제하면 여기에 표시됩니다."}
             </p>
           </div>
+        ) : filtered.length === 0 ? (
+          <div className="bg-white border border-slate-200 rounded-3xl p-12 text-center text-slate-400 font-medium">
+            조건에 맞는 과제가 없습니다.
+          </div>
         ) : (
           <div className="space-y-3">
-            {assignments.map((assignment) => {
+            {filtered.map((assignment) => {
               const due = dueStatus(assignment.dueDate);
               const showDueBadge =
                 !assignment.closedEarly &&
@@ -356,4 +419,31 @@ function toDatetimeLocalValue(raw: string | null | undefined): string {
   if (!normalized) return "";
   // "2026-04-20T23:59:00" → "2026-04-20T23:59"
   return normalized.slice(0, 16);
+}
+
+function FilterChip<T extends string>({
+  current,
+  value,
+  onClick,
+  children,
+}: {
+  current: T;
+  value: T;
+  onClick: (v: T) => void;
+  children: React.ReactNode;
+}) {
+  const active = current === value;
+  return (
+    <button
+      type="button"
+      onClick={() => onClick(value)}
+      className={`shrink-0 h-9 px-4 rounded-full text-xs font-bold transition-colors ${
+        active
+          ? "bg-emerald-600 text-white shadow-sm"
+          : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"
+      }`}
+    >
+      {children}
+    </button>
+  );
 }

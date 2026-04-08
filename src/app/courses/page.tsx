@@ -1,7 +1,8 @@
 "use client";
 import MainLayout from "@/components/layout/MainLayout";
 import Link from "next/link";
-import { BookOpen, Search, Plus, Filter, Loader2, GraduationCap, Users } from "lucide-react";
+import { useMemo, useState } from "react";
+import { BookOpen, Search, Plus, Loader2, GraduationCap, Users, X } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getCourses, enrollByCode } from "@/lib/api/courses";
 import { useAuthStore } from "@/lib/store/useAuthStore";
@@ -10,11 +11,23 @@ export default function CoursesPage() {
   const queryClient = useQueryClient();
   const user = useAuthStore((state) => state.user);
   const isInstructor = user?.role === "INSTRUCTOR";
+  const [search, setSearch] = useState("");
 
   const { data: courses = [], isLoading } = useQuery({
     queryKey: ["courses"],
     queryFn: getCourses,
   });
+
+  const filteredCourses = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return courses;
+    return courses.filter((c: any) => {
+      const title = (c.title ?? "").toLowerCase();
+      const desc = (c.description ?? "").toLowerCase();
+      const instructor = (c.instructor?.name ?? "").toLowerCase();
+      return title.includes(q) || desc.includes(q) || instructor.includes(q);
+    });
+  }, [courses, search]);
 
   const enrollMutation = useMutation({
     mutationFn: enrollByCode,
@@ -81,14 +94,22 @@ export default function CoursesPage() {
             <Search className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               type="text"
-              placeholder="강의명이나 키워드를 검색해보세요"
-              className="w-full h-14 pl-12 pr-4 bg-white border border-slate-200 rounded-[2rem] shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all text-slate-700 font-medium placeholder:text-slate-400"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="강의명, 설명, 교강사명으로 검색"
+              className="w-full h-14 pl-12 pr-12 bg-white border border-slate-200 rounded-[2rem] shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all text-slate-700 font-medium placeholder:text-slate-400"
             />
+            {search && (
+              <button
+                type="button"
+                onClick={() => setSearch("")}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                aria-label="검색어 지우기"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            )}
           </div>
-          <button className="h-14 px-6 bg-white border border-slate-200 rounded-[2rem] font-bold text-slate-600 shadow-sm hover:bg-slate-50 transition-all flex items-center">
-            <Filter className="w-5 h-5 mr-2 text-slate-400" />
-            필터
-          </button>
         </div>
 
         {/* Content */}
@@ -97,7 +118,7 @@ export default function CoursesPage() {
             <Loader2 className="w-10 h-10 animate-spin text-primary mb-4" />
             <p className="text-slate-500 font-medium">강의 데이터를 불러오는 중입니다...</p>
           </div>
-        ) : courses.length === 0 ? (
+        ) : filteredCourses.length === 0 ? (
           <div className="w-full py-20 flex flex-col items-center justify-center bg-white border border-slate-100 rounded-[2rem] shadow-sm">
             {isInstructor ? (
               <GraduationCap className="w-16 h-16 text-slate-200 mb-4" />
@@ -105,7 +126,11 @@ export default function CoursesPage() {
               <BookOpen className="w-16 h-16 text-slate-200 mb-4" />
             )}
             <h3 className="text-xl font-bold text-slate-800 mb-2">
-              {isInstructor ? "아직 개설한 강의가 없습니다" : "아직 수강 중인 강의가 없습니다"}
+              {search
+                ? "검색 결과가 없습니다"
+                : isInstructor
+                ? "아직 개설한 강의가 없습니다"
+                : "아직 수강 중인 강의가 없습니다"}
             </h3>
             <p className="text-slate-500 font-medium mb-6">
               {isInstructor
@@ -130,7 +155,7 @@ export default function CoursesPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {courses.map((course: any, idx: number) => {
+            {filteredCourses.map((course: any, idx: number) => {
               const colors = gradients[idx % gradients.length];
               return (
                 <Link
