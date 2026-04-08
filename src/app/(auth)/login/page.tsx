@@ -42,10 +42,10 @@ export default function LoginPage() {
       <div className="w-full max-w-md relative z-10">
         <div className="flex justify-center mb-8">
           <Link href="/" className="flex items-center space-x-2">
-            <div className="w-10 h-10 rounded-xl overflow-hidden relative shadow-lg border border-slate-200">
+            <div className="w-10 h-10 rounded-xl overflow-hidden relative shadow-lg border border-border">
                <Image src="/images/logo.png" alt="Memora Logo" fill sizes="40px" className="object-cover" />
             </div>
-            <span className="font-bold text-3xl tracking-tight text-slate-800">
+            <span className="font-bold text-3xl tracking-tight text-foreground">
               Memora
             </span>
           </Link>
@@ -62,7 +62,7 @@ export default function LoginPage() {
           </div>
 
           {expired && (
-            <div className="mb-5 flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm">
+            <div className="mb-5 flex items-start gap-2 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-sm">
               <AlertCircle className="w-4 h-4 text-amber-600 mt-0.5 shrink-0" />
               <p className="text-amber-800 font-medium leading-relaxed">
                 로그인 세션이 만료되었습니다. 다시 로그인해주세요.

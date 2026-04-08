@@ -10,11 +10,11 @@ import { useAuthStore } from "@/lib/store/useAuthStore";
 
 const AnalysisLineChart = dynamic(
   () => import("@/components/domain/analysis/AnalysisCharts").then((m) => ({ default: m.AnalysisLineChart })),
-  { ssr: false, loading: () => <div className="w-full h-full flex items-center justify-center"><Loader2 className="w-6 h-6 animate-spin text-slate-300" /></div> }
+  { ssr: false, loading: () => <div className="w-full h-full flex items-center justify-center"><Loader2 className="w-6 h-6 animate-spin text-muted-foreground/60" /></div> }
 );
 const AnalysisRadarChart = dynamic(
   () => import("@/components/domain/analysis/AnalysisCharts").then((m) => ({ default: m.AnalysisRadarChart })),
-  { ssr: false, loading: () => <div className="w-full h-full flex items-center justify-center"><Loader2 className="w-6 h-6 animate-spin text-slate-300" /></div> }
+  { ssr: false, loading: () => <div className="w-full h-full flex items-center justify-center"><Loader2 className="w-6 h-6 animate-spin text-muted-foreground/60" /></div> }
 );
 
 export default function AnalysisPage() {
@@ -113,7 +113,7 @@ export default function AnalysisPage() {
   }, [courseOverview]);
 
   const getGrade = (score?: number) => {
-    if (!score) return { grade: "N/A", label: "분석 중", color: "text-slate-400" };
+    if (!score) return { grade: "N/A", label: "분석 중", color: "text-muted-foreground" };
     if (score >= 95) return { grade: "A+", label: "최상위권", color: "text-blue-600" };
     if (score >= 90) return { grade: "A0", label: "상위 10%", color: "text-blue-500" };
     if (score >= 85) return { grade: "B+", label: "상위 30%", color: "text-emerald-600" };
@@ -139,7 +139,7 @@ export default function AnalysisPage() {
       <MainLayout>
         <div className="flex flex-col w-full h-[60vh] items-center justify-center">
           <Loader2 className="w-12 h-12 animate-spin text-primary mb-4" />
-          <p className="text-slate-500 font-medium">AI가 학습 데이터를 분석하는 중입니다...</p>
+          <p className="text-muted-foreground font-medium">AI가 학습 데이터를 분석하는 중입니다...</p>
         </div>
       </MainLayout>
     );
@@ -150,9 +150,9 @@ export default function AnalysisPage() {
     return (
       <MainLayout>
         <div className="flex flex-col w-full h-[60vh] items-center justify-center gap-4">
-          <BookOpen className="w-16 h-16 text-slate-200" />
-          <p className="text-slate-700 font-bold text-xl">운영 중인 강의가 없습니다</p>
-          <p className="text-slate-500 font-medium">강의를 먼저 개설하면 학반 통계를 확인할 수 있습니다.</p>
+          <BookOpen className="w-16 h-16 text-muted-foreground/40" />
+          <p className="text-foreground font-bold text-xl">운영 중인 강의가 없습니다</p>
+          <p className="text-muted-foreground font-medium">강의를 먼저 개설하면 학반 통계를 확인할 수 있습니다.</p>
         </div>
       </MainLayout>
     );
@@ -160,7 +160,7 @@ export default function AnalysisPage() {
 
   return (
     <MainLayout>
-      <div className="flex flex-col w-full py-8 text-slate-800 max-w-screen-xl mx-auto">
+      <div className="flex flex-col w-full py-8 text-foreground max-w-screen-xl mx-auto">
 
         {/* ===== 헤더 ===== */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 gap-4">
@@ -168,7 +168,7 @@ export default function AnalysisPage() {
             <h1 className="text-3xl md:text-4xl font-black tracking-tight mb-2">
               {isInstructor ? "학급 통계 대시보드 📊" : "학습 분석 대시보드 📊"}
             </h1>
-            <p className="text-slate-500 font-medium text-lg">
+            <p className="text-muted-foreground font-medium text-lg">
               {isInstructor
                 ? "우리 반 학생들의 학습 상태와 취약 개념을 모니터링하세요."
                 : "AI가 분석한 나의 학습 패턴과 취약점을 확인하고 전략을 수정하세요."}
@@ -181,7 +181,7 @@ export default function AnalysisPage() {
               <select
                 value={targetCourseId ?? ""}
                 onChange={(e) => setSelectedCourseId(Number(e.target.value))}
-                className="h-12 pl-5 pr-10 bg-white border border-slate-200 rounded-2xl font-bold text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary appearance-none cursor-pointer min-w-[200px]"
+                className="h-12 pl-5 pr-10 bg-card border border-border rounded-2xl font-bold text-foreground shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary appearance-none cursor-pointer min-w-[200px]"
               >
                 {courses.map((c: any) => (
                   <option key={c.id} value={c.id}>
@@ -189,7 +189,7 @@ export default function AnalysisPage() {
                   </option>
                 ))}
               </select>
-              <ChevronDown className="w-4 h-4 text-slate-400 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <ChevronDown className="w-4 h-4 text-muted-foreground absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" />
             </div>
           )}
         </div>
@@ -197,20 +197,20 @@ export default function AnalysisPage() {
         {/* ===== 상단 통계 카드 3개 ===== */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           {/* 카드 1: 성취도 / 학급 평균 */}
-          <div className="bg-white border border-slate-100 rounded-[2.5rem] p-8 shadow-sm flex flex-col justify-between">
-            <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center mb-6">
+          <div className="bg-card border border-border rounded-[2.5rem] p-8 shadow-sm flex flex-col justify-between">
+            <div className="w-12 h-12 rounded-full bg-blue-500/10 flex items-center justify-center mb-6">
               <Target className="w-6 h-6 text-blue-500" />
             </div>
             <div>
-              <p className="text-slate-500 font-bold text-sm mb-1">
+              <p className="text-muted-foreground font-bold text-sm mb-1">
                 {isInstructor ? "학급 평균 성취도" : "나의 성취도"}
               </p>
               <div className={`text-4xl font-black flex items-end ${achievement.color}`}>
                 {achievement.grade}
-                <span className="text-lg text-slate-400 font-medium ml-2 mb-1">{achievement.label}</span>
+                <span className="text-lg text-muted-foreground font-medium ml-2 mb-1">{achievement.label}</span>
               </div>
               {!isInstructor && (
-                <p className="text-xs text-slate-400 font-medium mt-2">
+                <p className="text-xs text-muted-foreground font-medium mt-2">
                   총점 {analysis?.overallScore || 0}점 기준
                 </p>
               )}
@@ -218,20 +218,20 @@ export default function AnalysisPage() {
           </div>
 
           {/* 카드 2: 정답률 / 총 수강생 */}
-          <div className="bg-white border border-slate-100 rounded-[2.5rem] p-8 shadow-sm flex flex-col justify-between">
-            <div className="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center mb-6">
+          <div className="bg-card border border-border rounded-[2.5rem] p-8 shadow-sm flex flex-col justify-between">
+            <div className="w-12 h-12 rounded-full bg-green-500/10 flex items-center justify-center mb-6">
               <TrendingUp className="w-6 h-6 text-green-500" />
             </div>
             <div>
-              <p className="text-slate-500 font-bold text-sm mb-1">
+              <p className="text-muted-foreground font-bold text-sm mb-1">
                 {isInstructor ? "총 수강생" : "누적 학습 시간"}
               </p>
-              <div className="text-2xl font-black text-slate-800 leading-tight">
+              <div className="text-2xl font-black text-foreground leading-tight">
                 {isInstructor
                   ? (
                     <>
                       <span className="text-3xl">{courseOverview?.totalStudents || 0}</span>
-                      <span className="text-base font-bold text-slate-500 ml-1">명</span>
+                      <span className="text-base font-bold text-muted-foreground ml-1">명</span>
                       <span className="block text-sm font-medium text-emerald-500 mt-1">
                         활성 학생 {courseOverview?.activeStudents || 0}명
                       </span>
@@ -250,8 +250,8 @@ export default function AnalysisPage() {
           </div>
 
           {/* 카드 3: 취약점 */}
-          <div className="bg-gradient-to-br from-orange-50 to-amber-50/20 border border-orange-200 rounded-[2.5rem] p-8 shadow-sm flex flex-col justify-between">
-            <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center mb-6 shadow-sm">
+          <div className="bg-gradient-to-br from-orange-500/10 to-amber-500/10 border border-orange-500/30 rounded-[2.5rem] p-8 shadow-sm flex flex-col justify-between">
+            <div className="w-12 h-12 rounded-full bg-card flex items-center justify-center mb-6 shadow-sm">
               <AlertTriangle className="w-6 h-6 text-orange-500" />
             </div>
             <div>
@@ -270,16 +270,16 @@ export default function AnalysisPage() {
         {/* ===== 차트 영역 ===== */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* 선 그래프 */}
-          <div className="bg-white border border-slate-100 rounded-[2.5rem] p-8 shadow-sm">
-            <h3 className="text-xl font-bold mb-2 text-slate-800">
+          <div className="bg-card border border-border rounded-[2.5rem] p-8 shadow-sm">
+            <h3 className="text-xl font-bold mb-2 text-foreground">
               {isInstructor ? "주차별 학급 평균 점수 추이" : "최근 5주간 내 점수 추이"}
             </h3>
-            <p className="text-sm font-medium text-slate-500 mb-6">
+            <p className="text-sm font-medium text-muted-foreground mb-6">
               {isInstructor ? "강의 전체 학생의 주간 퀴즈 평균 점수입니다." : "퀴즈 점수 변화를 확인하세요."}
             </p>
             <div className="w-full h-80">
               {(isInstructor ? instructorLineData : studentLineData).length === 0 ? (
-                <div className="w-full h-full flex flex-col items-center justify-center text-slate-400">
+                <div className="w-full h-full flex flex-col items-center justify-center text-muted-foreground">
                   <Clock className="w-10 h-10 mb-2 opacity-30" />
                   <p className="font-medium text-sm">아직 충분한 데이터가 없습니다.</p>
                 </div>
@@ -290,18 +290,18 @@ export default function AnalysisPage() {
           </div>
 
           {/* 레이더 차트 — 학생: 6대 학습 역량 / 강사: 학급 전체 취약 개념 정답률 */}
-          <div className="bg-white border border-slate-100 rounded-[2.5rem] p-8 shadow-sm">
-            <h3 className="text-xl font-bold mb-2 text-slate-800">
+          <div className="bg-card border border-border rounded-[2.5rem] p-8 shadow-sm">
+            <h3 className="text-xl font-bold mb-2 text-foreground">
               {isInstructor ? "학급 전체 취약 개념 정답률" : "나의 학습 역량 분석"}
             </h3>
-            <p className="text-sm font-medium text-slate-500 mb-6">
+            <p className="text-sm font-medium text-muted-foreground mb-6">
               {isInstructor
                 ? "AI가 진단한 학급 평균 취약 개념입니다 (100%에 가까울수록 우수)"
                 : "개념 이해력 · 수학적 사고 · 비판적 추론 · 암기력 · 응용력 · 문제 해결 (150에 가까울수록 우수)"}
             </p>
             <div className="w-full h-72">
               {(isInstructor ? instructorRadarData : studentRadarData).length === 0 ? (
-                <div className="w-full h-full flex flex-col items-center justify-center text-slate-400">
+                <div className="w-full h-full flex flex-col items-center justify-center text-muted-foreground">
                   <Target className="w-10 h-10 mb-2 opacity-30" />
                   <p className="font-medium text-sm">퀴즈를 더 풀면 분석 데이터가 쌓입니다.</p>
                 </div>
@@ -314,22 +314,22 @@ export default function AnalysisPage() {
 
         {/* ===== 교강사 전용: 취약 개념 순위 테이블 ===== */}
         {isInstructor && courseOverview?.topWeakConcepts && courseOverview.topWeakConcepts.length > 0 && (
-          <div className="mt-6 bg-white border border-slate-100 rounded-[2.5rem] p-8 shadow-sm">
-            <h3 className="text-xl font-bold mb-6 text-slate-800">🔍 취약 개념 순위</h3>
+          <div className="mt-6 bg-card border border-border rounded-[2.5rem] p-8 shadow-sm">
+            <h3 className="text-xl font-bold mb-6 text-foreground">🔍 취약 개념 순위</h3>
             <div className="space-y-3">
               {courseOverview.topWeakConcepts.map((wc, idx) => (
                 <div key={idx} className="flex items-center gap-4">
                   <span className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-black shrink-0 ${
-                    idx === 0 ? "bg-red-100 text-red-600" :
-                    idx === 1 ? "bg-orange-100 text-orange-600" :
-                    idx === 2 ? "bg-amber-100 text-amber-600" : "bg-slate-100 text-slate-500"
+                    idx === 0 ? "bg-red-500/15 text-red-600" :
+                    idx === 1 ? "bg-orange-500/15 text-orange-600" :
+                    idx === 2 ? "bg-amber-500/15 text-amber-600" : "bg-muted text-muted-foreground"
                   }`}>{idx + 1}</span>
                   <div className="flex-1">
                     <div className="flex justify-between mb-1">
-                      <span className="text-sm font-bold text-slate-700">{wc.concept}</span>
-                      <span className="text-sm font-bold text-slate-500">{Math.round(wc.correctRate * 100)}%</span>
+                      <span className="text-sm font-bold text-foreground">{wc.concept}</span>
+                      <span className="text-sm font-bold text-muted-foreground">{Math.round(wc.correctRate * 100)}%</span>
                     </div>
-                    <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                    <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
                       <div
                         className={`h-2 rounded-full ${Math.round(wc.correctRate * 100) >= 70 ? "bg-emerald-400" : "bg-red-400"}`}
                         style={{ width: `${Math.round(wc.correctRate * 100)}%` }}
@@ -344,15 +344,15 @@ export default function AnalysisPage() {
 
         {/* ===== 학생 전용: AI 추천 학습 처방 ===== */}
         {!isInstructor && analysis?.recommendations && analysis.recommendations.length > 0 && (
-          <div className="mt-6 bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100 rounded-[2.5rem] p-8 shadow-sm">
-            <h3 className="text-xl font-bold mb-6 text-slate-800">💡 AI 맞춤 학습 처방</h3>
+          <div className="mt-6 bg-gradient-to-br from-blue-500/10 to-indigo-500/10 border border-blue-500/20 rounded-[2.5rem] p-8 shadow-sm">
+            <h3 className="text-xl font-bold mb-6 text-foreground">💡 AI 맞춤 학습 처방</h3>
             <ul className="space-y-3">
               {analysis.recommendations.map((rec, idx) => (
-                <li key={idx} className="flex items-start gap-3 bg-white rounded-2xl p-4 shadow-sm">
+                <li key={idx} className="flex items-start gap-3 bg-card rounded-2xl p-4 shadow-sm">
                   <span className="w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-black flex items-center justify-center shrink-0 mt-0.5">
                     {idx + 1}
                   </span>
-                  <span className="text-slate-700 font-medium text-sm leading-relaxed">{rec}</span>
+                  <span className="text-foreground font-medium text-sm leading-relaxed">{rec}</span>
                 </li>
               ))}
             </ul>

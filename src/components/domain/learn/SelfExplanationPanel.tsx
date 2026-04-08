@@ -34,20 +34,20 @@ const GRADE_META: Record<
   EXCELLENT: {
     label: "훌륭해요!",
     color: "text-emerald-700",
-    bg: "bg-emerald-50",
-    ring: "ring-emerald-200",
+    bg: "bg-emerald-500/10",
+    ring: "ring-emerald-500/30",
   },
   GOOD: {
     label: "잘하고 있어요",
     color: "text-blue-700",
-    bg: "bg-blue-50",
-    ring: "ring-blue-200",
+    bg: "bg-blue-500/10",
+    ring: "ring-blue-500/30",
   },
   NEEDS_WORK: {
     label: "조금 더 보완해보세요",
     color: "text-amber-700",
-    bg: "bg-amber-50",
-    ring: "ring-amber-200",
+    bg: "bg-amber-500/10",
+    ring: "ring-amber-500/30",
   },
 };
 
@@ -90,22 +90,22 @@ export default function SelfExplanationPanel({ lectureId }: Props) {
   };
 
   return (
-    <div className="bg-gradient-to-br from-violet-50 via-blue-50/40 to-white border border-violet-100 rounded-3xl shadow-sm overflow-hidden">
+    <div className="bg-gradient-to-br from-violet-500/10 via-blue-500/10 to-card border border-violet-500/20 rounded-3xl shadow-sm overflow-hidden">
       {/* 헤더 */}
-      <div className="px-8 py-6 border-b border-violet-100/60 bg-white/40">
+      <div className="px-8 py-6 border-b border-violet-500/20 bg-card/40">
         <div className="flex items-start gap-4">
           <div className="w-12 h-12 rounded-2xl bg-violet-500/10 flex items-center justify-center shrink-0">
             <Brain className="w-6 h-6 text-violet-600" />
           </div>
           <div className="flex-1">
-            <h2 className="text-xl font-black text-slate-800 flex items-center gap-2">
+            <h2 className="text-xl font-black text-foreground flex items-center gap-2">
               자기 설명 코칭
-              <span className="text-xs font-bold bg-violet-100 text-violet-700 px-2 py-0.5 rounded-full">
+              <span className="text-xs font-bold bg-violet-500/15 text-violet-700 px-2 py-0.5 rounded-full">
                 AI 메타인지 학습
               </span>
             </h2>
-            <p className="text-sm font-medium text-slate-500 mt-1 leading-relaxed">
-              방금 학습한 내용을 <strong className="text-slate-700">본인 말로</strong> 설명해보세요. AI가
+            <p className="text-sm font-medium text-muted-foreground mt-1 leading-relaxed">
+              방금 학습한 내용을 <strong className="text-foreground">본인 말로</strong> 설명해보세요. AI가
               잘 이해한 부분과 빠뜨린 개념, 오개념을 짚어줍니다. 진짜로 이해했는지 스스로 확인하는 가장 강력한
               방법이에요.
             </p>
@@ -119,7 +119,7 @@ export default function SelfExplanationPanel({ lectureId }: Props) {
           <>
             {showFocus && (
               <div className="mb-4">
-                <label className="block text-xs font-bold text-slate-500 mb-1.5">
+                <label className="block text-xs font-bold text-muted-foreground mb-1.5">
                   특정 주제에 집중하고 싶다면 (선택)
                 </label>
                 <input
@@ -128,7 +128,7 @@ export default function SelfExplanationPanel({ lectureId }: Props) {
                   onChange={(e) => setFocusTopic(e.target.value)}
                   placeholder="예: 광합성의 명반응"
                   disabled={isPending}
-                  className="w-full h-11 px-4 rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-violet-400 focus:ring-2 focus:ring-violet-100 font-medium text-sm"
+                  className="w-full h-11 px-4 rounded-xl border border-border bg-card focus:outline-none focus:border-violet-400 focus:ring-2 focus:ring-violet-100 font-medium text-sm"
                 />
               </div>
             )}
@@ -139,7 +139,7 @@ export default function SelfExplanationPanel({ lectureId }: Props) {
               placeholder="여기에 본인의 말로 자유롭게 설명해보세요. 마치 친구에게 가르쳐주듯이 작성하면 가장 효과가 좋아요. (최소 20자)"
               disabled={isPending}
               rows={7}
-              className="w-full p-4 rounded-2xl border border-slate-200 bg-white focus:outline-none focus:border-violet-400 focus:ring-2 focus:ring-violet-100 font-medium text-slate-700 leading-relaxed resize-none disabled:opacity-50"
+              className="w-full p-4 rounded-2xl border border-border bg-card focus:outline-none focus:border-violet-400 focus:ring-2 focus:ring-violet-100 font-medium text-foreground leading-relaxed resize-none disabled:opacity-50"
             />
 
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mt-4">
@@ -149,7 +149,7 @@ export default function SelfExplanationPanel({ lectureId }: Props) {
                     tooShort
                       ? "text-amber-600"
                       : charCount === 0
-                      ? "text-slate-400"
+                      ? "text-muted-foreground"
                       : "text-emerald-600"
                   }`}
                 >
@@ -191,7 +191,7 @@ export default function SelfExplanationPanel({ lectureId }: Props) {
 
         {/* ── 이전 기록 요약 ── */}
         {history.length > 0 && (
-          <div className="mt-6 border-t border-violet-100 pt-5">
+          <div className="mt-6 border-t border-violet-500/20 pt-5">
             <button
               type="button"
               onClick={() => setHistoryOpen((v) => !v)}
@@ -199,7 +199,7 @@ export default function SelfExplanationPanel({ lectureId }: Props) {
             >
               <div className="flex items-center gap-2">
                 <History className="w-4 h-4 text-violet-500" />
-                <span className="text-sm font-black text-slate-700">
+                <span className="text-sm font-black text-foreground">
                   내 자기 설명 기록 ({history.length}회)
                 </span>
                 {history.length >= 2 && <GrowthBadge history={history} />}
@@ -214,7 +214,7 @@ export default function SelfExplanationPanel({ lectureId }: Props) {
                   전체 회고 보기
                 </Link>
                 <ChevronDown
-                  className={`w-4 h-4 text-slate-400 transition-transform ${
+                  className={`w-4 h-4 text-muted-foreground transition-transform ${
                     historyOpen ? "rotate-180" : ""
                   }`}
                 />
@@ -246,7 +246,7 @@ function GrowthBadge({ history }: { history: SelfExplainHistoryItem[] }) {
   return (
     <span
       className={`text-[10px] font-black px-2 py-0.5 rounded-full ${
-        positive ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-700"
+        positive ? "bg-emerald-500/15 text-emerald-700" : "bg-rose-500/15 text-rose-700"
       }`}
     >
       {positive ? "▲" : "▼"} {Math.abs(diff)}점
@@ -263,7 +263,7 @@ function HistoryRow({ item }: { item: SelfExplainHistoryItem }) {
   )}:${String(date.getMinutes()).padStart(2, "0")}`;
 
   return (
-    <details className="bg-white border border-slate-100 rounded-2xl px-4 py-3 group">
+    <details className="bg-card border border-border rounded-2xl px-4 py-3 group">
       <summary className="cursor-pointer flex items-center justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0">
           <div
@@ -272,19 +272,19 @@ function HistoryRow({ item }: { item: SelfExplainHistoryItem }) {
             <span className={`text-sm font-black ${meta.color}`}>{item.overallScore ?? "-"}</span>
           </div>
           <div className="min-w-0">
-            <p className="text-xs font-bold text-slate-400">{dateStr}</p>
-            <p className="text-sm font-bold text-slate-700 truncate">
+            <p className="text-xs font-bold text-muted-foreground">{dateStr}</p>
+            <p className="text-sm font-bold text-foreground truncate">
               {item.focusTopic || (item.explanation ? item.explanation.slice(0, 40) + "…" : "자기 설명")}
             </p>
           </div>
         </div>
-        <ChevronDown className="w-4 h-4 text-slate-400 shrink-0 group-open:rotate-180 transition-transform" />
+        <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0 group-open:rotate-180 transition-transform" />
       </summary>
-      <div className="mt-3 pt-3 border-t border-slate-100 space-y-3">
+      <div className="mt-3 pt-3 border-t border-border space-y-3">
         {item.explanation && (
           <div>
-            <p className="text-[11px] font-black text-slate-400 mb-1">내가 작성한 설명</p>
-            <p className="text-xs text-slate-600 font-medium whitespace-pre-wrap leading-relaxed">
+            <p className="text-[11px] font-black text-muted-foreground mb-1">내가 작성한 설명</p>
+            <p className="text-xs text-muted-foreground font-medium whitespace-pre-wrap leading-relaxed">
               {item.explanation}
             </p>
           </div>
@@ -306,10 +306,10 @@ function HistoryRow({ item }: { item: SelfExplainHistoryItem }) {
 function MiniList({ title, items, dot }: { title: string; items: string[]; dot: string }) {
   return (
     <div>
-      <p className="text-[11px] font-black text-slate-400 mb-1">{title}</p>
+      <p className="text-[11px] font-black text-muted-foreground mb-1">{title}</p>
       <ul className="space-y-1">
         {items.map((it, i) => (
-          <li key={i} className="text-xs text-slate-600 font-medium pl-3 relative leading-relaxed">
+          <li key={i} className="text-xs text-muted-foreground font-medium pl-3 relative leading-relaxed">
             <span className={`absolute left-0 top-1.5 w-1 h-1 rounded-full ${dot}`} />
             {it}
           </li>
@@ -339,19 +339,19 @@ function ResultView({
           <p className={`text-2xl font-black ${meta.color}`}>{meta.label}</p>
         </div>
         <div className="text-right">
-          <p className="text-xs font-bold text-slate-500">종합 점수</p>
+          <p className="text-xs font-bold text-muted-foreground">종합 점수</p>
           <p className={`text-4xl font-black ${meta.color}`}>{result.overallScore}</p>
         </div>
       </div>
 
       {/* 피드백 */}
       {result.feedback && (
-        <div className="bg-white border border-slate-100 rounded-2xl p-5">
+        <div className="bg-card border border-border rounded-2xl p-5">
           <div className="flex items-center gap-2 mb-2">
             <Sparkles className="w-4 h-4 text-violet-500" />
-            <h3 className="text-sm font-black text-slate-700">코치의 한 마디</h3>
+            <h3 className="text-sm font-black text-foreground">코치의 한 마디</h3>
           </div>
-          <p className="text-slate-600 font-medium leading-relaxed">{result.feedback}</p>
+          <p className="text-muted-foreground font-medium leading-relaxed">{result.feedback}</p>
         </div>
       )}
 
@@ -396,11 +396,11 @@ function ResultView({
       )}
 
       {/* 내가 쓴 글 (접힌 형태) */}
-      <details className="bg-slate-50 border border-slate-100 rounded-2xl px-5 py-4 group">
-        <summary className="text-sm font-bold text-slate-600 cursor-pointer">
+      <details className="bg-muted border border-border rounded-2xl px-5 py-4 group">
+        <summary className="text-sm font-bold text-muted-foreground cursor-pointer">
           내가 작성한 설명 보기
         </summary>
-        <p className="mt-3 text-sm text-slate-600 font-medium whitespace-pre-wrap leading-relaxed">
+        <p className="mt-3 text-sm text-muted-foreground font-medium whitespace-pre-wrap leading-relaxed">
           {explanation}
         </p>
       </details>
@@ -409,7 +409,7 @@ function ResultView({
         <button
           type="button"
           onClick={onRetry}
-          className="h-11 px-5 bg-white border border-slate-200 hover:border-violet-300 hover:text-violet-600 text-slate-600 font-bold rounded-xl flex items-center gap-2 transition-colors"
+          className="h-11 px-5 bg-card border border-border hover:border-violet-300 hover:text-violet-600 text-muted-foreground font-bold rounded-xl flex items-center gap-2 transition-colors"
         >
           <RotateCcw className="w-4 h-4" />
           다시 작성하기
@@ -431,21 +431,21 @@ function Section({
   color: "emerald" | "amber" | "rose" | "blue";
 }) {
   const colorMap = {
-    emerald: "border-emerald-100 bg-emerald-50/40",
-    amber: "border-amber-100 bg-amber-50/40",
-    rose: "border-rose-100 bg-rose-50/40",
-    blue: "border-blue-100 bg-blue-50/40",
+    emerald: "border-emerald-500/20 bg-emerald-500/10",
+    amber: "border-amber-500/20 bg-amber-500/10",
+    rose: "border-rose-500/20 bg-rose-500/10",
+    blue: "border-blue-500/20 bg-blue-500/10",
   };
   return (
     <div className={`rounded-2xl border ${colorMap[color]} p-5`}>
       <div className="flex items-center gap-2 mb-3">
         {icon}
-        <h3 className="text-sm font-black text-slate-700">{title}</h3>
+        <h3 className="text-sm font-black text-foreground">{title}</h3>
       </div>
       <ul className="space-y-2">
         {items.map((item, i) => (
-          <li key={i} className="text-sm text-slate-600 font-medium leading-relaxed pl-4 relative">
-            <span className="absolute left-0 top-2 w-1.5 h-1.5 rounded-full bg-slate-400" />
+          <li key={i} className="text-sm text-muted-foreground font-medium leading-relaxed pl-4 relative">
+            <span className="absolute left-0 top-2 w-1.5 h-1.5 rounded-full bg-muted-foreground" />
             {item}
           </li>
         ))}

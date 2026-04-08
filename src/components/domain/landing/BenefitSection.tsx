@@ -42,17 +42,17 @@ export default function BenefitSection() {
   ];
 
   return (
-    <section className="py-32 bg-white border-y border-border/30 overflow-hidden relative">
+    <section className="py-32 bg-card border-y border-border/30 overflow-hidden relative">
        {/* Decorative */}
-      <div className="absolute top-1/2 right-0 w-[800px] h-[800px] bg-blue-50/50 rounded-full blur-[100px] pointer-events-none translate-x-1/3 -translate-y-1/2" />
+      <div className="absolute top-1/2 right-0 w-[800px] h-[800px] bg-blue-500/10 rounded-full blur-[100px] pointer-events-none translate-x-1/3 -translate-y-1/2" />
       
       <div className="container mx-auto px-4 max-w-screen-xl relative z-10">
         <div className="text-center max-w-2xl mx-auto mb-16">
           <span className="text-primary text-xl font-bold mb-2 block">Memora Value</span>
-          <h2 className="text-4xl lg:text-5xl font-black tracking-tight text-slate-800">
+          <h2 className="text-4xl lg:text-5xl font-black tracking-tight text-foreground">
             누구에게 필요한가요?
           </h2>
-          <p className="mt-4 text-slate-500 text-lg font-medium">Memora는 학습 현장에 참여하는 모두에게 각기 다른 폭발적인 가치를 선사합니다.</p>
+          <p className="mt-4 text-muted-foreground text-lg font-medium">Memora는 학습 현장에 참여하는 모두에게 각기 다른 폭발적인 가치를 선사합니다.</p>
         </div>
 
         <div className="flex flex-col md:flex-row gap-12 max-w-5xl mx-auto items-center">
@@ -63,10 +63,10 @@ export default function BenefitSection() {
                  key={b.id}
                  onClick={() => setActiveTab(idx)}
                  className={`flex items-center space-x-4 text-left w-full p-5 rounded-[2rem] transition-all whitespace-nowrap md:whitespace-normal border-2
-                   ${activeTab === idx ? "bg-white border-primary shadow-lg shadow-primary/10 text-slate-800 scale-105" : "bg-slate-50 border-transparent hover:bg-slate-100 text-slate-500"}
+                   ${activeTab === idx ? "bg-card border-primary shadow-lg shadow-primary/10 text-foreground scale-105" : "bg-muted border-transparent hover:bg-muted text-muted-foreground"}
                  `}
                >
-                 <div className={`p-3 rounded-2xl transition-colors ${activeTab === idx ? "bg-primary text-white" : "bg-slate-200 text-slate-400"}`}>
+                 <div className={`p-3 rounded-2xl transition-colors ${activeTab === idx ? "bg-primary text-white" : "bg-border text-muted-foreground"}`}>
                    {b.icon}
                  </div>
                  <span className="text-xl font-bold">{b.title}</span>
@@ -75,11 +75,11 @@ export default function BenefitSection() {
           </div>
 
           {/* Tab Content */}
-          <div className="md:w-2/3 bg-slate-50/80 backdrop-blur-sm border border-slate-200 rounded-[3rem] p-10 md:p-14 shadow-xl transition-all duration-500 hover:shadow-2xl">
-             <div className="inline-block px-4 py-1.5 bg-white border border-slate-200 text-primary font-bold text-sm rounded-full mb-8 shadow-sm">
+          <div className="md:w-2/3 bg-muted/80 backdrop-blur-sm border border-border rounded-[3rem] p-10 md:p-14 shadow-xl transition-all duration-500 hover:shadow-2xl">
+             <div className="inline-block px-4 py-1.5 bg-card border border-border text-primary font-bold text-sm rounded-full mb-8 shadow-sm">
                 For {benefits[activeTab].title}
              </div>
-             <h3 className="text-3xl md:text-4xl font-black mb-10 text-slate-800 leading-tight">
+             <h3 className="text-3xl md:text-4xl font-black mb-10 text-foreground leading-tight">
                {benefits[activeTab].subtitle}
              </h3>
              <ul className="space-y-6">
@@ -88,7 +88,7 @@ export default function BenefitSection() {
                    <div className="flex-shrink-0 mt-1 transform group-hover:scale-110 transition-transform">
                      <CheckCircle2 className="w-7 h-7 text-primary" />
                    </div>
-                   <p className="ml-5 text-xl font-medium text-slate-600 leading-relaxed">
+                   <p className="ml-5 text-xl font-medium text-muted-foreground leading-relaxed">
                      {point}
                    </p>
                  </li>

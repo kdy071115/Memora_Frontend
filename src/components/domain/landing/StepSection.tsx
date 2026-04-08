@@ -11,10 +11,10 @@ export default function StepSection() {
   ];
 
   return (
-    <section className="py-32 bg-slate-50 relative overflow-hidden">
+    <section className="py-32 bg-muted relative overflow-hidden">
       <div className="container mx-auto px-4 max-w-screen-lg">
         <div className="text-center mb-20 relative z-10">
-          <h2 className="text-4xl font-black tracking-tight text-slate-800 mb-4 text-center mx-auto flex flex-col items-center">
+          <h2 className="text-4xl font-black tracking-tight text-foreground mb-4 text-center mx-auto flex flex-col items-center">
             <span className="text-primary text-xl font-bold mb-2">Memora 튜토리얼</span>
             너무나 쉬운 5가지 학습 흐름
           </h2>
@@ -40,14 +40,14 @@ export default function StepSection() {
               <div className="absolute top-8 bottom-8 left-10 w-1 bg-gradient-to-b from-blue-300 via-purple-300 to-indigo-300 rounded-full hidden md:block" />
               
               {steps.map((step, idx) => (
-                <div key={idx} className="relative z-10 flex bg-white p-6 rounded-3xl shadow-lg border border-slate-100 hover:shadow-xl hover:-translate-y-1 transition-all group">
+                <div key={idx} className="relative z-10 flex bg-card p-6 rounded-3xl shadow-lg border border-border hover:shadow-xl hover:-translate-y-1 transition-all group">
                    <div className="flex-shrink-0 w-20 h-20 rounded-2xl bg-gradient-to-br from-primary to-blue-500 text-white font-black text-2xl flex items-center justify-center mr-6 shadow-inner relative overflow-hidden">
                      <span className="relative z-10">{step.num}</span>
-                     <div className="absolute inset-0 bg-white/20 transform rotate-45 scale-150 -translate-y-full group-hover:translate-y-full transition-transform duration-500" />
+                     <div className="absolute inset-0 bg-card/20 transform rotate-45 scale-150 -translate-y-full group-hover:translate-y-full transition-transform duration-500" />
                    </div>
                    <div className="flex flex-col justify-center">
-                     <h3 className="font-bold text-xl mb-2 text-slate-800">{step.title}</h3>
-                     <p className="text-slate-500 font-medium">{step.desc}</p>
+                     <h3 className="font-bold text-xl mb-2 text-foreground">{step.title}</h3>
+                     <p className="text-muted-foreground font-medium">{step.desc}</p>
                    </div>
                 </div>
               ))}

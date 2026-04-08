@@ -52,14 +52,14 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
               <button
                 type="button"
                 onClick={() => setMobileNavOpen((v) => !v)}
-                className="w-9 h-9 rounded-xl hover:bg-slate-100 flex items-center justify-center"
+                className="w-9 h-9 rounded-xl hover:bg-muted flex items-center justify-center"
                 aria-label="메뉴 열기"
               >
                 {mobileNavOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </button>
             )}
             <Link href="/" className="flex items-center space-x-2">
-              <div className="w-7 h-7 rounded-md overflow-hidden relative border border-slate-200">
+              <div className="w-7 h-7 rounded-md overflow-hidden relative border border-border">
                 <Image src="/images/logo.png" alt="Memora Logo" fill sizes="28px" className="object-cover" />
               </div>
               <span className="font-bold bg-gradient-to-r from-primary to-blue-500 bg-clip-text text-transparent text-lg tracking-tight">
@@ -71,7 +71,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
           {/* 데스크톱 Logo + Nav */}
           <div className="mr-4 hidden md:flex">
             <Link href="/" className="mr-6 flex items-center space-x-2">
-              <div className="w-7 h-7 rounded-md overflow-hidden relative border border-slate-200">
+              <div className="w-7 h-7 rounded-md overflow-hidden relative border border-border">
                 <Image src="/images/logo.png" alt="Memora Logo" fill sizes="28px" className="object-cover" />
               </div>
               <span className="hidden font-bold sm:inline-block bg-gradient-to-r from-primary to-blue-500 bg-clip-text text-transparent text-xl tracking-tight">
@@ -81,21 +81,21 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
             <nav className="flex items-center space-x-1 text-sm font-medium">
               <Link
                 href="/dashboard"
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors hover:bg-slate-100 text-foreground/60 hover:text-foreground"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors hover:bg-muted text-foreground/60 hover:text-foreground"
               >
                 <LayoutDashboard className="w-3.5 h-3.5" />
                 대시보드
               </Link>
               <Link
                 href="/courses"
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors hover:bg-slate-100 text-foreground/60 hover:text-foreground"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors hover:bg-muted text-foreground/60 hover:text-foreground"
               >
                 <BookOpen className="w-3.5 h-3.5" />
                 강의
               </Link>
               <Link
                 href="/analysis"
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors hover:bg-slate-100 text-foreground/60 hover:text-foreground"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors hover:bg-muted text-foreground/60 hover:text-foreground"
               >
                 <BarChart2 className="w-3.5 h-3.5" />
                 분석
@@ -103,7 +103,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
               {user?.role === "STUDENT" && (
                 <Link
                   href="/retrospective"
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors hover:bg-slate-100 text-foreground/60 hover:text-foreground"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors hover:bg-muted text-foreground/60 hover:text-foreground"
                 >
                   <Brain className="w-3.5 h-3.5" />
                   회고
@@ -120,14 +120,14 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
                   <button
                     type="button"
                     onClick={toggleTheme}
-                    className="w-9 h-9 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center transition-colors"
+                    className="w-9 h-9 rounded-xl hover:bg-muted dark:hover:bg-muted flex items-center justify-center transition-colors"
                     aria-label={theme === "dark" ? "라이트 모드로 전환" : "다크 모드로 전환"}
                     title={theme === "dark" ? "라이트 모드로 전환" : "다크 모드로 전환"}
                   >
                     {theme === "dark" ? (
                       <Sun className="w-4 h-4 text-amber-400" />
                     ) : (
-                      <Moon className="w-4 h-4 text-slate-600" />
+                      <Moon className="w-4 h-4 text-muted-foreground" />
                     )}
                   </button>
                 )}
@@ -135,7 +135,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
                 <div className="relative" ref={menuRef}>
                 <button
                   onClick={() => setMenuOpen(!menuOpen)}
-                  className="flex items-center gap-2 h-9 px-3 rounded-xl hover:bg-slate-100 transition-colors group"
+                  className="flex items-center gap-2 h-9 px-3 rounded-xl hover:bg-muted transition-colors group"
                 >
                   {/* Avatar */}
                   <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-primary to-blue-500 flex items-center justify-center shadow-sm">
@@ -143,33 +143,33 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
                       {user.name?.charAt(0) || "U"}
                     </span>
                   </div>
-                  <span className="text-sm font-bold text-slate-700">{user.name}</span>
-                  <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${menuOpen ? "rotate-180" : ""}`} />
+                  <span className="text-sm font-bold text-foreground">{user.name}</span>
+                  <ChevronDown className={`w-3.5 h-3.5 text-muted-foreground transition-transform duration-200 ${menuOpen ? "rotate-180" : ""}`} />
                 </button>
 
                 {/* Dropdown */}
                 {menuOpen && (
-                  <div className="absolute right-0 top-11 w-52 bg-white border border-slate-100 rounded-2xl shadow-xl shadow-slate-200/60 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
-                    <div className="px-4 py-3 border-b border-slate-100">
-                      <p className="text-xs font-bold text-slate-400 mb-0.5">로그인 계정</p>
-                      <p className="text-sm font-bold text-slate-800 truncate">{user.email}</p>
+                  <div className="absolute right-0 top-11 w-52 bg-card border border-border rounded-2xl shadow-xl shadow-slate-200/60 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+                    <div className="px-4 py-3 border-b border-border">
+                      <p className="text-xs font-bold text-muted-foreground mb-0.5">로그인 계정</p>
+                      <p className="text-sm font-bold text-foreground truncate">{user.email}</p>
                     </div>
 
                     <div className="py-1">
                       <Link
                         href="/profile"
                         onClick={() => setMenuOpen(false)}
-                        className="flex items-center gap-2.5 px-4 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50 transition-colors"
+                        className="flex items-center gap-2.5 px-4 py-2.5 text-sm font-bold text-foreground hover:bg-muted transition-colors"
                       >
-                        <User className="w-4 h-4 text-slate-400" />
+                        <User className="w-4 h-4 text-muted-foreground" />
                         마이페이지
                       </Link>
                     </div>
 
-                    <div className="border-t border-slate-100 py-1">
+                    <div className="border-t border-border py-1">
                       <button
                         onClick={handleLogout}
-                        className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm font-bold text-red-500 hover:bg-red-50 transition-colors"
+                        className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm font-bold text-red-500 hover:bg-red-500/10 transition-colors"
                       >
                         <LogOut className="w-4 h-4" />
                         로그아웃
@@ -183,13 +183,13 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
               <nav className="flex items-center space-x-2">
                 <Link
                   href="/login"
-                  className="text-sm font-bold text-slate-600 hover:text-slate-900 px-3 py-1.5 hover:bg-slate-100 rounded-lg transition-colors"
+                  className="text-sm font-bold text-muted-foreground hover:text-foreground px-3 py-1.5 hover:bg-muted rounded-lg transition-colors"
                 >
                   로그인
                 </Link>
                 <Link
                   href="/signup"
-                  className="text-sm font-bold text-white bg-slate-800 hover:bg-slate-900 px-4 py-1.5 rounded-lg transition-colors"
+                  className="text-sm font-bold text-white bg-foreground hover:bg-foreground/90 px-4 py-1.5 rounded-lg transition-colors"
                 >
                   회원가입
                 </Link>
@@ -200,34 +200,34 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
 
         {/* 모바일 펼침 nav */}
         {isAuthenticated && mobileNavOpen && (
-          <nav className="md:hidden border-t border-slate-100 bg-white px-4 py-3 flex flex-col gap-1 animate-in slide-in-from-top-2 duration-150">
+          <nav className="md:hidden border-t border-border bg-card px-4 py-3 flex flex-col gap-1 animate-in slide-in-from-top-2 duration-150">
             <Link
               href="/dashboard"
-              className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-100 text-sm font-bold text-slate-700"
+              className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-muted text-sm font-bold text-foreground"
             >
-              <LayoutDashboard className="w-4 h-4 text-slate-400" />
+              <LayoutDashboard className="w-4 h-4 text-muted-foreground" />
               대시보드
             </Link>
             <Link
               href="/courses"
-              className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-100 text-sm font-bold text-slate-700"
+              className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-muted text-sm font-bold text-foreground"
             >
-              <BookOpen className="w-4 h-4 text-slate-400" />
+              <BookOpen className="w-4 h-4 text-muted-foreground" />
               강의
             </Link>
             <Link
               href="/analysis"
-              className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-100 text-sm font-bold text-slate-700"
+              className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-muted text-sm font-bold text-foreground"
             >
-              <BarChart2 className="w-4 h-4 text-slate-400" />
+              <BarChart2 className="w-4 h-4 text-muted-foreground" />
               분석
             </Link>
             {user?.role === "STUDENT" && (
               <Link
                 href="/retrospective"
-                className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-100 text-sm font-bold text-slate-700"
+                className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-muted text-sm font-bold text-foreground"
               >
-                <Brain className="w-4 h-4 text-slate-400" />
+                <Brain className="w-4 h-4 text-muted-foreground" />
                 회고
               </Link>
             )}

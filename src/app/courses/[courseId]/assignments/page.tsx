@@ -118,7 +118,7 @@ export default function AssignmentsListPage({
         <button
           type="button"
           onClick={() => router.push(`/courses/${courseId}`)}
-          className="flex items-center gap-1.5 text-sm font-bold text-slate-500 hover:text-slate-800 transition-colors mb-4"
+          className="flex items-center gap-1.5 text-sm font-bold text-muted-foreground hover:text-foreground transition-colors mb-4"
         >
           <ArrowLeft className="w-4 h-4" />
           강의로 돌아가기
@@ -134,7 +134,7 @@ export default function AssignmentsListPage({
               {course?.title && (
                 <p className="text-xs font-bold text-emerald-600 truncate">{course.title}</p>
               )}
-              <h1 className="text-2xl md:text-3xl font-black tracking-tight text-slate-800">
+              <h1 className="text-2xl md:text-3xl font-black tracking-tight text-foreground">
                 과제
               </h1>
             </div>
@@ -155,34 +155,34 @@ export default function AssignmentsListPage({
         {showCreateForm && isInstructor && (
           <form
             onSubmit={handleCreate}
-            className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm mb-6"
+            className="bg-card border border-border rounded-3xl p-6 shadow-sm mb-6"
           >
-            <h2 className="text-lg font-black text-slate-800 mb-4">새 과제</h2>
+            <h2 className="text-lg font-black text-foreground mb-4">새 과제</h2>
             <div className="space-y-4">
               <div>
-                <label className="text-xs font-black text-slate-500 mb-1 block">제목</label>
+                <label className="text-xs font-black text-muted-foreground mb-1 block">제목</label>
                 <input
                   type="text"
                   value={form.title}
                   onChange={(e) => setForm({ ...form, title: e.target.value })}
                   placeholder="예: 5장 보고서"
-                  className="w-full h-11 px-4 rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 font-medium"
+                  className="w-full h-11 px-4 rounded-xl border border-border focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 font-medium"
                 />
               </div>
               <div>
-                <label className="text-xs font-black text-slate-500 mb-1 block">설명 (markdown 가능)</label>
+                <label className="text-xs font-black text-muted-foreground mb-1 block">설명 (markdown 가능)</label>
                 <textarea
                   value={form.description}
                   onChange={(e) => setForm({ ...form, description: e.target.value })}
                   placeholder="과제 안내를 작성해주세요..."
                   rows={6}
-                  className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 font-medium resize-y"
+                  className="w-full px-4 py-3 rounded-xl border border-border focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 font-medium resize-y"
                 />
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="text-xs font-black text-slate-500 mb-1 block">
-                    마감일 (옵션) <span className="text-slate-400 font-medium">— 예: 2026-04-20 23:59</span>
+                  <label className="text-xs font-black text-muted-foreground mb-1 block">
+                    마감일 (옵션) <span className="text-muted-foreground font-medium">— 예: 2026-04-20 23:59</span>
                   </label>
                   <div className="flex gap-2">
                     <input
@@ -190,28 +190,28 @@ export default function AssignmentsListPage({
                       value={form.dueDate ?? ""}
                       onChange={(e) => setForm({ ...form, dueDate: e.target.value })}
                       placeholder="2026-04-20 23:59"
-                      className="flex-1 h-11 px-4 rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 font-medium"
+                      className="flex-1 h-11 px-4 rounded-xl border border-border focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 font-medium"
                     />
                     <input
                       type="datetime-local"
                       value={toDatetimeLocalValue(form.dueDate)}
                       onChange={(e) => setForm({ ...form, dueDate: e.target.value.replace("T", " ") })}
-                      className="h-11 w-11 px-2 rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 cursor-pointer"
+                      className="h-11 w-11 px-2 rounded-xl border border-border focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 cursor-pointer"
                       aria-label="달력에서 선택"
                       title="달력에서 선택"
                     />
                   </div>
                 </div>
                 <div>
-                  <span className="text-xs font-black text-slate-500 mb-1 block">제출 옵션</span>
-                  <label className="w-full h-11 flex items-center gap-3 px-4 rounded-xl border border-slate-200 cursor-pointer hover:bg-slate-50">
+                  <span className="text-xs font-black text-muted-foreground mb-1 block">제출 옵션</span>
+                  <label className="w-full h-11 flex items-center gap-3 px-4 rounded-xl border border-border cursor-pointer hover:bg-muted">
                     <input
                       type="checkbox"
                       checked={form.allowTeamSubmission ?? false}
                       onChange={(e) => setForm({ ...form, allowTeamSubmission: e.target.checked })}
                       className="w-4 h-4 accent-emerald-500"
                     />
-                    <span className="text-sm font-bold text-slate-700">팀 단위 제출 허용</span>
+                    <span className="text-sm font-bold text-foreground">팀 단위 제출 허용</span>
                   </label>
                 </div>
               </div>
@@ -219,7 +219,7 @@ export default function AssignmentsListPage({
                 <button
                   type="button"
                   onClick={() => setShowCreateForm(false)}
-                  className="px-5 h-11 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition-colors"
+                  className="px-5 h-11 bg-muted hover:bg-border text-foreground font-bold rounded-xl transition-colors"
                 >
                   취소
                 </button>
@@ -272,20 +272,20 @@ export default function AssignmentsListPage({
         {isLoading ? (
           <div className="py-32 flex flex-col items-center justify-center">
             <Loader2 className="w-10 h-10 text-emerald-500 animate-spin mb-4" />
-            <p className="text-slate-500 font-medium">과제를 불러오는 중...</p>
+            <p className="text-muted-foreground font-medium">과제를 불러오는 중...</p>
           </div>
         ) : assignments.length === 0 ? (
-          <div className="bg-white border border-slate-200 rounded-3xl p-16 flex flex-col items-center justify-center text-center shadow-sm">
-            <ClipboardList className="w-16 h-16 text-slate-200 mb-5" />
-            <h2 className="text-xl font-black text-slate-700 mb-2">아직 과제가 없습니다</h2>
-            <p className="text-slate-400 font-medium">
+          <div className="bg-card border border-border rounded-3xl p-16 flex flex-col items-center justify-center text-center shadow-sm">
+            <ClipboardList className="w-16 h-16 text-muted-foreground/40 mb-5" />
+            <h2 className="text-xl font-black text-foreground mb-2">아직 과제가 없습니다</h2>
+            <p className="text-muted-foreground font-medium">
               {isInstructor
                 ? "위의 '과제 만들기' 버튼으로 첫 과제를 생성해보세요."
                 : "강사님이 과제를 출제하면 여기에 표시됩니다."}
             </p>
           </div>
         ) : filtered.length === 0 ? (
-          <div className="bg-white border border-slate-200 rounded-3xl p-12 text-center text-slate-400 font-medium">
+          <div className="bg-card border border-border rounded-3xl p-12 text-center text-muted-foreground font-medium">
             조건에 맞는 과제가 없습니다.
           </div>
         ) : (
@@ -300,25 +300,25 @@ export default function AssignmentsListPage({
                 <Link
                   key={assignment.id}
                   href={`/courses/${courseId}/assignments/${assignment.id}`}
-                  className="block bg-white border border-slate-100 rounded-2xl p-5 hover:border-emerald-200 hover:shadow-md transition-all"
+                  className="block bg-card border border-border rounded-2xl p-5 hover:border-emerald-500/30 hover:shadow-md transition-all"
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-                        <h3 className="font-black text-slate-800 truncate">{assignment.title}</h3>
+                        <h3 className="font-black text-foreground truncate">{assignment.title}</h3>
                         {assignment.allowTeamSubmission && (
-                          <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-violet-50 text-violet-700 ring-1 ring-violet-200">
+                          <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-violet-500/10 text-violet-700 ring-1 ring-violet-500/30">
                             팀 제출
                           </span>
                         )}
                         {!isInstructor && assignment.mySubmissionExists && (
-                          <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200 flex items-center gap-1">
+                          <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-700 ring-1 ring-emerald-500/30 flex items-center gap-1">
                             <CheckCircle2 className="w-3 h-3" />
                             제출 완료
                           </span>
                         )}
                         {assignment.closedEarly && (
-                          <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 ring-1 ring-rose-200">
+                          <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-700 ring-1 ring-rose-500/30">
                             조기 마감
                           </span>
                         )}
@@ -330,10 +330,10 @@ export default function AssignmentsListPage({
                           </span>
                         )}
                       </div>
-                      <p className="text-sm text-slate-500 font-medium line-clamp-2">
+                      <p className="text-sm text-muted-foreground font-medium line-clamp-2">
                         {assignment.description}
                       </p>
-                      <div className="flex items-center gap-4 mt-3 text-xs font-bold text-slate-400">
+                      <div className="flex items-center gap-4 mt-3 text-xs font-bold text-muted-foreground">
                         <span className="flex items-center gap-1">
                           <UsersIcon className="w-3.5 h-3.5" />
                           제출 {assignment.submissionCount}건
@@ -440,7 +440,7 @@ function FilterChip<T extends string>({
       className={`shrink-0 h-9 px-4 rounded-full text-xs font-bold transition-colors ${
         active
           ? "bg-emerald-600 text-white shadow-sm"
-          : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"
+          : "bg-card border border-border text-muted-foreground hover:bg-muted"
       }`}
     >
       {children}

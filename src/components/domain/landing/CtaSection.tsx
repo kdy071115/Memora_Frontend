@@ -6,7 +6,7 @@ export default function CtaSection() {
   return (
     <section className="py-24 bg-background relative overflow-hidden">
       <div className="container mx-auto px-4 max-w-screen-xl relative z-10">
-         <div className="bg-gradient-to-br from-indigo-50 to-blue-50/50 border border-indigo-100 rounded-[2rem] p-10 md:p-20 text-center shadow-lg relative overflow-hidden">
+         <div className="bg-gradient-to-br from-indigo-500/10 to-blue-500/10 border border-indigo-500/20 rounded-[2rem] p-10 md:p-20 text-center shadow-lg relative overflow-hidden">
             {/* Soft decorative elements inside the box */}
             <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
             <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />

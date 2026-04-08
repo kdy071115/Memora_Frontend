@@ -257,7 +257,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
       <MainLayout>
         <div className="flex flex-col items-center justify-center min-h-[60vh]">
           <Loader2 className="w-10 h-10 animate-spin text-primary mb-4" />
-          <p className="text-slate-500 font-medium">강의 정보를 불러오는 중입니다...</p>
+          <p className="text-muted-foreground font-medium">강의 정보를 불러오는 중입니다...</p>
         </div>
       </MainLayout>
     );
@@ -266,9 +266,9 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
   if (!course) {
     return (
       <MainLayout>
-        <div className="flex flex-col items-center justify-center min-h-[60vh] bg-white rounded-3xl m-8 p-12">
-          <AlertTriangle className="w-16 h-16 text-slate-300 mb-6" />
-          <h2 className="text-2xl font-bold text-slate-700 mb-2">강의를 찾을 수 없습니다</h2>
+        <div className="flex flex-col items-center justify-center min-h-[60vh] bg-card rounded-3xl m-8 p-12">
+          <AlertTriangle className="w-16 h-16 text-muted-foreground/60 mb-6" />
+          <h2 className="text-2xl font-bold text-foreground mb-2">강의를 찾을 수 없습니다</h2>
           <Link href="/courses" className="text-primary font-medium hover:underline">
             목록으로 돌아가기
           </Link>
@@ -282,11 +282,11 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
 
   return (
     <MainLayout>
-      <div className="max-w-5xl mx-auto py-8 px-4 w-full text-slate-800">
-        <div className="bg-white border border-slate-100 rounded-[2.5rem] p-8 md:p-12 shadow-sm mb-8">
+      <div className="max-w-5xl mx-auto py-8 px-4 w-full text-foreground">
+        <div className="bg-card border border-border rounded-[2.5rem] p-8 md:p-12 shadow-sm mb-8">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-6">
             <div>
-              <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold mb-4 ${course.status === 'ACTIVE' ? 'bg-blue-100 text-blue-600' : 'bg-slate-100 text-slate-500'}`}>
+              <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold mb-4 ${course.status === 'ACTIVE' ? 'bg-blue-500/15 text-blue-600' : 'bg-muted text-muted-foreground'}`}>
                 {course.status === 'ACTIVE' ? '진행 중인 강의' : '보관된 강의'}
               </span>
               {isInstructor && isEditingCourseTitle ? (
@@ -300,7 +300,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                       if (e.key === "Enter") submitCourseTitle();
                       if (e.key === "Escape") setIsEditingCourseTitle(false);
                     }}
-                    className="text-3xl md:text-4xl font-black text-slate-800 tracking-tight bg-slate-50 border border-primary/40 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary/30 flex-1 min-w-0"
+                    className="text-3xl md:text-4xl font-black text-foreground tracking-tight bg-muted border border-primary/40 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary/30 flex-1 min-w-0"
                   />
                   <button
                     type="button"
@@ -314,20 +314,20 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                   <button
                     type="button"
                     onClick={() => setIsEditingCourseTitle(false)}
-                    className="w-10 h-10 rounded-xl bg-slate-100 text-slate-500 flex items-center justify-center hover:bg-slate-200 shrink-0"
+                    className="w-10 h-10 rounded-xl bg-muted text-muted-foreground flex items-center justify-center hover:bg-border shrink-0"
                     aria-label="취소"
                   >
                     <X className="w-5 h-5" />
                   </button>
                 </div>
               ) : (
-                <h1 className="text-3xl md:text-4xl font-black text-slate-800 mb-4 tracking-tight flex items-center gap-3 group">
+                <h1 className="text-3xl md:text-4xl font-black text-foreground mb-4 tracking-tight flex items-center gap-3 group">
                   {course.title}
                   {isInstructor && (
                     <button
                       type="button"
                       onClick={startEditCourseTitle}
-                      className="opacity-0 group-hover:opacity-100 transition-opacity w-9 h-9 rounded-xl bg-slate-100 hover:bg-primary/10 hover:text-primary text-slate-400 flex items-center justify-center"
+                      className="opacity-0 group-hover:opacity-100 transition-opacity w-9 h-9 rounded-xl bg-muted hover:bg-primary/10 hover:text-primary text-muted-foreground flex items-center justify-center"
                       aria-label="강의 제목 수정"
                     >
                       <Pencil className="w-4 h-4" />
@@ -335,7 +335,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                   )}
                 </h1>
               )}
-              <p className="text-lg text-slate-600 font-medium max-w-3xl leading-relaxed">
+              <p className="text-lg text-muted-foreground font-medium max-w-3xl leading-relaxed">
                 {course.description || "강의 설명이 없습니다."}
               </p>
             </div>
@@ -352,7 +352,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                 </button>
               )}
               {isEnrolled && (
-                <div className="px-6 py-3 bg-green-50 text-green-700 rounded-2xl font-bold border border-green-200 flex items-center justify-center">
+                <div className="px-6 py-3 bg-green-500/10 text-green-700 rounded-2xl font-bold border border-green-200 flex items-center justify-center">
                   <BookOpen className="w-5 h-5 mr-2" />
                   수강 중인 강의
                 </div>
@@ -362,7 +362,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                   type="button"
                   onClick={handleDeleteCourse}
                   disabled={deleteCourseMutation.isPending}
-                  className="px-6 py-3 bg-white text-red-500 border border-red-200 rounded-2xl font-bold hover:bg-red-50 hover:border-red-300 transition-all flex items-center justify-center disabled:opacity-50"
+                  className="px-6 py-3 bg-card text-red-500 border border-red-500/30 rounded-2xl font-bold hover:bg-red-500/10 hover:border-red-300 transition-all flex items-center justify-center disabled:opacity-50"
                 >
                   {deleteCourseMutation.isPending ? (
                     <>
@@ -380,10 +380,10 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
             </div>
           </div>
 
-          <div className="flex items-center gap-6 text-sm text-slate-500 font-medium border-t border-slate-100 pt-6 mt-2">
+          <div className="flex items-center gap-6 text-sm text-muted-foreground font-medium border-t border-border pt-6 mt-2">
             <div className="flex items-center">
-              <span className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center mr-2 text-lg">👨‍🏫</span>
-              <span>담당교수: <strong className="text-slate-700">{course.instructor.name}</strong></span>
+              <span className="w-8 h-8 rounded-full bg-muted flex items-center justify-center mr-2 text-lg">👨‍🏫</span>
+              <span>담당교수: <strong className="text-foreground">{course.instructor.name}</strong></span>
             </div>
             {isInstructor ? (
               <Link
@@ -392,7 +392,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
               >
                 <Users className="w-5 h-5 mr-2" />
                 <span>
-                  수강생 <strong className="text-slate-700 group-hover:text-blue-600">{course.studentCount}명</strong>
+                  수강생 <strong className="text-foreground group-hover:text-blue-600">{course.studentCount}명</strong>
                 </span>
                 <span className="ml-2 text-xs font-bold text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity">
                   관리 →
@@ -401,17 +401,17 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
             ) : (
               <div className="flex items-center">
                 <Users className="w-5 h-5 mr-2" />
-                <span>수강생 <strong className="text-slate-700">{course.studentCount}명</strong></span>
+                <span>수강생 <strong className="text-foreground">{course.studentCount}명</strong></span>
               </div>
             )}
           </div>
           
           {isInstructor && course.inviteCode && (
-            <div className="mt-6 bg-slate-50 border border-slate-200 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div className="flex items-center text-slate-700 font-medium">
+            <div className="mt-6 bg-muted border border-border rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex items-center text-foreground font-medium">
                 <Key className="w-5 h-5 mr-2 text-primary" />
                 <span className="mr-2">강의 초대 코드:</span>
-                <span className="font-mono font-bold text-xl tracking-widest bg-white border border-slate-200 px-3 py-1 rounded inline-block">{course.inviteCode}</span>
+                <span className="font-mono font-bold text-xl tracking-widest bg-card border border-border px-3 py-1 rounded inline-block">{course.inviteCode}</span>
               </div>
               <button
                 type="button"
@@ -419,7 +419,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                 className={`text-sm font-bold transition-colors px-4 py-2 rounded-lg flex items-center gap-2 ${
                   isCodeCopied
                     ? "bg-green-500 text-white border border-green-500"
-                    : "bg-white text-primary border border-primary/20 hover:text-blue-700"
+                    : "bg-card text-primary border border-primary/20 hover:text-blue-700"
                 }`}
               >
                 {isCodeCopied ? (
@@ -443,34 +443,34 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
             <Link
               href={`/courses/${resolvedParams.courseId}/assignments`}
-              className="group bg-white border border-slate-100 rounded-2xl p-5 shadow-sm hover:border-emerald-200 hover:shadow-md transition-all flex items-center gap-4"
+              className="group bg-card border border-border rounded-2xl p-5 shadow-sm hover:border-emerald-500/30 hover:shadow-md transition-all flex items-center gap-4"
             >
               <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center shrink-0 group-hover:bg-emerald-500/20 transition-colors">
                 <ClipboardList className="w-6 h-6 text-emerald-600" />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="font-black text-slate-800">과제</p>
-                <p className="text-xs font-bold text-slate-400 mt-0.5">
+                <p className="font-black text-foreground">과제</p>
+                <p className="text-xs font-bold text-muted-foreground mt-0.5">
                   과제를 보고 제출하거나 피드백을 주고받으세요
                 </p>
               </div>
-              <ArrowRight className="w-5 h-5 text-slate-300 group-hover:text-emerald-500 transition-colors shrink-0" />
+              <ArrowRight className="w-5 h-5 text-muted-foreground/60 group-hover:text-emerald-500 transition-colors shrink-0" />
             </Link>
 
             <Link
               href={`/courses/${resolvedParams.courseId}/teams`}
-              className="group bg-white border border-slate-100 rounded-2xl p-5 shadow-sm hover:border-violet-200 hover:shadow-md transition-all flex items-center gap-4"
+              className="group bg-card border border-border rounded-2xl p-5 shadow-sm hover:border-violet-500/30 hover:shadow-md transition-all flex items-center gap-4"
             >
               <div className="w-12 h-12 rounded-2xl bg-violet-500/10 flex items-center justify-center shrink-0 group-hover:bg-violet-500/20 transition-colors">
                 <Users className="w-6 h-6 text-violet-600" />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="font-black text-slate-800">팀</p>
-                <p className="text-xs font-bold text-slate-400 mt-0.5">
+                <p className="font-black text-foreground">팀</p>
+                <p className="text-xs font-bold text-muted-foreground mt-0.5">
                   팀을 만들고 같은 강의 수강생을 초대하세요
                 </p>
               </div>
-              <ArrowRight className="w-5 h-5 text-slate-300 group-hover:text-violet-500 transition-colors shrink-0" />
+              <ArrowRight className="w-5 h-5 text-muted-foreground/60 group-hover:text-violet-500 transition-colors shrink-0" />
             </Link>
           </div>
         )}
@@ -478,17 +478,17 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
         {/* 차시 목록 영역 */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-slate-800">강의 목차</h2>
-            <span className="text-slate-500 font-medium">총 {lectures.length}개 차시</span>
+            <h2 className="text-2xl font-bold text-foreground">강의 목차</h2>
+            <span className="text-muted-foreground font-medium">총 {lectures.length}개 차시</span>
           </div>
 
           <div className="space-y-4">
             {isLecturesLoading ? (
-              <div className="py-12 flex justify-center"><Loader2 className="w-8 h-8 animate-spin text-slate-300" /></div>
+              <div className="py-12 flex justify-center"><Loader2 className="w-8 h-8 animate-spin text-muted-foreground/60" /></div>
             ) : lectures.map((lecture, index) => {
               const isEditingThisLecture = editingLectureId === lecture.id;
               return (
-                <div key={lecture.id} className="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow flex items-center justify-between group gap-4">
+                <div key={lecture.id} className="bg-card border border-border rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow flex items-center justify-between group gap-4">
                   <div className="flex items-start gap-4 min-w-0 flex-1">
                     <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary font-black text-lg shrink-0">
                       {index + 1}
@@ -508,7 +508,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                                 setEditedLectureTitle("");
                               }
                             }}
-                            className="text-lg font-bold text-slate-800 bg-slate-50 border border-primary/40 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary/30 flex-1 min-w-0"
+                            className="text-lg font-bold text-foreground bg-muted border border-primary/40 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary/30 flex-1 min-w-0"
                           />
                           <button
                             type="button"
@@ -525,20 +525,20 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                               setEditingLectureId(null);
                               setEditedLectureTitle("");
                             }}
-                            className="w-8 h-8 rounded-lg bg-slate-100 text-slate-500 flex items-center justify-center hover:bg-slate-200 shrink-0"
+                            className="w-8 h-8 rounded-lg bg-muted text-muted-foreground flex items-center justify-center hover:bg-border shrink-0"
                             aria-label="취소"
                           >
                             <X className="w-4 h-4" />
                           </button>
                         </div>
                       ) : (
-                        <h3 className="text-lg font-bold text-slate-800 mb-1 flex items-center gap-2">
+                        <h3 className="text-lg font-bold text-foreground mb-1 flex items-center gap-2">
                           <span className="truncate">{lecture.title}</span>
                           {isInstructor && (
                             <button
                               type="button"
                               onClick={() => startEditLectureTitle(lecture.id, lecture.title)}
-                              className="opacity-0 group-hover:opacity-100 transition-opacity w-7 h-7 rounded-lg bg-slate-100 hover:bg-primary/10 hover:text-primary text-slate-400 flex items-center justify-center shrink-0"
+                              className="opacity-0 group-hover:opacity-100 transition-opacity w-7 h-7 rounded-lg bg-muted hover:bg-primary/10 hover:text-primary text-muted-foreground flex items-center justify-center shrink-0"
                               aria-label="차시 제목 수정"
                             >
                               <Pencil className="w-3.5 h-3.5" />
@@ -546,7 +546,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                           )}
                         </h3>
                       )}
-                      <p className="text-sm text-slate-500 font-medium">{lecture.description || "자료가 준비되어 있습니다."}</p>
+                      <p className="text-sm text-muted-foreground font-medium">{lecture.description || "자료가 준비되어 있습니다."}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
@@ -555,7 +555,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                         type="button"
                         onClick={() => handleDeleteLecture(lecture.id, lecture.title)}
                         disabled={deleteLectureMutation.isPending}
-                        className="w-10 h-10 bg-slate-50 hover:bg-red-50 hover:text-red-500 text-slate-400 rounded-full flex items-center justify-center transition-colors disabled:opacity-50"
+                        className="w-10 h-10 bg-muted hover:bg-red-500/10 hover:text-red-500 text-muted-foreground rounded-full flex items-center justify-center transition-colors disabled:opacity-50"
                         aria-label="차시 삭제"
                         title="차시 삭제"
                       >
@@ -567,11 +567,11 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                       </button>
                     )}
                     {(isEnrolled || isInstructor) ? (
-                      <Link href={`/learn/${lecture.id}`} className="w-12 h-12 bg-slate-50 hover:bg-primary hover:text-white text-slate-400 rounded-full flex items-center justify-center transition-colors group-hover:scale-110">
+                      <Link href={`/learn/${lecture.id}`} className="w-12 h-12 bg-muted hover:bg-primary hover:text-white text-muted-foreground rounded-full flex items-center justify-center transition-colors group-hover:scale-110">
                         <ArrowRight className="w-5 h-5" />
                       </Link>
                     ) : (
-                      <div className="px-4 py-2 bg-slate-50 rounded-lg text-sm text-slate-400 font-medium whitespace-nowrap">
+                      <div className="px-4 py-2 bg-muted rounded-lg text-sm text-muted-foreground font-medium whitespace-nowrap">
                         수강 전
                       </div>
                     )}
@@ -581,7 +581,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
             })}
 
             {lectures.length === 0 && !isLecturesLoading && (
-              <div className="text-center py-12 bg-white border border-slate-100 rounded-2xl text-slate-500 font-medium">
+              <div className="text-center py-12 bg-card border border-border rounded-2xl text-muted-foreground font-medium">
                 등록된 차시가 없습니다.
               </div>
             )}
@@ -589,13 +589,13 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
         </div>
 
          {isInstructor && (
-          <div className="bg-slate-50 border border-slate-200 rounded-[2rem] p-8 mb-8">
-            <h3 className="text-lg font-bold text-slate-800 mb-4">새로운 차시 추가</h3>
+          <div className="bg-muted border border-border rounded-[2rem] p-8 mb-8">
+            <h3 className="text-lg font-bold text-foreground mb-4">새로운 차시 추가</h3>
             <form onSubmit={handleCreateLecture} className="space-y-4">
               <input
                 type="text"
                 placeholder="차시 제목을 입력하세요 (비워두면 파일명으로 자동 지정)"
-                className="w-full h-12 px-5 rounded-xl border border-slate-200 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-medium bg-white"
+                className="w-full h-12 px-5 rounded-xl border border-border focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-medium bg-card"
                 value={newLectureTitle}
                 onChange={(e) => setNewLectureTitle(e.target.value)}
                 disabled={createLectureMutation.isPending}
@@ -603,14 +603,14 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
 
               {/* 파일 업로드 영역 (다중 선택) */}
               <div
-                className={`block border-2 border-dashed rounded-2xl bg-white p-6 transition-all ${
+                className={`block border-2 border-dashed rounded-2xl bg-card p-6 transition-all ${
                   newLectureFiles.length > 0
                     ? "border-primary/40 bg-primary/5"
-                    : "border-slate-200 hover:border-primary/40 hover:bg-slate-50"
+                    : "border-border hover:border-primary/40 hover:bg-muted"
                 } ${createLectureMutation.isPending ? "opacity-50 cursor-not-allowed" : ""}`}
               >
                 {newLectureFiles.length === 0 ? (
-                  <label className="flex items-center justify-center gap-3 text-slate-500 cursor-pointer">
+                  <label className="flex items-center justify-center gap-3 text-muted-foreground cursor-pointer">
                     <input
                       type="file"
                       accept=".pdf,.txt"
@@ -625,14 +625,14 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                 ) : (
                   <div className="space-y-2">
                     {newLectureFiles.map((file, idx) => (
-                      <div key={`${file.name}-${idx}`} className="flex items-center justify-between gap-4 bg-white border border-slate-100 rounded-xl px-3 py-2">
+                      <div key={`${file.name}-${idx}`} className="flex items-center justify-between gap-4 bg-card border border-border rounded-xl px-3 py-2">
                         <div className="flex items-center gap-3 min-w-0">
                           <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
                             <FileText className="w-4 h-4 text-primary" />
                           </div>
                           <div className="min-w-0">
-                            <p className="font-bold text-slate-800 truncate text-sm">{file.name}</p>
-                            <p className="text-xs text-slate-500 font-medium">
+                            <p className="font-bold text-foreground truncate text-sm">{file.name}</p>
+                            <p className="text-xs text-muted-foreground font-medium">
                               {(file.size / 1024 / 1024).toFixed(2)} MB
                             </p>
                           </div>
@@ -641,7 +641,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                           type="button"
                           onClick={() => setNewLectureFiles((prev) => prev.filter((_, i) => i !== idx))}
                           disabled={createLectureMutation.isPending}
-                          className="w-8 h-8 rounded-lg bg-slate-100 hover:bg-red-100 hover:text-red-500 text-slate-500 flex items-center justify-center shrink-0 transition-colors"
+                          className="w-8 h-8 rounded-lg bg-muted hover:bg-red-500/15 hover:text-red-500 text-muted-foreground flex items-center justify-center shrink-0 transition-colors"
                           aria-label="파일 제거"
                         >
                           <X className="w-3.5 h-3.5" />
@@ -649,7 +649,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                       </div>
                     ))}
                     <div className="flex items-center justify-between pt-2">
-                      <p className="text-xs font-bold text-slate-500">
+                      <p className="text-xs font-bold text-muted-foreground">
                         총 {newLectureFiles.length}개 파일 · {(newLectureFiles.reduce((s, f) => s + f.size, 0) / 1024 / 1024).toFixed(2)} MB
                       </p>
                       <label className="text-xs font-bold text-primary hover:underline cursor-pointer">
@@ -676,7 +676,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
                 <button
                   type="submit"
                   disabled={createLectureMutation.isPending}
-                  className="px-6 h-12 bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-xl flex items-center transition-colors disabled:opacity-50 shrink-0"
+                  className="px-6 h-12 bg-foreground hover:bg-foreground/90 text-background font-bold rounded-xl flex items-center transition-colors disabled:opacity-50 shrink-0"
                 >
                   {createLectureMutation.isPending ? (
                     <>
@@ -702,7 +702,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
          {/* 공지사항 영역 */}
          <div className="mb-8">
            <div className="flex items-center justify-between mb-6">
-             <h2 className="text-2xl font-bold text-slate-800 flex items-center">
+             <h2 className="text-2xl font-bold text-foreground flex items-center">
                <Bell className="w-6 h-6 mr-2 text-orange-500" />
                공지사항
              </h2>
@@ -710,19 +710,19 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
 
            <div className="space-y-4 mb-6">
              {isNoticesLoading ? (
-               <div className="py-8 flex justify-center"><Loader2 className="w-8 h-8 animate-spin text-slate-300" /></div>
+               <div className="py-8 flex justify-center"><Loader2 className="w-8 h-8 animate-spin text-muted-foreground/60" /></div>
              ) : notices.length === 0 ? (
-               <div className="text-center py-8 bg-orange-50/50 border border-orange-100 rounded-2xl text-orange-600/60 font-medium">
+               <div className="text-center py-8 bg-orange-500/10 border border-orange-500/20 rounded-2xl text-orange-600/60 font-medium">
                  등록된 공지사항이 없습니다.
                </div>
              ) : notices.map((notice) => (
-               <div key={notice.id} className="bg-white border border-orange-100 rounded-2xl p-6 shadow-sm">
+               <div key={notice.id} className="bg-card border border-orange-500/20 rounded-2xl p-6 shadow-sm">
                  <div className="flex items-center justify-between mb-2">
-                   <h3 className="text-lg font-bold text-slate-800">{notice.title}</h3>
-                   <span className="text-xs font-bold text-orange-600 bg-orange-100 px-2 py-1 rounded">중요</span>
+                   <h3 className="text-lg font-bold text-foreground">{notice.title}</h3>
+                   <span className="text-xs font-bold text-orange-600 bg-orange-500/15 px-2 py-1 rounded">중요</span>
                  </div>
-                 <p className="text-sm font-medium text-slate-600 whitespace-pre-wrap">{notice.content}</p>
-                 <div className="text-xs text-slate-400 mt-4 text-right">
+                 <p className="text-sm font-medium text-muted-foreground whitespace-pre-wrap">{notice.content}</p>
+                 <div className="text-xs text-muted-foreground mt-4 text-right">
                    {new Date(notice.createdAt || Date.now()).toLocaleDateString()}
                  </div>
                </div>
@@ -730,20 +730,20 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
            </div>
 
            {isInstructor && (
-             <div className="bg-white border border-slate-200 rounded-[2rem] p-6 shadow-sm">
-               <h3 className="text-base font-bold text-slate-800 mb-4">새 공지사항 등록</h3>
+             <div className="bg-card border border-border rounded-[2rem] p-6 shadow-sm">
+               <h3 className="text-base font-bold text-foreground mb-4">새 공지사항 등록</h3>
                <form onSubmit={handleCreateNotice} className="space-y-4">
                  <input
                    type="text"
                    placeholder="공지사항 제목"
-                   className="w-full h-12 px-5 rounded-xl border border-slate-200 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-50 transition-all font-medium"
+                   className="w-full h-12 px-5 rounded-xl border border-border focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-50 transition-all font-medium"
                    value={newNoticeTitle}
                    onChange={(e) => setNewNoticeTitle(e.target.value)}
                    required
                  />
                  <textarea
                    placeholder="공지사항 내용"
-                   className="w-full h-32 p-5 rounded-xl border border-slate-200 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-50 transition-all font-medium resize-none custom-scrollbar"
+                   className="w-full h-32 p-5 rounded-xl border border-border focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-50 transition-all font-medium resize-none custom-scrollbar"
                    value={newNoticeContent}
                    onChange={(e) => setNewNoticeContent(e.target.value)}
                    required

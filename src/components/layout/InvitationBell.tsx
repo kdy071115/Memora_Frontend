@@ -93,10 +93,10 @@ export default function InvitationBell() {
       <button
         type="button"
         onClick={handleToggle}
-        className="relative w-9 h-9 rounded-xl hover:bg-slate-100 flex items-center justify-center transition-colors"
+        className="relative w-9 h-9 rounded-xl hover:bg-muted flex items-center justify-center transition-colors"
         aria-label={`알림 ${totalCount}건`}
       >
-        <Bell className="w-4 h-4 text-slate-600" />
+        <Bell className="w-4 h-4 text-muted-foreground" />
         {totalCount > 0 && (
           <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-500 text-white text-[10px] font-black flex items-center justify-center ring-2 ring-white">
             {totalCount > 9 ? "9+" : totalCount}
@@ -105,38 +105,38 @@ export default function InvitationBell() {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-11 w-80 bg-white border border-slate-100 rounded-2xl shadow-xl shadow-slate-200/60 z-50 animate-in fade-in slide-in-from-top-2 duration-150 overflow-hidden">
+        <div className="absolute right-0 top-11 w-80 bg-card border border-border rounded-2xl shadow-xl shadow-slate-200/60 z-50 animate-in fade-in slide-in-from-top-2 duration-150 overflow-hidden">
           {/* ── 피드백 알림 섹션 ── */}
           {feedbackCount > 0 && (
-            <div className="px-4 py-3 border-b border-slate-100 bg-blue-50/40">
+            <div className="px-4 py-3 border-b border-border bg-blue-500/10">
               <div className="flex items-center gap-2 mb-1">
                 <MessageSquare className="w-4 h-4 text-blue-500" />
-                <p className="text-sm font-black text-slate-800">
+                <p className="text-sm font-black text-foreground">
                   새 피드백 {feedbackCount}건
                 </p>
               </div>
-              <p className="text-[11px] font-medium text-slate-500 leading-relaxed">
+              <p className="text-[11px] font-medium text-muted-foreground leading-relaxed">
                 내 제출물에 강사 또는 팀원이 새 댓글을 남겼어요. 과제 페이지에서 확인하세요.
               </p>
             </div>
           )}
 
-          <div className="px-4 py-3 border-b border-slate-100">
-            <p className="text-xs font-bold text-slate-400 mb-0.5">팀 초대</p>
-            <p className="text-sm font-black text-slate-800">
+          <div className="px-4 py-3 border-b border-border">
+            <p className="text-xs font-bold text-muted-foreground mb-0.5">팀 초대</p>
+            <p className="text-sm font-black text-foreground">
               {inviteCount > 0 ? `${inviteCount}건의 새 초대` : "받은 초대가 없습니다"}
             </p>
           </div>
 
           {inviteCount === 0 ? (
             <div className="py-8 px-4 flex flex-col items-center text-center">
-              <Users className="w-10 h-10 text-slate-200 mb-2" />
-              <p className="text-xs font-medium text-slate-400">
+              <Users className="w-10 h-10 text-muted-foreground/40 mb-2" />
+              <p className="text-xs font-medium text-muted-foreground">
                 팀 초대가 오면 여기에 표시됩니다.
               </p>
             </div>
           ) : (
-            <ul className="max-h-96 overflow-y-auto divide-y divide-slate-100">
+            <ul className="max-h-96 overflow-y-auto divide-y divide-border">
               {invitations.map((inv) => {
                 const busy = acceptMutation.isPending || rejectMutation.isPending;
                 return (
@@ -152,11 +152,11 @@ export default function InvitationBell() {
                       <p className="text-xs font-bold text-violet-600 mb-0.5 truncate">
                         {inv.courseTitle}
                       </p>
-                      <p className="text-sm font-black text-slate-800 truncate">
+                      <p className="text-sm font-black text-foreground truncate">
                         {inv.teamName}
                       </p>
-                      <p className="text-[11px] font-medium text-slate-500 mt-0.5">
-                        <strong className="text-slate-700">{inv.inviterName}</strong> 님이 초대했습니다
+                      <p className="text-[11px] font-medium text-muted-foreground mt-0.5">
+                        <strong className="text-foreground">{inv.inviterName}</strong> 님이 초대했습니다
                       </p>
                     </button>
                     <div className="flex gap-2">
@@ -177,7 +177,7 @@ export default function InvitationBell() {
                         type="button"
                         disabled={busy}
                         onClick={() => rejectMutation.mutate(inv.id)}
-                        className="flex-1 h-9 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold rounded-xl flex items-center justify-center gap-1 disabled:opacity-50"
+                        className="flex-1 h-9 bg-muted hover:bg-border text-muted-foreground text-xs font-bold rounded-xl flex items-center justify-center gap-1 disabled:opacity-50"
                       >
                         <X className="w-3.5 h-3.5" />
                         거절

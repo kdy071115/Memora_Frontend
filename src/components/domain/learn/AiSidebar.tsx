@@ -136,21 +136,21 @@ export default function AiSidebar({ lectureId }: { lectureId: number }) {
         <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
           <Loader2 className="w-5 h-5 animate-spin text-primary" />
         </div>
-        <span className="text-sm font-medium text-slate-400">AI 튜터 준비 중...</span>
+        <span className="text-sm font-medium text-muted-foreground">AI 튜터 준비 중...</span>
       </div>
     );
   }
 
   return (
-    <div className="w-full h-full flex flex-col bg-white relative">
+    <div className="w-full h-full flex flex-col bg-card relative">
       {/* Header */}
-      <div className="h-14 flex items-center justify-between px-5 border-b border-slate-100 shrink-0">
+      <div className="h-14 flex items-center justify-between px-5 border-b border-border shrink-0">
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-primary/20 to-blue-500/20 flex items-center justify-center border border-primary/10">
             <Sparkles className="w-4 h-4 text-primary" />
           </div>
           <div>
-            <span className="font-bold text-slate-800 text-sm leading-none block">Memora 튜터</span>
+            <span className="font-bold text-foreground text-sm leading-none block">Memora 튜터</span>
             <span className={`text-[11px] font-medium ${
               currentSessionId ? "text-emerald-500" : "text-amber-400"
             }`}>
@@ -164,7 +164,7 @@ export default function AiSidebar({ lectureId }: { lectureId: number }) {
               queryClient.invalidateQueries({ queryKey: ["qaSession", currentSessionId] });
             }
           }}
-          className="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-400 transition-colors"
+          className="w-8 h-8 rounded-full hover:bg-muted flex items-center justify-center text-muted-foreground transition-colors"
           title="대화 새로고침"
         >
           <RefreshCw className="w-3.5 h-3.5" />
@@ -172,7 +172,7 @@ export default function AiSidebar({ lectureId }: { lectureId: number }) {
       </div>
 
       {/* Chat Messages */}
-      <div className="flex-1 overflow-y-auto custom-scrollbar bg-slate-50/60 relative">
+      <div className="flex-1 overflow-y-auto custom-scrollbar bg-muted/60 relative">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-40 opacity-[0.025] pointer-events-none grayscale">
           <Image src="/images/logo.png" alt="" fill sizes="160px" className="object-contain" />
         </div>
@@ -180,9 +180,9 @@ export default function AiSidebar({ lectureId }: { lectureId: number }) {
         <div className="p-4 space-y-4 relative z-10">
           {/* Date divider */}
           <div className="flex items-center gap-3">
-            <div className="flex-1 h-px bg-slate-200" />
-            <span className="text-[11px] font-bold text-slate-400">오늘</span>
-            <div className="flex-1 h-px bg-slate-200" />
+            <div className="flex-1 h-px bg-border" />
+            <span className="text-[11px] font-bold text-muted-foreground">오늘</span>
+            <div className="flex-1 h-px bg-border" />
           </div>
 
           {/* Welcome (empty state) */}
@@ -192,8 +192,8 @@ export default function AiSidebar({ lectureId }: { lectureId: number }) {
                 <Sparkles className="w-7 h-7 text-primary" />
               </div>
               <div>
-                <p className="font-bold text-slate-700 text-sm mb-1">무엇이든 물어보세요!</p>
-                <p className="text-xs text-slate-400 font-medium leading-relaxed">
+                <p className="font-bold text-foreground text-sm mb-1">무엇이든 물어보세요!</p>
+                <p className="text-xs text-muted-foreground font-medium leading-relaxed">
                   이 강의 자료를 기반으로<br />AI가 답변해드립니다.
                 </p>
               </div>
@@ -202,7 +202,7 @@ export default function AiSidebar({ lectureId }: { lectureId: number }) {
 
           {isSessionLoading && (
             <div className="py-10 flex justify-center">
-              <Loader2 className="w-6 h-6 animate-spin text-slate-300" />
+              <Loader2 className="w-6 h-6 animate-spin text-muted-foreground/60" />
             </div>
           )}
 
@@ -221,23 +221,23 @@ export default function AiSidebar({ lectureId }: { lectureId: number }) {
               <div
                 className={`max-w-[88%] rounded-2xl px-4 py-3 text-sm leading-relaxed shadow-sm ${
                   msg.role === "USER"
-                    ? "bg-slate-800 text-white rounded-br-sm font-medium"
-                    : "bg-white border border-slate-200 text-slate-700 rounded-bl-sm"
+                    ? "bg-foreground text-background rounded-br-sm font-medium"
+                    : "bg-card border border-border text-foreground rounded-bl-sm"
                 }`}
               >
                 {msg.role === "ASSISTANT" ? (
                   <>
-                    <div className="prose prose-sm prose-slate max-w-none prose-p:my-1 prose-p:text-slate-700 prose-ul:my-1 prose-li:my-0.5 prose-strong:text-slate-800 prose-headings:text-slate-800 prose-headings:font-bold">
+                    <div className="prose prose-sm prose-slate max-w-none prose-p:my-1 prose-p:text-foreground prose-ul:my-1 prose-li:my-0.5 prose-strong:text-foreground prose-headings:text-foreground prose-headings:font-bold">
                       <ReactMarkdown>{msg.content}</ReactMarkdown>
                     </div>
                     {msg.sources && msg.sources.length > 0 && (
-                      <div className="mt-3 pt-3 border-t border-slate-100">
-                        <p className="text-[11px] text-slate-400 font-bold mb-1.5">📄 참고 자료</p>
+                      <div className="mt-3 pt-3 border-t border-border">
+                        <p className="text-[11px] text-muted-foreground font-bold mb-1.5">📄 참고 자료</p>
                         <div className="flex flex-col gap-1">
                           {msg.sources.map((src, i) => (
                             <span
                               key={i}
-                              className="text-[11px] bg-slate-50 text-slate-500 px-2.5 py-1 rounded-lg border border-slate-100 font-medium"
+                              className="text-[11px] bg-muted text-muted-foreground px-2.5 py-1 rounded-lg border border-border font-medium"
                             >
                               {src.documentName} · p.{src.pageNumber}
                             </span>
@@ -259,10 +259,10 @@ export default function AiSidebar({ lectureId }: { lectureId: number }) {
               <div className="w-7 h-7 rounded-xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center shadow-sm shrink-0 mb-0.5">
                 <Sparkles className="w-3.5 h-3.5 text-white" />
               </div>
-              <div className="bg-white border border-slate-200 rounded-2xl rounded-bl-sm px-4 py-3 shadow-sm flex items-center gap-1.5 h-11">
-                <div className="w-1.5 h-1.5 bg-slate-300 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
-                <div className="w-1.5 h-1.5 bg-slate-300 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-                <div className="w-1.5 h-1.5 bg-slate-300 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+              <div className="bg-card border border-border rounded-2xl rounded-bl-sm px-4 py-3 shadow-sm flex items-center gap-1.5 h-11">
+                <div className="w-1.5 h-1.5 bg-muted-foreground/60 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+                <div className="w-1.5 h-1.5 bg-muted-foreground/60 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                <div className="w-1.5 h-1.5 bg-muted-foreground/60 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
               </div>
             </div>
           )}
@@ -271,7 +271,7 @@ export default function AiSidebar({ lectureId }: { lectureId: number }) {
       </div>
 
       {/* Input Area */}
-      <div className="px-4 pb-4 pt-3 bg-white border-t border-slate-100 shrink-0 space-y-3">
+      <div className="px-4 pb-4 pt-3 bg-card border-t border-border shrink-0 space-y-3">
         {/* Suggestion chips */}
         <div className="flex gap-2 overflow-x-auto hide-scrollbar pb-0.5">
           {SUGGESTIONS.map(({ icon: Icon, text }, i) => (
@@ -280,7 +280,7 @@ export default function AiSidebar({ lectureId }: { lectureId: number }) {
               type="button"
               onClick={() => handleSend(text)}
               disabled={isSending}
-              className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-full text-xs font-bold text-slate-600 hover:bg-primary/5 hover:text-primary hover:border-primary/30 transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+              className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 bg-muted border border-border rounded-full text-xs font-bold text-muted-foreground hover:bg-primary/5 hover:text-primary hover:border-primary/30 transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
             >
               <Icon className="w-3 h-3" />
               {text}
@@ -289,11 +289,11 @@ export default function AiSidebar({ lectureId }: { lectureId: number }) {
         </div>
 
         {/* Text input */}
-        <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-2xl px-4 py-2 focus-within:ring-2 ring-primary/20 focus-within:border-primary/30 focus-within:bg-white transition-all">
+        <div className="flex items-center gap-2 bg-muted border border-border rounded-2xl px-4 py-2 focus-within:ring-2 ring-primary/20 focus-within:border-primary/30 focus-within:bg-card transition-all">
           <input
             ref={inputRef}
             type="text"
-            className="flex-1 bg-transparent border-none outline-none text-sm font-medium text-slate-700 placeholder:text-slate-400 h-9"
+            className="flex-1 bg-transparent border-none outline-none text-sm font-medium text-foreground placeholder:text-muted-foreground h-9"
             placeholder="무엇이든 물어보세요..."
             value={inputVal}
             onChange={(e) => setInputVal(e.target.value)}
@@ -309,7 +309,7 @@ export default function AiSidebar({ lectureId }: { lectureId: number }) {
             type="button"
             onClick={() => handleSend()}
             disabled={!inputVal.trim() || isSending}
-            className="w-8 h-8 rounded-xl bg-primary text-white flex items-center justify-center shrink-0 disabled:opacity-40 disabled:bg-slate-300 transition-all hover:bg-primary/90 shadow-sm shadow-primary/20 cursor-pointer"
+            className="w-8 h-8 rounded-xl bg-primary text-white flex items-center justify-center shrink-0 disabled:opacity-40 disabled:bg-muted-foreground/40 transition-all hover:bg-primary/90 shadow-sm shadow-primary/20 cursor-pointer"
           >
             {isSending ? (
               <Loader2 className="w-3.5 h-3.5 animate-spin" />

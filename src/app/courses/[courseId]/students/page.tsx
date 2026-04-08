@@ -23,10 +23,10 @@ const STATUS_META: Record<
   StudentStatus,
   { label: string; bg: string; text: string; ring: string }
 > = {
-  EXCELLENT: { label: "우수", bg: "bg-emerald-50", text: "text-emerald-700", ring: "ring-emerald-200" },
-  GOOD: { label: "양호", bg: "bg-blue-50", text: "text-blue-700", ring: "ring-blue-200" },
-  AVERAGE: { label: "보통", bg: "bg-slate-50", text: "text-slate-600", ring: "ring-slate-200" },
-  NEEDS_HELP: { label: "도움필요", bg: "bg-rose-50", text: "text-rose-700", ring: "ring-rose-200" },
+  EXCELLENT: { label: "우수", bg: "bg-emerald-500/10", text: "text-emerald-700", ring: "ring-emerald-500/30" },
+  GOOD: { label: "양호", bg: "bg-blue-500/10", text: "text-blue-700", ring: "ring-blue-500/30" },
+  AVERAGE: { label: "보통", bg: "bg-muted", text: "text-muted-foreground", ring: "ring-border" },
+  NEEDS_HELP: { label: "도움필요", bg: "bg-rose-500/10", text: "text-rose-700", ring: "ring-rose-500/30" },
 };
 
 const SORT_OPTIONS = [
@@ -109,7 +109,7 @@ export default function CourseStudentsPage({
   if (!isInstructor) {
     return (
       <MainLayout>
-        <div className="py-20 text-center text-slate-500 font-medium">
+        <div className="py-20 text-center text-muted-foreground font-medium">
           교강사만 접근할 수 있는 페이지입니다.
         </div>
       </MainLayout>
@@ -124,7 +124,7 @@ export default function CourseStudentsPage({
           <button
             type="button"
             onClick={() => router.push(`/courses/${courseId}`)}
-            className="flex items-center gap-1.5 text-sm font-bold text-slate-500 hover:text-slate-800 transition-colors mb-3"
+            className="flex items-center gap-1.5 text-sm font-bold text-muted-foreground hover:text-foreground transition-colors mb-3"
           >
             <ArrowLeft className="w-4 h-4" />
             강의로 돌아가기
@@ -137,7 +137,7 @@ export default function CourseStudentsPage({
               {course?.title && (
                 <p className="text-xs font-bold text-blue-600 mb-0.5">{course.title}</p>
               )}
-              <h1 className="text-2xl md:text-3xl font-black tracking-tight text-slate-800">
+              <h1 className="text-2xl md:text-3xl font-black tracking-tight text-foreground">
                 수강생 관리
               </h1>
             </div>
@@ -147,13 +147,13 @@ export default function CourseStudentsPage({
         {isLoading ? (
           <div className="py-32 flex flex-col items-center justify-center">
             <Loader2 className="w-10 h-10 text-blue-500 animate-spin mb-4" />
-            <p className="text-slate-500 font-medium">수강생 정보를 불러오는 중...</p>
+            <p className="text-muted-foreground font-medium">수강생 정보를 불러오는 중...</p>
           </div>
         ) : students.length === 0 ? (
-          <div className="bg-white border border-slate-200 rounded-3xl p-16 flex flex-col items-center justify-center text-center shadow-sm">
-            <Users className="w-16 h-16 text-slate-200 mb-5" />
-            <h2 className="text-xl font-black text-slate-700 mb-2">아직 수강생이 없습니다</h2>
-            <p className="text-slate-400 font-medium">초대 코드를 학생들에게 공유해보세요.</p>
+          <div className="bg-card border border-border rounded-3xl p-16 flex flex-col items-center justify-center text-center shadow-sm">
+            <Users className="w-16 h-16 text-muted-foreground/40 mb-5" />
+            <h2 className="text-xl font-black text-foreground mb-2">아직 수강생이 없습니다</h2>
+            <p className="text-muted-foreground font-medium">초대 코드를 학생들에게 공유해보세요.</p>
           </div>
         ) : (
           <>
@@ -167,10 +167,10 @@ export default function CourseStudentsPage({
                     key={status}
                     type="button"
                     onClick={() => setStatusFilter(active ? "ALL" : status)}
-                    className={`bg-white border rounded-2xl p-5 text-left transition-all ${
+                    className={`bg-card border rounded-2xl p-5 text-left transition-all ${
                       active
                         ? "border-blue-400 shadow-md ring-2 ring-blue-100"
-                        : "border-slate-100 hover:border-slate-200"
+                        : "border-border hover:border-border"
                     }`}
                   >
                     <div className="flex items-center justify-between mb-2">
@@ -180,9 +180,9 @@ export default function CourseStudentsPage({
                         {meta.label}
                       </span>
                     </div>
-                    <p className="text-2xl font-black text-slate-800">
+                    <p className="text-2xl font-black text-foreground">
                       {distribution[status]}
-                      <span className="text-sm font-bold text-slate-400 ml-1">명</span>
+                      <span className="text-sm font-bold text-muted-foreground ml-1">명</span>
                     </p>
                   </button>
                 );
@@ -190,18 +190,18 @@ export default function CourseStudentsPage({
             </div>
 
             {/* 검색 / 정렬 */}
-            <div className="bg-white border border-slate-100 rounded-2xl p-4 mb-4 flex flex-col md:flex-row md:items-center gap-3 shadow-sm">
+            <div className="bg-card border border-border rounded-2xl p-4 mb-4 flex flex-col md:flex-row md:items-center gap-3 shadow-sm">
               <div className="relative flex-1">
-                <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <Search className="w-4 h-4 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
                   placeholder="이름 또는 이메일로 검색"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="w-full h-10 pl-9 pr-4 rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 font-medium text-sm"
+                  className="w-full h-10 pl-9 pr-4 rounded-xl border border-border bg-card focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 font-medium text-sm"
                 />
               </div>
-              <div className="flex items-center gap-1 bg-slate-50 rounded-xl p-1">
+              <div className="flex items-center gap-1 bg-muted rounded-xl p-1">
                 {SORT_OPTIONS.map((opt) => (
                   <button
                     key={opt.key}
@@ -209,8 +209,8 @@ export default function CourseStudentsPage({
                     onClick={() => setSortKey(opt.key)}
                     className={`text-xs font-bold px-3 h-8 rounded-lg transition-colors ${
                       sortKey === opt.key
-                        ? "bg-white text-blue-600 shadow-sm"
-                        : "text-slate-500 hover:text-slate-700"
+                        ? "bg-card text-blue-600 shadow-sm"
+                        : "text-muted-foreground hover:text-foreground"
                     }`}
                   >
                     {opt.label}
@@ -221,7 +221,7 @@ export default function CourseStudentsPage({
 
             {/* 학생 목록 */}
             {filtered.length === 0 ? (
-              <div className="bg-white border border-slate-100 rounded-2xl p-12 text-center text-slate-400 font-medium">
+              <div className="bg-card border border-border rounded-2xl p-12 text-center text-muted-foreground font-medium">
                 조건에 맞는 수강생이 없습니다.
               </div>
             ) : (
@@ -258,7 +258,7 @@ function StudentRow({
   return (
     <Link
       href={`/courses/${courseId}/students/${student.userId}`}
-      className="block bg-white border border-slate-100 rounded-2xl p-5 hover:border-blue-200 hover:shadow-md transition-all group"
+      className="block bg-card border border-border rounded-2xl p-5 hover:border-blue-500/30 hover:shadow-md transition-all group"
     >
       <div className="flex items-center justify-between gap-4">
         {/* 좌측: 프로필 */}
@@ -268,14 +268,14 @@ function StudentRow({
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-2 mb-0.5">
-              <h3 className="font-black text-slate-800 truncate">{student.name}</h3>
+              <h3 className="font-black text-foreground truncate">{student.name}</h3>
               <span
                 className={`text-[10px] font-black px-2 py-0.5 rounded-full ${meta.bg} ${meta.text} ring-1 ${meta.ring}`}
               >
                 {meta.label}
               </span>
             </div>
-            <p className="text-xs font-bold text-slate-400 truncate">{student.email}</p>
+            <p className="text-xs font-bold text-muted-foreground truncate">{student.email}</p>
           </div>
         </div>
 
@@ -295,7 +295,7 @@ function StudentRow({
           <Stat label="최근활동" value={lastActive} />
         </div>
 
-        <ChevronRight className="w-5 h-5 text-slate-300 group-hover:text-blue-500 transition-colors shrink-0" />
+        <ChevronRight className="w-5 h-5 text-muted-foreground/60 group-hover:text-blue-500 transition-colors shrink-0" />
       </div>
 
       {/* 모바일 통계 */}
@@ -323,20 +323,20 @@ function Stat({
 }) {
   return (
     <div className="text-right">
-      <div className="flex items-center justify-end gap-1 text-[10px] font-black text-slate-400 uppercase tracking-wider mb-0.5">
+      <div className="flex items-center justify-end gap-1 text-[10px] font-black text-muted-foreground uppercase tracking-wider mb-0.5">
         {icon}
         {label}
       </div>
-      <p className="text-sm font-black text-slate-700">{value}</p>
+      <p className="text-sm font-black text-foreground">{value}</p>
     </div>
   );
 }
 
 function MobileStat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="bg-slate-50 rounded-xl px-3 py-2">
-      <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider">{label}</p>
-      <p className="text-sm font-black text-slate-700">{value}</p>
+    <div className="bg-muted rounded-xl px-3 py-2">
+      <p className="text-[10px] font-black text-muted-foreground uppercase tracking-wider">{label}</p>
+      <p className="text-sm font-black text-foreground">{value}</p>
     </div>
   );
 }

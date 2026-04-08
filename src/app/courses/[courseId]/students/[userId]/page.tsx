@@ -39,10 +39,10 @@ const STATUS_META: Record<
   StudentStatus,
   { label: string; bg: string; text: string; ring: string }
 > = {
-  EXCELLENT: { label: "우수", bg: "bg-emerald-50", text: "text-emerald-700", ring: "ring-emerald-200" },
-  GOOD: { label: "양호", bg: "bg-blue-50", text: "text-blue-700", ring: "ring-blue-200" },
-  AVERAGE: { label: "보통", bg: "bg-slate-50", text: "text-slate-600", ring: "ring-slate-200" },
-  NEEDS_HELP: { label: "도움필요", bg: "bg-rose-50", text: "text-rose-700", ring: "ring-rose-200" },
+  EXCELLENT: { label: "우수", bg: "bg-emerald-500/10", text: "text-emerald-700", ring: "ring-emerald-500/30" },
+  GOOD: { label: "양호", bg: "bg-blue-500/10", text: "text-blue-700", ring: "ring-blue-500/30" },
+  AVERAGE: { label: "보통", bg: "bg-muted", text: "text-muted-foreground", ring: "ring-border" },
+  NEEDS_HELP: { label: "도움필요", bg: "bg-rose-500/10", text: "text-rose-700", ring: "ring-rose-500/30" },
 };
 
 function formatIsoWeekLabel(weekStr: string): string {
@@ -120,7 +120,7 @@ export default function StudentDetailPage({
   if (!isInstructor) {
     return (
       <MainLayout>
-        <div className="py-20 text-center text-slate-500 font-medium">
+        <div className="py-20 text-center text-muted-foreground font-medium">
           교강사만 접근할 수 있는 페이지입니다.
         </div>
       </MainLayout>
@@ -132,7 +132,7 @@ export default function StudentDetailPage({
       <MainLayout>
         <div className="py-32 flex flex-col items-center justify-center">
           <Loader2 className="w-10 h-10 text-blue-500 animate-spin mb-4" />
-          <p className="text-slate-500 font-medium">학생 정보를 불러오는 중...</p>
+          <p className="text-muted-foreground font-medium">학생 정보를 불러오는 중...</p>
         </div>
       </MainLayout>
     );
@@ -147,28 +147,28 @@ export default function StudentDetailPage({
         <button
           type="button"
           onClick={() => router.push(`/courses/${courseId}/students`)}
-          className="flex items-center gap-1.5 text-sm font-bold text-slate-500 hover:text-slate-800 transition-colors mb-4"
+          className="flex items-center gap-1.5 text-sm font-bold text-muted-foreground hover:text-foreground transition-colors mb-4"
         >
           <ArrowLeft className="w-4 h-4" />
           수강생 목록으로
         </button>
 
         {/* 학생 헤더 카드 */}
-        <div className="bg-gradient-to-br from-blue-50 via-violet-50/40 to-white border border-blue-100 rounded-3xl p-6 md:p-8 mb-6 shadow-sm">
+        <div className="bg-gradient-to-br from-blue-500/10 via-violet-500/10 to-card border border-blue-500/20 rounded-3xl p-6 md:p-8 mb-6 shadow-sm">
           <div className="flex flex-col md:flex-row md:items-center gap-5">
             <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-blue-500 to-violet-500 flex items-center justify-center text-white font-black text-3xl shrink-0">
               {data.userName?.charAt(0) || "?"}
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-3 mb-1.5">
-                <h1 className="text-2xl md:text-3xl font-black text-slate-800">{data.userName}</h1>
+                <h1 className="text-2xl md:text-3xl font-black text-foreground">{data.userName}</h1>
                 <span
                   className={`text-xs font-black px-3 py-1 rounded-full ${meta.bg} ${meta.text} ring-1 ${meta.ring}`}
                 >
                   {meta.label}
                 </span>
               </div>
-              <div className="flex flex-wrap items-center gap-x-5 gap-y-1.5 text-sm font-medium text-slate-500">
+              <div className="flex flex-wrap items-center gap-x-5 gap-y-1.5 text-sm font-medium text-muted-foreground">
                 <span className="flex items-center gap-1.5">
                   <Mail className="w-3.5 h-3.5" /> {data.userEmail}
                 </span>
@@ -210,11 +210,11 @@ export default function StudentDetailPage({
         {/* 차트 영역 */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
           {/* 주차별 점수 추이 */}
-          <div className="lg:col-span-2 bg-white border border-slate-100 rounded-3xl p-6 shadow-sm">
+          <div className="lg:col-span-2 bg-card border border-border rounded-3xl p-6 shadow-sm">
             <div className="flex items-center justify-between mb-5">
               <div className="flex items-center gap-2">
                 <TrendingUp className="w-4 h-4 text-blue-500" />
-                <h2 className="text-base font-black text-slate-800">주차별 점수 추이</h2>
+                <h2 className="text-base font-black text-foreground">주차별 점수 추이</h2>
               </div>
             </div>
             {lineData.length > 0 ? (
@@ -227,8 +227,8 @@ export default function StudentDetailPage({
           </div>
 
           {/* 역량 레이더 */}
-          <div className="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm">
-            <h2 className="text-base font-black text-slate-800 mb-5">학습 역량</h2>
+          <div className="bg-card border border-border rounded-3xl p-6 shadow-sm">
+            <h2 className="text-base font-black text-foreground mb-5">학습 역량</h2>
             {radarData.length > 0 ? (
               <div className="h-72">
                 <AnalysisRadarChart data={radarData} />
@@ -240,34 +240,34 @@ export default function StudentDetailPage({
         </div>
 
         {/* 약점 개념 */}
-        <div className="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm mb-6">
+        <div className="bg-card border border-border rounded-3xl p-6 shadow-sm mb-6">
           <div className="flex items-center gap-2 mb-5">
             <AlertTriangle className="w-4 h-4 text-rose-500" />
-            <h2 className="text-base font-black text-slate-800">약점 개념</h2>
+            <h2 className="text-base font-black text-foreground">약점 개념</h2>
           </div>
           {data.weakConcepts && data.weakConcepts.length > 0 ? (
             <ul className="space-y-3">
               {data.weakConcepts.map((wc, i) => {
                 const rate = Math.round((wc.correctRate ?? 0) * 100);
                 return (
-                  <li key={i} className="bg-slate-50 rounded-2xl p-4">
+                  <li key={i} className="bg-muted rounded-2xl p-4">
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2 min-w-0">
-                        <span className="w-6 h-6 rounded-lg bg-rose-100 text-rose-600 text-xs font-black flex items-center justify-center shrink-0">
+                        <span className="w-6 h-6 rounded-lg bg-rose-500/15 text-rose-600 text-xs font-black flex items-center justify-center shrink-0">
                           {i + 1}
                         </span>
-                        <p className="text-sm font-black text-slate-700 truncate">
+                        <p className="text-sm font-black text-foreground truncate">
                           {wc.concept}
                         </p>
                       </div>
                       <div className="text-right shrink-0 ml-3">
                         <p className="text-sm font-black text-rose-600">{rate}%</p>
-                        <p className="text-[10px] font-bold text-slate-400">
+                        <p className="text-[10px] font-bold text-muted-foreground">
                           {wc.attemptCount}회 시도
                         </p>
                       </div>
                     </div>
-                    <div className="h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                    <div className="h-1.5 bg-border rounded-full overflow-hidden">
                       <div
                         className="h-full bg-gradient-to-r from-rose-400 to-rose-500"
                         style={{ width: `${rate}%` }}
@@ -278,7 +278,7 @@ export default function StudentDetailPage({
               })}
             </ul>
           ) : (
-            <p className="text-slate-400 font-medium text-sm py-6 text-center">
+            <p className="text-muted-foreground font-medium text-sm py-6 text-center">
               아직 충분한 데이터가 없습니다.
             </p>
           )}
@@ -298,19 +298,19 @@ function MetricCard({
   value: string;
 }) {
   return (
-    <div className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm">
+    <div className="bg-card border border-border rounded-2xl p-5 shadow-sm">
       <div className="flex items-center justify-between mb-2">
-        <p className="text-xs font-black text-slate-400 uppercase tracking-wider">{label}</p>
+        <p className="text-xs font-black text-muted-foreground uppercase tracking-wider">{label}</p>
         {icon}
       </div>
-      <p className="text-2xl font-black text-slate-800">{value}</p>
+      <p className="text-2xl font-black text-foreground">{value}</p>
     </div>
   );
 }
 
 function EmptyChart({ message }: { message: string }) {
   return (
-    <div className="h-56 flex items-center justify-center text-slate-400 font-medium text-sm">
+    <div className="h-56 flex items-center justify-center text-muted-foreground font-medium text-sm">
       {message}
     </div>
   );

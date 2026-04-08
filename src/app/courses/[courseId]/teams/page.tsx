@@ -74,7 +74,7 @@ export default function TeamsPage({
         <button
           type="button"
           onClick={() => router.push(`/courses/${courseId}`)}
-          className="flex items-center gap-1.5 text-sm font-bold text-slate-500 hover:text-slate-800 mb-4"
+          className="flex items-center gap-1.5 text-sm font-bold text-muted-foreground hover:text-foreground mb-4"
         >
           <ArrowLeft className="w-4 h-4" />
           강의로 돌아가기
@@ -89,7 +89,7 @@ export default function TeamsPage({
               {course?.title && (
                 <p className="text-xs font-bold text-violet-600 truncate">{course.title}</p>
               )}
-              <h1 className="text-2xl md:text-3xl font-black tracking-tight text-slate-800">
+              <h1 className="text-2xl md:text-3xl font-black tracking-tight text-foreground">
                 팀
               </h1>
             </div>
@@ -113,22 +113,22 @@ export default function TeamsPage({
               if (!newName.trim()) return;
               createMutation.mutate();
             }}
-            className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm mb-6"
+            className="bg-card border border-border rounded-3xl p-6 shadow-sm mb-6"
           >
-            <h2 className="text-base font-black text-slate-800 mb-3">새 팀</h2>
+            <h2 className="text-base font-black text-foreground mb-3">새 팀</h2>
             <input
               type="text"
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
               placeholder="팀 이름"
-              className="w-full h-11 px-4 mb-3 rounded-xl border border-slate-200 focus:outline-none focus:border-violet-400 focus:ring-2 focus:ring-violet-100 font-medium"
+              className="w-full h-11 px-4 mb-3 rounded-xl border border-border focus:outline-none focus:border-violet-400 focus:ring-2 focus:ring-violet-100 font-medium"
             />
             <textarea
               value={newDesc}
               onChange={(e) => setNewDesc(e.target.value)}
               placeholder="팀 설명 (옵션)"
               rows={2}
-              className="w-full px-4 py-3 mb-4 rounded-xl border border-slate-200 focus:outline-none focus:border-violet-400 focus:ring-2 focus:ring-violet-100 font-medium resize-y"
+              className="w-full px-4 py-3 mb-4 rounded-xl border border-border focus:outline-none focus:border-violet-400 focus:ring-2 focus:ring-violet-100 font-medium resize-y"
             />
             <div className="flex justify-end">
               <button
@@ -148,10 +148,10 @@ export default function TeamsPage({
             <Loader2 className="w-10 h-10 text-violet-500 animate-spin" />
           </div>
         ) : teams.length === 0 ? (
-          <div className="bg-white border border-slate-200 rounded-3xl p-16 flex flex-col items-center justify-center text-center shadow-sm">
-            <Users className="w-16 h-16 text-slate-200 mb-5" />
-            <h2 className="text-xl font-black text-slate-700 mb-2">아직 팀이 없습니다</h2>
-            <p className="text-slate-400 font-medium">
+          <div className="bg-card border border-border rounded-3xl p-16 flex flex-col items-center justify-center text-center shadow-sm">
+            <Users className="w-16 h-16 text-muted-foreground/40 mb-5" />
+            <h2 className="text-xl font-black text-foreground mb-2">아직 팀이 없습니다</h2>
+            <p className="text-muted-foreground font-medium">
               {isInstructor ? "학생들이 팀을 생성하면 여기에 표시됩니다." : "위의 '팀 만들기' 버튼으로 새 팀을 시작해보세요."}
             </p>
           </div>
@@ -200,17 +200,17 @@ function TeamCard({
   });
 
   return (
-    <div className="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm">
+    <div className="bg-card border border-border rounded-3xl p-6 shadow-sm">
       <div className="flex items-start justify-between gap-4 mb-3">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 mb-1">
-            <h3 className="font-black text-slate-800 truncate">{team.name}</h3>
-            <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
+            <h3 className="font-black text-foreground truncate">{team.name}</h3>
+            <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
               {team.members.length}명
             </span>
           </div>
           {team.description && (
-            <p className="text-sm text-slate-500 font-medium">{team.description}</p>
+            <p className="text-sm text-muted-foreground font-medium">{team.description}</p>
           )}
         </div>
         <div className="flex items-center gap-2 shrink-0">
@@ -218,7 +218,7 @@ function TeamCard({
             <button
               type="button"
               onClick={() => setShowInvite((v) => !v)}
-              className="px-3 h-9 bg-violet-50 hover:bg-violet-100 text-violet-700 font-bold rounded-xl text-xs flex items-center gap-1 transition-colors"
+              className="px-3 h-9 bg-violet-500/10 hover:bg-violet-500/15 text-violet-700 font-bold rounded-xl text-xs flex items-center gap-1 transition-colors"
             >
               <UserPlus className="w-3.5 h-3.5" />
               초대
@@ -231,7 +231,7 @@ function TeamCard({
                 if (confirm("팀을 해체하시겠습니까? 모든 멤버와 초대장이 사라집니다."))
                   disbandMutation.mutate();
               }}
-              className="px-3 h-9 bg-white border border-rose-200 hover:bg-rose-50 text-rose-500 font-bold rounded-xl text-xs flex items-center gap-1"
+              className="px-3 h-9 bg-card border border-rose-500/30 hover:bg-rose-500/10 text-rose-500 font-bold rounded-xl text-xs flex items-center gap-1"
             >
               <Trash2 className="w-3.5 h-3.5" />
               해체
@@ -243,7 +243,7 @@ function TeamCard({
                 onClick={() => {
                   if (confirm("팀에서 나가시겠습니까?")) leaveMutation.mutate();
                 }}
-                className="px-3 h-9 bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 font-bold rounded-xl text-xs flex items-center gap-1"
+                className="px-3 h-9 bg-card border border-border hover:bg-muted text-muted-foreground font-bold rounded-xl text-xs flex items-center gap-1"
               >
                 <LogOut className="w-3.5 h-3.5" />
                 나가기
@@ -258,12 +258,12 @@ function TeamCard({
         {team.members.map((m) => (
           <div
             key={m.userId}
-            className="flex items-center gap-2 bg-slate-50 rounded-full pl-1 pr-3 py-1"
+            className="flex items-center gap-2 bg-muted rounded-full pl-1 pr-3 py-1"
           >
             <div className="w-7 h-7 rounded-full bg-gradient-to-br from-blue-500 to-violet-500 flex items-center justify-center text-white text-xs font-black">
               {m.name.charAt(0)}
             </div>
-            <span className="text-xs font-bold text-slate-700">{m.name}</span>
+            <span className="text-xs font-bold text-foreground">{m.name}</span>
             {m.userId === team.leaderId && (
               <Crown className="w-3 h-3 text-amber-500" />
             )}
@@ -322,29 +322,29 @@ function InvitePanel({
   });
 
   return (
-    <div className="mt-4 pt-4 border-t border-slate-100">
+    <div className="mt-4 pt-4 border-t border-border">
       <div className="flex items-center justify-between mb-3">
-        <h4 className="text-sm font-black text-slate-700">팀원 초대</h4>
+        <h4 className="text-sm font-black text-foreground">팀원 초대</h4>
         <button
           type="button"
           onClick={onClose}
-          className="text-slate-400 hover:text-slate-600"
+          className="text-muted-foreground hover:text-muted-foreground"
         >
           <X className="w-4 h-4" />
         </button>
       </div>
       <div className="relative mb-3">
-        <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+        <Search className="w-4 h-4 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2" />
         <input
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="수강생 이름 또는 이메일 검색"
-          className="w-full h-10 pl-9 pr-4 rounded-xl border border-slate-200 focus:outline-none focus:border-violet-400 focus:ring-2 focus:ring-violet-100 font-medium text-sm"
+          className="w-full h-10 pl-9 pr-4 rounded-xl border border-border focus:outline-none focus:border-violet-400 focus:ring-2 focus:ring-violet-100 font-medium text-sm"
         />
       </div>
       {candidates.length === 0 ? (
-        <p className="text-xs font-medium text-slate-400 py-3 text-center">
+        <p className="text-xs font-medium text-muted-foreground py-3 text-center">
           초대 가능한 수강생이 없습니다.
         </p>
       ) : (
@@ -352,15 +352,15 @@ function InvitePanel({
           {candidates.map((u: CourseMember) => (
             <li
               key={u.userId}
-              className="flex items-center justify-between gap-3 p-3 bg-slate-50 rounded-xl"
+              className="flex items-center justify-between gap-3 p-3 bg-muted rounded-xl"
             >
               <div className="flex items-center gap-3 min-w-0">
                 <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-violet-500 flex items-center justify-center text-white text-xs font-black shrink-0">
                   {u.name.charAt(0)}
                 </div>
                 <div className="min-w-0">
-                  <p className="text-sm font-bold text-slate-800 truncate">{u.name}</p>
-                  <p className="text-[11px] font-bold text-slate-400 truncate">{u.email}</p>
+                  <p className="text-sm font-bold text-foreground truncate">{u.name}</p>
+                  <p className="text-[11px] font-bold text-muted-foreground truncate">{u.email}</p>
                 </div>
               </div>
               <button

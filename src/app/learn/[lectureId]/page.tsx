@@ -22,21 +22,21 @@ const DocumentSummaryView = ({ document }: { document: DocumentItem }) => {
     return (
       <div className="py-16 flex flex-col items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-primary mb-3" />
-        <p className="text-slate-400 text-sm font-medium">요약을 불러오는 중...</p>
+        <p className="text-muted-foreground text-sm font-medium">요약을 불러오는 중...</p>
       </div>
     );
   }
   if (!data) {
     return (
       <div className="py-10 flex flex-col items-center justify-center text-center">
-        <AlertCircle className="w-10 h-10 text-slate-300 mb-3" />
-        <p className="text-slate-500 font-medium">요약을 불러올 수 없습니다.</p>
+        <AlertCircle className="w-10 h-10 text-muted-foreground/60 mb-3" />
+        <p className="text-muted-foreground font-medium">요약을 불러올 수 없습니다.</p>
       </div>
     );
   }
 
   return (
-    <div className="markdown-body text-slate-700 text-[15px] leading-[1.85]">
+    <div className="markdown-body text-foreground text-[15px] leading-[1.85]">
       <ReactMarkdown remarkPlugins={[remarkGfm]}>{data.summary || "문서 내용이 비어있습니다."}</ReactMarkdown>
     </div>
   );
@@ -152,19 +152,19 @@ export default function LearnPage({ params }: { params: Promise<{ lectureId: str
   return (
     <div className="h-screen flex flex-col bg-background font-sans">
       {/* Top Header */}
-      <header className="h-14 border-b border-slate-200 bg-white px-4 flex items-center justify-between shrink-0 shadow-sm z-20">
+      <header className="h-14 border-b border-border bg-card px-4 flex items-center justify-between shrink-0 shadow-sm z-20">
         <div className="flex items-center space-x-3">
           <Link
             href="/courses"
-            className="w-8 h-8 hover:bg-slate-100 rounded-full flex items-center justify-center text-slate-500 transition-colors"
+            className="w-8 h-8 hover:bg-muted rounded-full flex items-center justify-center text-muted-foreground transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
           </Link>
           <div className="flex items-center space-x-2">
-            <span className="text-xs font-bold bg-blue-100 text-blue-600 px-2.5 py-1 rounded-full">
+            <span className="text-xs font-bold bg-blue-500/15 text-blue-600 px-2.5 py-1 rounded-full">
               학습 집중 모드
             </span>
-            <h1 className="font-bold text-slate-800">강의 상세 및 요약</h1>
+            <h1 className="font-bold text-foreground">강의 상세 및 요약</h1>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -173,7 +173,7 @@ export default function LearnPage({ params }: { params: Promise<{ lectureId: str
               type="button"
               onClick={() => fileInputRef.current?.click()}
               disabled={uploadDocumentMutation.isPending}
-              className="px-4 h-9 bg-white border border-primary/30 text-primary text-sm font-bold rounded-full hover:bg-primary/5 transition-all shadow-sm flex items-center gap-2 disabled:opacity-50"
+              className="px-4 h-9 bg-card border border-primary/30 text-primary text-sm font-bold rounded-full hover:bg-primary/5 transition-all shadow-sm flex items-center gap-2 disabled:opacity-50"
             >
               {uploadDocumentMutation.isPending ? (
                 <>
@@ -201,7 +201,7 @@ export default function LearnPage({ params }: { params: Promise<{ lectureId: str
           {isInstructor && (
             <Link
               href={`/learn/${resolvedParams.lectureId}/quiz/manage`}
-              className="px-4 h-9 bg-white border border-slate-200 text-slate-700 text-sm font-bold rounded-full hover:bg-slate-50 transition-all shadow-sm flex items-center gap-2"
+              className="px-4 h-9 bg-card border border-border text-foreground text-sm font-bold rounded-full hover:bg-muted transition-all shadow-sm flex items-center gap-2"
             >
               <Settings className="w-4 h-4" />
               퀴즈 관리
@@ -209,7 +209,7 @@ export default function LearnPage({ params }: { params: Promise<{ lectureId: str
           )}
           <Link
             href={`/learn/${resolvedParams.lectureId}/quiz`}
-            className="px-5 h-9 bg-gradient-to-r from-slate-700 to-slate-900 text-white text-sm font-bold rounded-full hover:opacity-90 transition-all shadow-sm flex items-center gap-2"
+            className="px-5 h-9 bg-gradient-to-r from-foreground to-foreground/80 text-white text-sm font-bold rounded-full hover:opacity-90 transition-all shadow-sm flex items-center gap-2"
           >
             <CheckCircle className="w-4 h-4" />
             {isInstructor ? "학생 시점 미리보기" : "복습 퀴즈 풀기"}
@@ -220,20 +220,20 @@ export default function LearnPage({ params }: { params: Promise<{ lectureId: str
       {/* Main Body - flex row */}
       <div ref={containerRef} className="flex-1 overflow-hidden flex w-full relative">
         {/* Document Area (남은 공간 전체) */}
-        <div ref={documentScrollRef} className="flex-1 h-full bg-slate-50 overflow-y-auto custom-scrollbar min-w-0">
+        <div ref={documentScrollRef} className="flex-1 h-full bg-muted overflow-y-auto custom-scrollbar min-w-0">
           <div className="max-w-[820px] mx-auto py-10 px-4 md:px-8">
             {docLoading ? (
               <div className="flex flex-col items-center justify-center py-32">
                 <Loader2 className="w-10 h-10 text-primary animate-spin mb-4" />
-                <p className="text-slate-500 font-medium">강의 자료를 불러오는 중입니다...</p>
+                <p className="text-muted-foreground font-medium">강의 자료를 불러오는 중입니다...</p>
               </div>
             ) : documents.length === 0 ? (
-              <div className="bg-white border border-slate-200 rounded-3xl p-16 flex flex-col items-center justify-center text-center shadow-sm">
-                <BookOpen className="w-16 h-16 text-slate-200 mb-5" />
-                <h2 className="text-xl font-bold text-slate-700 mb-2">등록된 학습 자료가 없습니다</h2>
+              <div className="bg-card border border-border rounded-3xl p-16 flex flex-col items-center justify-center text-center shadow-sm">
+                <BookOpen className="w-16 h-16 text-muted-foreground/40 mb-5" />
+                <h2 className="text-xl font-bold text-foreground mb-2">등록된 학습 자료가 없습니다</h2>
                 {isInstructor ? (
                   <>
-                    <p className="text-slate-400 font-medium mb-6">PDF 또는 텍스트 파일을 올려 AI 분석을 시작하세요.</p>
+                    <p className="text-muted-foreground font-medium mb-6">PDF 또는 텍스트 파일을 올려 AI 분석을 시작하세요.</p>
                     <button
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
@@ -254,7 +254,7 @@ export default function LearnPage({ params }: { params: Promise<{ lectureId: str
                     </button>
                   </>
                 ) : (
-                  <p className="text-slate-400 font-medium">교강사가 아직 자료를 업로드하지 않았습니다.</p>
+                  <p className="text-muted-foreground font-medium">교강사가 아직 자료를 업로드하지 않았습니다.</p>
                 )}
               </div>
             ) : (
@@ -263,23 +263,23 @@ export default function LearnPage({ params }: { params: Promise<{ lectureId: str
                   <div
                     key={doc.id}
                     ref={idx === documents.length - 1 ? lastDocCardRef : undefined}
-                    className="bg-white border border-slate-200 rounded-3xl shadow-sm overflow-hidden scroll-mt-20"
+                    className="bg-card border border-border rounded-3xl shadow-sm overflow-hidden scroll-mt-20"
                   >
                     {/* Document Header */}
-                    <div className="flex items-center justify-between px-8 py-5 border-b border-slate-100 bg-slate-50/50">
+                    <div className="flex items-center justify-between px-8 py-5 border-b border-border bg-muted/50">
                       <div className="flex items-center gap-3 min-w-0">
                         <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
                           <FileText className="w-5 h-5 text-primary" />
                         </div>
-                        <h2 className="text-base font-bold text-slate-800 truncate">{doc.originalName}</h2>
+                        <h2 className="text-base font-bold text-foreground truncate">{doc.originalName}</h2>
                       </div>
                       <span
                         className={`ml-4 shrink-0 px-3 py-1 rounded-full text-xs font-bold ${
                           doc.processingStatus === "COMPLETED"
-                            ? "bg-emerald-100 text-emerald-700"
+                            ? "bg-emerald-500/15 text-emerald-700"
                             : doc.processingStatus === "FAILED"
-                            ? "bg-red-100 text-red-700"
-                            : "bg-blue-100 text-blue-700 animate-pulse"
+                            ? "bg-red-500/15 text-red-700"
+                            : "bg-blue-500/15 text-blue-700 animate-pulse"
                         }`}
                       >
                         {doc.processingStatus === "COMPLETED"
@@ -295,11 +295,11 @@ export default function LearnPage({ params }: { params: Promise<{ lectureId: str
                       {doc.processingStatus === "PENDING" || doc.processingStatus === "PROCESSING" ? (
                         <div className="flex flex-col items-center justify-center py-20 text-center">
                           <div className="relative mb-6">
-                            <div className="w-16 h-16 border-4 border-slate-100 rounded-full" />
+                            <div className="w-16 h-16 border-4 border-border rounded-full" />
                             <div className="absolute inset-0 border-4 border-primary rounded-full border-t-transparent animate-spin" />
                           </div>
-                          <h3 className="text-lg font-bold text-slate-800 mb-2">AI가 문서를 분석 중입니다</h3>
-                          <p className="text-slate-400 font-medium text-sm">
+                          <h3 className="text-lg font-bold text-foreground mb-2">AI가 문서를 분석 중입니다</h3>
+                          <p className="text-muted-foreground font-medium text-sm">
                             자동으로 요약본이 생성됩니다. 잠시만 기다려주세요.
                           </p>
                         </div>
@@ -307,7 +307,7 @@ export default function LearnPage({ params }: { params: Promise<{ lectureId: str
                         <div className="py-16 flex flex-col items-center justify-center text-center">
                           <AlertCircle className="w-12 h-12 text-red-300 mb-4" />
                           <p className="text-red-500 font-bold">문서 분석에 실패했습니다.</p>
-                          <p className="text-slate-400 text-sm mt-1">파일을 다시 업로드해주세요.</p>
+                          <p className="text-muted-foreground text-sm mt-1">파일을 다시 업로드해주세요.</p>
                         </div>
                       ) : (
                         <DocumentSummaryView document={doc} />
@@ -332,17 +332,17 @@ export default function LearnPage({ params }: { params: Promise<{ lectureId: str
         {/* ── 드래그 핸들 ── */}
         <div
           onMouseDown={handleMouseDown}
-          className="w-1.5 h-full bg-slate-200 hover:bg-primary/40 cursor-col-resize flex items-center justify-center shrink-0 transition-colors group relative z-10"
+          className="w-1.5 h-full bg-border hover:bg-primary/40 cursor-col-resize flex items-center justify-center shrink-0 transition-colors group relative z-10"
           title="드래그하여 너비 조정"
         >
           <div className="absolute flex flex-col gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-            <GripVertical className="w-4 h-4 text-slate-400" />
+            <GripVertical className="w-4 h-4 text-muted-foreground" />
           </div>
         </div>
 
         {/* AI Sidebar (너비 조절 가능) */}
         <div
-          className="h-full border-l border-slate-200 bg-white shrink-0 overflow-hidden"
+          className="h-full border-l border-border bg-card shrink-0 overflow-hidden"
           style={{ width: sidebarWidth }}
         >
           <AiSidebar lectureId={lectureId} />

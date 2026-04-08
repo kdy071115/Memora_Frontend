@@ -124,7 +124,7 @@ export default function QuizPage({ params }: { params: Promise<{ lectureId: stri
       <MainLayout>
         <div className="flex flex-col items-center justify-center min-h-[80vh]">
           <Loader2 className="w-12 h-12 text-primary animate-spin mb-4" />
-          <p className="text-slate-500 font-medium">퀴즈를 불러오는 중입니다...</p>
+          <p className="text-muted-foreground font-medium">퀴즈를 불러오는 중입니다...</p>
         </div>
       </MainLayout>
     );
@@ -137,10 +137,10 @@ export default function QuizPage({ params }: { params: Promise<{ lectureId: stri
           <div className="w-20 h-20 rounded-3xl bg-primary/10 flex items-center justify-center mb-5">
             <Sparkles className="w-10 h-10 text-primary" />
           </div>
-          <h2 className="text-2xl font-black text-slate-800 mb-2">등록된 퀴즈가 없습니다</h2>
+          <h2 className="text-2xl font-black text-foreground mb-2">등록된 퀴즈가 없습니다</h2>
           {isInstructor ? (
             <>
-              <p className="text-slate-500 font-medium mb-6">
+              <p className="text-muted-foreground font-medium mb-6">
                 학생들이 풀 복습 퀴즈를 직접 출제하거나, AI 자동 출제로 빠르게 시작해보세요.
               </p>
               <div className="flex flex-col sm:flex-row gap-3">
@@ -153,7 +153,7 @@ export default function QuizPage({ params }: { params: Promise<{ lectureId: stri
                 </Link>
                 <Link
                   href={`/learn/${lectureId}`}
-                  className="px-6 h-12 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-full transition-colors flex items-center justify-center"
+                  className="px-6 h-12 bg-muted hover:bg-border text-foreground font-bold rounded-full transition-colors flex items-center justify-center"
                 >
                   학습 뷰로 돌아가기
                 </Link>
@@ -161,7 +161,7 @@ export default function QuizPage({ params }: { params: Promise<{ lectureId: stri
             </>
           ) : (
             <>
-              <p className="text-slate-500 font-medium mb-6">
+              <p className="text-muted-foreground font-medium mb-6">
                 담당 교강사가 아직 복습 문제를 출제하지 않았습니다. 곧 추가될 예정입니다!
               </p>
               <Link
@@ -187,27 +187,27 @@ export default function QuizPage({ params }: { params: Promise<{ lectureId: stri
 
   return (
     <MainLayout>
-       <div className="flex flex-col w-full py-8 text-slate-800 max-w-3xl mx-auto min-h-[80vh]">
-          <Link href={`/learn/${lectureId}`} className="inline-flex items-center text-slate-500 font-bold hover:text-primary mb-6 transition-colors w-max">
+       <div className="flex flex-col w-full py-8 text-foreground max-w-3xl mx-auto min-h-[80vh]">
+          <Link href={`/learn/${lectureId}`} className="inline-flex items-center text-muted-foreground font-bold hover:text-primary mb-6 transition-colors w-max">
              <ArrowLeft className="w-4 h-4 mr-2" />
              학습 뷰로 돌아가기
           </Link>
           
           <div className="flex justify-between items-end mb-8">
              <div>
-                <span className="inline-flex px-3 py-1 bg-orange-100 border border-orange-200 rounded-full text-sm font-bold text-orange-600 mb-3">
+                <span className="inline-flex px-3 py-1 bg-orange-500/15 border border-orange-500/30 rounded-full text-sm font-bold text-orange-600 mb-3">
                   복습 타이밍!
                 </span>
                 <h1 className="text-3xl md:text-4xl font-black tracking-tight leading-tight">
                    핵심 개념 마스터 점검
                 </h1>
              </div>
-             <div className="text-xl font-black text-slate-400 bg-slate-100 px-4 py-2 rounded-[1rem]">
+             <div className="text-xl font-black text-muted-foreground bg-muted px-4 py-2 rounded-[1rem]">
                 {currentQuizIndex + 1} / {quizzes.length}
              </div>
           </div>
 
-          <div className="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden mb-6">
+          <div className="w-full bg-border h-2.5 rounded-full overflow-hidden mb-6">
              <div className="bg-orange-500 h-2.5 rounded-full transition-all duration-500" style={{ width: `${((currentQuizIndex + 1) / quizzes.length) * 100}%` }} />
           </div>
 
@@ -220,16 +220,16 @@ export default function QuizPage({ params }: { params: Promise<{ lectureId: stri
             />
           )}
 
-          <div className="bg-white border border-slate-100 rounded-[2.5rem] p-8 md:p-12 shadow-xl relative overflow-hidden flex-1 flex flex-col">
+          <div className="bg-card border border-border rounded-[2.5rem] p-8 md:p-12 shadow-xl relative overflow-hidden flex-1 flex flex-col">
              
              {/* Decorative blob */}
-             <div className="absolute right-0 top-0 w-64 h-64 bg-orange-50/50 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none" />
+             <div className="absolute right-0 top-0 w-64 h-64 bg-orange-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none" />
 
              <div className="mb-10 z-10 relative">
-               <span className="inline-block px-3 py-1 bg-slate-100 text-slate-500 font-bold text-xs rounded-full mb-4">
+               <span className="inline-block px-3 py-1 bg-muted text-muted-foreground font-bold text-xs rounded-full mb-4">
                   {quiz.difficulty === 'HARD' ? '어려움' : quiz.difficulty === 'MEDIUM' ? '보통' : '쉬움'} • {quiz.conceptTag || '일반'}
                </span>
-               <h2 className="text-2xl md:text-3xl font-bold text-slate-800 leading-relaxed">
+               <h2 className="text-2xl md:text-3xl font-bold text-foreground leading-relaxed">
                  <span className="text-orange-500 font-black mr-2">Q.</span>
                  {quiz.question}
                </h2>
@@ -241,22 +241,22 @@ export default function QuizPage({ params }: { params: Promise<{ lectureId: stri
                  
                  if (!showResult) {
                    btnClasses += selectedOptIndex === idx 
-                     ? "border-orange-500 bg-orange-50 text-orange-700 shadow-md scale-[1.02]" 
-                     : "border-slate-200 bg-white hover:bg-slate-50 hover:border-slate-300 text-slate-600";
+                     ? "border-orange-500 bg-orange-500/10 text-orange-700 shadow-md scale-[1.02]" 
+                     : "border-border bg-card hover:bg-muted hover:border-border text-muted-foreground";
                  } else {
                     const isSelected = selectedOptIndex === idx;
                     // For multiple choice, if we don't have resultData yet, we show pending
                     if (resultData) {
                        const isCorrectAnswer = resultData.correctAnswer === opt;
                        if (isCorrectAnswer) {
-                          btnClasses += "border-green-500 bg-green-50 text-green-700";
+                          btnClasses += "border-green-500 bg-green-500/10 text-green-700";
                        } else if (isSelected && !isCorrectAnswer) {
-                          btnClasses += "border-red-400 bg-red-50 text-red-600";
+                          btnClasses += "border-red-400 bg-red-500/10 text-red-600";
                        } else {
-                          btnClasses += "border-slate-100 bg-slate-50 text-slate-400 opacity-50";
+                          btnClasses += "border-border bg-muted text-muted-foreground opacity-50";
                        }
                     } else {
-                       btnClasses += "border-slate-100 bg-slate-50 text-slate-400 opacity-50";
+                       btnClasses += "border-border bg-muted text-muted-foreground opacity-50";
                     }
                  }
 
@@ -269,7 +269,7 @@ export default function QuizPage({ params }: { params: Promise<{ lectureId: stri
 
                {quiz.quizType !== "MULTIPLE_CHOICE" && (
                  <textarea
-                    className="w-full h-40 p-5 border-2 border-slate-200 rounded-[1.5rem] font-medium text-lg focus:outline-none focus:border-orange-500 focus:ring-4 focus:ring-orange-50 transition-all resize-none disabled:bg-slate-50 disabled:text-slate-500"
+                    className="w-full h-40 p-5 border-2 border-border rounded-[1.5rem] font-medium text-lg focus:outline-none focus:border-orange-500 focus:ring-4 focus:ring-orange-50 transition-all resize-none disabled:bg-muted disabled:text-muted-foreground"
                     placeholder="여기에 답안을 작성해주세요..."
                     value={textAnswer}
                     onChange={(e) => setTextAnswer(e.target.value)}
@@ -284,27 +284,27 @@ export default function QuizPage({ params }: { params: Promise<{ lectureId: stri
                  <button 
                    onClick={handleSubmit} 
                    disabled={(quiz.quizType === "MULTIPLE_CHOICE" ? selectedOptIndex === null : textAnswer.trim() === "") || submitMutation.isPending}
-                   className="w-full h-16 bg-slate-800 text-white rounded-[1.5rem] font-bold text-lg shadow-lg disabled:opacity-50 disabled:bg-slate-300 transition-all hover:bg-slate-700 hover:-translate-y-1 flex items-center justify-center"
+                   className="w-full h-16 bg-foreground text-background rounded-[1.5rem] font-bold text-lg shadow-lg disabled:opacity-50 disabled:bg-muted-foreground/40 transition-all hover:bg-foreground/90 hover:-translate-y-1 flex items-center justify-center"
                  >
                    {submitMutation.isPending ? <Loader2 className="w-6 h-6 animate-spin" /> : "정답 제출하기"}
                  </button>
                ) : (
                  <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                     {resultData && (
-                      <div className={`p-6 rounded-[1.5rem] mb-6 flex flex-col items-start ${resultData.isCorrect ? 'bg-green-100 border border-green-200' : 'bg-red-50 border border-red-100'}`}>
+                      <div className={`p-6 rounded-[1.5rem] mb-6 flex flex-col items-start ${resultData.isCorrect ? 'bg-green-500/15 border border-green-200' : 'bg-red-500/10 border border-red-500/20'}`}>
                          <div className="flex items-start mb-4">
                            <CheckCircle2 className={`w-8 h-8 mr-4 shrink-0 ${resultData.isCorrect ? 'text-green-600' : 'text-red-500'}`} />
                            <div>
                              <h3 className={`text-xl font-bold mb-2 ${resultData.isCorrect ? 'text-green-800' : 'text-red-700'}`}>
                                {resultData.isCorrect ? '정답입니다! 완벽해요✨' : '아쉽지만 오답이에요!'}
                              </h3>
-                             <p className="text-slate-700 font-medium leading-relaxed mb-4">
+                             <p className="text-foreground font-medium leading-relaxed mb-4">
                                {resultData.explanation}
                              </p>
                            </div>
                          </div>
                          {resultData.aiFeedback && (
-                           <div className="w-full bg-white/60 p-4 rounded-xl border border-white/50 text-sm font-medium text-slate-700">
+                           <div className="w-full bg-card/60 p-4 rounded-xl border border-white/50 text-sm font-medium text-foreground">
                              <strong>AI 튜터 피드백:</strong> {resultData.aiFeedback}
                            </div>
                          )}
@@ -367,19 +367,19 @@ function AttemptHistoryPanel({
   const avgGrowth = growthCount === 0 ? null : Math.round(growthPoints / growthCount);
 
   return (
-    <div className="mb-8 bg-white border border-slate-200 rounded-3xl shadow-sm overflow-hidden">
+    <div className="mb-8 bg-card border border-border rounded-3xl shadow-sm overflow-hidden">
       <button
         type="button"
         onClick={onToggle}
-        className="w-full px-6 py-4 flex items-center justify-between gap-4 hover:bg-slate-50/60 transition-colors"
+        className="w-full px-6 py-4 flex items-center justify-between gap-4 hover:bg-muted/60 transition-colors"
       >
         <div className="flex items-center gap-3 min-w-0">
-          <div className="w-10 h-10 rounded-2xl bg-orange-50 flex items-center justify-center shrink-0">
+          <div className="w-10 h-10 rounded-2xl bg-orange-500/10 flex items-center justify-center shrink-0">
             <History className="w-5 h-5 text-orange-500" />
           </div>
           <div className="text-left min-w-0">
-            <p className="text-sm font-black text-slate-800">내 풀이 기록</p>
-            <p className="text-xs font-bold text-slate-400">
+            <p className="text-sm font-black text-foreground">내 풀이 기록</p>
+            <p className="text-xs font-bold text-muted-foreground">
               총 {total}회 · 정답률 {correctRate}% · 평균 {avgScore}점
               {avgGrowth !== null && (
                 <span
@@ -388,7 +388,7 @@ function AttemptHistoryPanel({
                       ? "text-emerald-600"
                       : avgGrowth < 0
                       ? "text-rose-600"
-                      : "text-slate-400"
+                      : "text-muted-foreground"
                   }`}
                 >
                   {avgGrowth > 0 ? "▲" : avgGrowth < 0 ? "▼" : "—"} 평균 {Math.abs(avgGrowth)}점
@@ -398,7 +398,7 @@ function AttemptHistoryPanel({
           </div>
         </div>
         <ChevronDown
-          className={`w-5 h-5 text-slate-400 shrink-0 transition-transform ${
+          className={`w-5 h-5 text-muted-foreground shrink-0 transition-transform ${
             open ? "rotate-180" : ""
           }`}
         />
@@ -431,7 +431,7 @@ function AttemptHistoryPanel({
               <AttemptRow key={h.attemptId} item={h} />
             ))}
           </ul>
-          <p className="text-[11px] font-bold text-slate-400 mt-3 leading-relaxed">
+          <p className="text-[11px] font-bold text-muted-foreground mt-3 leading-relaxed">
             ※ 정답과 해설은 표시되지 않습니다. 다시 풀어보면서 확실히 익혀보세요.
           </p>
         </div>
@@ -450,14 +450,14 @@ function StatBox({
   value: string;
 }) {
   return (
-    <div className="bg-slate-50 rounded-2xl p-3">
+    <div className="bg-muted rounded-2xl p-3">
       <div className="flex items-center justify-between mb-1">
-        <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">
+        <span className="text-[10px] font-black text-muted-foreground uppercase tracking-wider">
           {label}
         </span>
         {icon}
       </div>
-      <p className="text-base font-black text-slate-800">{value}</p>
+      <p className="text-base font-black text-foreground">{value}</p>
     </div>
   );
 }
@@ -472,10 +472,10 @@ function AttemptRow({ item }: { item: QuizAttemptHistoryItem }) {
     item.difficulty === "HARD" ? "어려움" : item.difficulty === "EASY" ? "쉬움" : "보통";
 
   return (
-    <li className="flex items-center gap-3 p-3 bg-white border border-slate-100 rounded-2xl">
+    <li className="flex items-center gap-3 p-3 bg-card border border-border rounded-2xl">
       <div
         className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
-          item.isCorrect ? "bg-emerald-50" : "bg-rose-50"
+          item.isCorrect ? "bg-emerald-500/10" : "bg-rose-500/10"
         }`}
       >
         {item.isCorrect ? (
@@ -485,8 +485,8 @@ function AttemptRow({ item }: { item: QuizAttemptHistoryItem }) {
         )}
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-bold text-slate-700 truncate">{item.question}</p>
-        <p className="text-[11px] font-bold text-slate-400 mt-0.5">
+        <p className="text-sm font-bold text-foreground truncate">{item.question}</p>
+        <p className="text-[11px] font-bold text-muted-foreground mt-0.5">
           {dateStr} · {difficultyLabel}
           {item.conceptTag && ` · ${item.conceptTag}`}
         </p>

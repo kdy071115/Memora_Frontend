@@ -171,14 +171,14 @@ export default function AssignmentDetailPage({
         <button
           type="button"
           onClick={() => router.push(`/courses/${courseId}/assignments`)}
-          className="flex items-center gap-1.5 text-sm font-bold text-slate-500 hover:text-slate-800 mb-4"
+          className="flex items-center gap-1.5 text-sm font-bold text-muted-foreground hover:text-foreground mb-4"
         >
           <ArrowLeft className="w-4 h-4" />
           과제 목록으로
         </button>
 
         {/* 과제 헤더 */}
-        <div className="bg-white border border-slate-200 rounded-3xl p-7 shadow-sm mb-6">
+        <div className="bg-card border border-border rounded-3xl p-7 shadow-sm mb-6">
           <div className="flex items-start justify-between gap-4 mb-4">
             <div className="flex items-center gap-3 min-w-0">
               <div className="w-11 h-11 rounded-2xl bg-emerald-500/10 flex items-center justify-center shrink-0">
@@ -188,7 +188,7 @@ export default function AssignmentDetailPage({
                 <p className="text-xs font-bold text-emerald-600 truncate">
                   {assignment.courseTitle}
                 </p>
-                <h1 className="text-2xl font-black text-slate-800 truncate">{assignment.title}</h1>
+                <h1 className="text-2xl font-black text-foreground truncate">{assignment.title}</h1>
               </div>
             </div>
             {isInstructor && (
@@ -198,7 +198,7 @@ export default function AssignmentDetailPage({
                     type="button"
                     disabled={reopenMutation.isPending}
                     onClick={() => reopenMutation.mutate()}
-                    className="px-4 h-10 bg-white border border-emerald-200 text-emerald-600 font-bold rounded-xl hover:bg-emerald-50 transition-colors flex items-center gap-2 disabled:opacity-50"
+                    className="px-4 h-10 bg-card border border-emerald-500/30 text-emerald-600 font-bold rounded-xl hover:bg-emerald-500/10 transition-colors flex items-center gap-2 disabled:opacity-50"
                   >
                     {reopenMutation.isPending ? (
                       <Loader2 className="w-4 h-4 animate-spin" />
@@ -217,7 +217,7 @@ export default function AssignmentDetailPage({
                           closeMutation.mutate();
                         }
                       }}
-                      className="px-4 h-10 bg-white border border-amber-200 text-amber-600 font-bold rounded-xl hover:bg-amber-50 transition-colors flex items-center gap-2 disabled:opacity-50"
+                      className="px-4 h-10 bg-card border border-amber-500/30 text-amber-600 font-bold rounded-xl hover:bg-amber-500/10 transition-colors flex items-center gap-2 disabled:opacity-50"
                     >
                       {closeMutation.isPending ? (
                         <Loader2 className="w-4 h-4 animate-spin" />
@@ -235,7 +235,7 @@ export default function AssignmentDetailPage({
                       deleteAssignmentMutation.mutate();
                     }
                   }}
-                  className="px-4 h-10 bg-white border border-rose-200 text-rose-500 font-bold rounded-xl hover:bg-rose-50 transition-colors flex items-center gap-2"
+                  className="px-4 h-10 bg-card border border-rose-500/30 text-rose-500 font-bold rounded-xl hover:bg-rose-500/10 transition-colors flex items-center gap-2"
                 >
                   <Trash2 className="w-4 h-4" />
                   삭제
@@ -244,11 +244,11 @@ export default function AssignmentDetailPage({
             )}
           </div>
 
-          <div className="markdown-body text-slate-700 mb-5">
+          <div className="markdown-body text-foreground mb-5">
             <ReactMarkdown remarkPlugins={[remarkGfm]}>{assignment.description}</ReactMarkdown>
           </div>
 
-          <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs font-bold text-slate-400 border-t border-slate-100 pt-4">
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs font-bold text-muted-foreground border-t border-border pt-4">
             <span className="flex items-center gap-1.5">
               <GraduationCap className="w-3.5 h-3.5" />
               {assignment.instructorName}
@@ -299,7 +299,7 @@ export default function AssignmentDetailPage({
         {/* 학생: 내 제출물에 달린 강사 피드백 / 댓글 thread */}
         {!isInstructor && mySubmission && (
           <div className="mt-6">
-            <h2 className="text-lg font-black text-slate-800 mb-4">내 제출물에 달린 피드백</h2>
+            <h2 className="text-lg font-black text-foreground mb-4">내 제출물에 달린 피드백</h2>
             <SubmissionCard
               submission={mySubmission}
               isInstructor={false}
@@ -312,13 +312,13 @@ export default function AssignmentDetailPage({
 
         {/* 제출물 목록 */}
         <div className="mt-8">
-          <h2 className="text-lg font-black text-slate-800 mb-4">
+          <h2 className="text-lg font-black text-foreground mb-4">
             {isInstructor
               ? `제출물 ${submissions.length}건`
               : `다른 학생의 공개 제출물 ${otherSubmissions.length}건`}
           </h2>
           {(isInstructor ? submissions : otherSubmissions).length === 0 ? (
-            <p className="text-slate-400 font-medium text-sm py-6">
+            <p className="text-muted-foreground font-medium text-sm py-6">
               {isInstructor
                 ? "아직 제출된 과제가 없습니다."
                 : "아직 공개된 다른 제출물이 없습니다."}
@@ -418,12 +418,12 @@ function SubmissionEditor({
 
   return (
     <div
-      className={`bg-white border rounded-3xl p-6 shadow-sm ${
-        locked ? "border-slate-200" : "border-emerald-100"
+      className={`bg-card border rounded-3xl p-6 shadow-sm ${
+        locked ? "border-border" : "border-emerald-500/20"
       }`}
     >
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-black text-slate-800">
+        <h2 className="text-lg font-black text-foreground">
           {locked
             ? isEditing
               ? "내 제출물 (마감됨 — 읽기 전용)"
@@ -448,7 +448,7 @@ function SubmissionEditor({
 
       {/* 마감 안내 배너 */}
       {locked && (
-        <div className="mb-4 flex items-start gap-3 px-4 py-3 rounded-xl bg-rose-50 border border-rose-100">
+        <div className="mb-4 flex items-start gap-3 px-4 py-3 rounded-xl bg-rose-500/10 border border-rose-500/20">
           <AlertTriangle className="w-4 h-4 text-rose-500 mt-0.5 shrink-0" />
           <div className="text-xs leading-relaxed">
             <p className="font-black text-rose-700 mb-0.5">
@@ -476,16 +476,16 @@ function SubmissionEditor({
         disabled={locked}
         className={`w-full px-4 py-3 rounded-xl border font-medium resize-y mb-4 ${
           locked
-            ? "border-slate-200 bg-slate-50 text-slate-500 cursor-not-allowed"
-            : "border-slate-200 focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+            ? "border-border bg-muted text-muted-foreground cursor-not-allowed"
+            : "border-border focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
         }`}
       />
 
       {/* 첨부 */}
-      <div className="bg-slate-50 rounded-xl p-3 mb-4 flex items-center justify-between gap-3 flex-wrap">
+      <div className="bg-muted rounded-xl p-3 mb-4 flex items-center justify-between gap-3 flex-wrap">
         <div className="flex items-center gap-2 min-w-0">
-          <Paperclip className="w-4 h-4 text-slate-400 shrink-0" />
-          <span className="text-sm font-medium text-slate-600 truncate">
+          <Paperclip className="w-4 h-4 text-muted-foreground shrink-0" />
+          <span className="text-sm font-medium text-muted-foreground truncate">
             {file
               ? file.name
               : existing?.attachmentName && !removeAttachment
@@ -508,7 +508,7 @@ function SubmissionEditor({
             type="button"
             onClick={() => fileInputRef.current?.click()}
             disabled={locked}
-            className="text-xs font-bold text-emerald-600 hover:underline disabled:text-slate-400 disabled:no-underline disabled:cursor-not-allowed"
+            className="text-xs font-bold text-emerald-600 hover:underline disabled:text-muted-foreground disabled:no-underline disabled:cursor-not-allowed"
           >
             파일 선택
           </button>
@@ -536,8 +536,8 @@ function SubmissionEditor({
           onClick={() => setVisibility(visibility === "PUBLIC" ? "PRIVATE" : "PUBLIC")}
           className={`h-10 px-4 rounded-xl border font-bold text-sm flex items-center gap-2 transition-all disabled:cursor-not-allowed disabled:opacity-60 ${
             visibility === "PUBLIC"
-              ? "bg-blue-50 border-blue-300 text-blue-700"
-              : "bg-slate-50 border-slate-200 text-slate-600"
+              ? "bg-blue-500/10 border-blue-300 text-blue-700"
+              : "bg-muted border-border text-muted-foreground"
           }`}
         >
           {visibility === "PUBLIC" ? <Globe className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
@@ -549,7 +549,7 @@ function SubmissionEditor({
             value={teamId ?? ""}
             disabled={locked}
             onChange={(e) => setTeamId(e.target.value ? Number(e.target.value) : null)}
-            className="h-10 px-4 rounded-xl border border-slate-200 font-bold text-sm text-slate-700 bg-white disabled:cursor-not-allowed disabled:opacity-60"
+            className="h-10 px-4 rounded-xl border border-border font-bold text-sm text-foreground bg-card disabled:cursor-not-allowed disabled:opacity-60"
           >
             <option value="">개인 제출</option>
             {myTeams.map((t) => (
@@ -652,15 +652,15 @@ function SubmissionCard({
   const visIcon = submission.visibility === "PUBLIC" ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />;
   const visClass =
     submission.visibility === "PUBLIC"
-      ? "bg-blue-50 text-blue-700 ring-blue-200"
-      : "bg-slate-100 text-slate-600 ring-slate-200";
+      ? "bg-blue-500/10 text-blue-700 ring-blue-500/30"
+      : "bg-muted text-muted-foreground ring-border";
 
   return (
-    <div className="bg-white border border-slate-100 rounded-2xl shadow-sm overflow-hidden">
+    <div className="bg-card border border-border rounded-2xl shadow-sm overflow-hidden">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="w-full px-5 py-4 flex items-center justify-between gap-4 hover:bg-slate-50/60 transition-colors"
+        className="w-full px-5 py-4 flex items-center justify-between gap-4 hover:bg-muted/60 transition-colors"
       >
         <div className="flex items-center gap-3 min-w-0">
           <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-blue-500 to-violet-500 flex items-center justify-center text-white font-black shrink-0">
@@ -668,11 +668,11 @@ function SubmissionCard({
           </div>
           <div className="text-left min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <p className="text-sm font-black text-slate-800 truncate">
+              <p className="text-sm font-black text-foreground truncate">
                 {submission.submitterName}
               </p>
               {submission.teamName && (
-                <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-violet-50 text-violet-700 ring-1 ring-violet-200">
+                <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-violet-500/10 text-violet-700 ring-1 ring-violet-500/30">
                   팀: {submission.teamName}
                 </span>
               )}
@@ -683,25 +683,25 @@ function SubmissionCard({
                 {submission.visibility === "PUBLIC" ? "공개" : "비공개"}
               </span>
               {submission.hasAttachment && (
-                <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200 flex items-center gap-1">
+                <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-700 ring-1 ring-emerald-500/30 flex items-center gap-1">
                   <Paperclip className="w-3 h-3" />
                   첨부
                 </span>
               )}
             </div>
-            <p className="text-[11px] font-bold text-slate-400 mt-0.5">
+            <p className="text-[11px] font-bold text-muted-foreground mt-0.5">
               {formatDateTime(submission.createdAt)}
             </p>
           </div>
         </div>
-        <span className="text-xs font-bold text-slate-400 shrink-0">
+        <span className="text-xs font-bold text-muted-foreground shrink-0">
           {open ? "접기" : "자세히"}
         </span>
       </button>
 
       {open && (
-        <div className="px-5 pb-5 border-t border-slate-100">
-          <div className="markdown-body text-slate-700 mt-4 mb-4">
+        <div className="px-5 pb-5 border-t border-border">
+          <div className="markdown-body text-foreground mt-4 mb-4">
             <ReactMarkdown remarkPlugins={[remarkGfm]}>{submission.content}</ReactMarkdown>
           </div>
 
@@ -715,8 +715,8 @@ function SubmissionCard({
           {/* 댓글 thread */}
           <div className="mt-2">
             <div className="flex items-center gap-2 mb-3">
-              <MessageSquare className="w-4 h-4 text-slate-400" />
-              <h4 className="text-sm font-black text-slate-700">
+              <MessageSquare className="w-4 h-4 text-muted-foreground" />
+              <h4 className="text-sm font-black text-foreground">
                 피드백 {detail?.comments?.length ?? 0}
               </h4>
             </div>
@@ -728,19 +728,19 @@ function SubmissionCard({
                     key={c.id}
                     className={`p-4 rounded-2xl border ${
                       c.authorRole === "INSTRUCTOR"
-                        ? "bg-blue-50/50 border-blue-100"
-                        : "bg-slate-50 border-slate-100"
+                        ? "bg-blue-500/10 border-blue-500/20"
+                        : "bg-muted border-border"
                     }`}
                   >
                     <div className="flex items-center justify-between gap-2 mb-1.5">
                       <div className="flex items-center gap-2">
-                        <span className="text-sm font-black text-slate-800">{c.authorName}</span>
+                        <span className="text-sm font-black text-foreground">{c.authorName}</span>
                         {c.authorRole === "INSTRUCTOR" && (
-                          <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">
+                          <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-blue-500/15 text-blue-700">
                             강사
                           </span>
                         )}
-                        <span className="text-[11px] font-bold text-slate-400">
+                        <span className="text-[11px] font-bold text-muted-foreground">
                           {formatDateTime(c.createdAt)}
                         </span>
                       </div>
@@ -751,20 +751,20 @@ function SubmissionCard({
                             if (confirm("댓글을 삭제하시겠습니까?"))
                               deleteCommentMutation.mutate(c.id);
                           }}
-                          className="text-slate-300 hover:text-rose-500"
+                          className="text-muted-foreground/60 hover:text-rose-500"
                         >
                           <X className="w-3.5 h-3.5" />
                         </button>
                       )}
                     </div>
-                    <div className="markdown-body text-sm text-slate-700">
+                    <div className="markdown-body text-sm text-foreground">
                       <ReactMarkdown remarkPlugins={[remarkGfm]}>{c.content}</ReactMarkdown>
                     </div>
                   </li>
                 ))}
               </ul>
             ) : (
-              <p className="text-xs font-medium text-slate-400 mb-3">
+              <p className="text-xs font-medium text-muted-foreground mb-3">
                 아직 피드백이 없습니다.
               </p>
             )}
@@ -794,7 +794,7 @@ function SubmissionCard({
                       ? "학생에게 피드백을 남겨주세요..."
                       : "강사님께 답글을 작성해주세요..."
                   }
-                  className="flex-1 px-4 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 font-medium text-sm resize-none"
+                  className="flex-1 px-4 py-2 rounded-xl border border-border focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 font-medium text-sm resize-none"
                 />
                 <button
                   type="button"
@@ -810,7 +810,7 @@ function SubmissionCard({
                 </button>
               </div>
             ) : (
-              <p className="text-[11px] text-slate-400 font-medium flex items-center gap-1">
+              <p className="text-[11px] text-muted-foreground font-medium flex items-center gap-1">
                 <AlertTriangle className="w-3 h-3" />
                 다른 학생의 제출물에는 댓글을 작성할 수 없습니다.
               </p>
@@ -843,26 +843,26 @@ function InstructorStatsPanel({ stats }: { stats: AssignmentStats }) {
       : "bg-rose-500";
 
   return (
-    <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm mb-6">
+    <div className="bg-card border border-border rounded-3xl p-6 shadow-sm mb-6">
       <div className="flex items-center justify-between gap-4 mb-4">
         <div className="flex items-center gap-3 min-w-0">
-          <div className="w-10 h-10 rounded-2xl bg-blue-50 flex items-center justify-center shrink-0">
+          <div className="w-10 h-10 rounded-2xl bg-blue-500/10 flex items-center justify-center shrink-0">
             <UsersIcon className="w-5 h-5 text-blue-600" />
           </div>
           <div className="min-w-0">
-            <p className="text-xs font-bold text-slate-400">제출 현황</p>
-            <p className="text-sm font-black text-slate-800">
+            <p className="text-xs font-bold text-muted-foreground">제출 현황</p>
+            <p className="text-sm font-black text-foreground">
               {stats.submittedStudents} / {stats.totalStudents}명 제출
             </p>
           </div>
         </div>
         <div className="text-right shrink-0">
           <p className={`text-3xl font-black leading-none ${rateColor}`}>{rate}%</p>
-          <p className="text-[10px] font-bold text-slate-400 mt-0.5">제출률</p>
+          <p className="text-[10px] font-bold text-muted-foreground mt-0.5">제출률</p>
         </div>
       </div>
 
-      <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden mb-4">
+      <div className="w-full bg-muted rounded-full h-2 overflow-hidden mb-4">
         <div
           className={`h-2 rounded-full ${barColor} transition-all duration-700`}
           style={{ width: `${rate}%` }}
@@ -874,7 +874,7 @@ function InstructorStatsPanel({ stats }: { stats: AssignmentStats }) {
           <button
             type="button"
             onClick={() => setShowMissing((v) => !v)}
-            className="w-full flex items-center justify-between gap-2 px-3 py-2 rounded-xl bg-rose-50/60 hover:bg-rose-50 transition-colors text-left"
+            className="w-full flex items-center justify-between gap-2 px-3 py-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/10 transition-colors text-left"
           >
             <div className="flex items-center gap-2">
               <AlertTriangle className="w-4 h-4 text-rose-500" />
@@ -891,14 +891,14 @@ function InstructorStatsPanel({ stats }: { stats: AssignmentStats }) {
               {stats.missing.map((m) => (
                 <li
                   key={m.userId}
-                  className="flex items-center gap-2 p-2 bg-slate-50 rounded-xl"
+                  className="flex items-center gap-2 p-2 bg-muted rounded-xl"
                 >
                   <div className="w-7 h-7 rounded-full bg-gradient-to-br from-rose-400 to-rose-500 flex items-center justify-center text-white text-xs font-black shrink-0">
                     {m.name.charAt(0)}
                   </div>
                   <div className="min-w-0">
-                    <p className="text-xs font-bold text-slate-700 truncate">{m.name}</p>
-                    <p className="text-[10px] font-medium text-slate-400 truncate">{m.email}</p>
+                    <p className="text-xs font-bold text-foreground truncate">{m.name}</p>
+                    <p className="text-[10px] font-medium text-muted-foreground truncate">{m.email}</p>
                   </div>
                 </li>
               ))}
@@ -919,10 +919,10 @@ function InstructorStatsPanel({ stats }: { stats: AssignmentStats }) {
 // 강사용 AI 피드백 패널
 // ─────────────────────────────────────────────────────────────────
 const GRADE_STYLE: Record<string, { label: string; bg: string; text: string; ring: string }> = {
-  EXCELLENT: { label: "훌륭", bg: "bg-emerald-50", text: "text-emerald-700", ring: "ring-emerald-200" },
-  GOOD: { label: "양호", bg: "bg-blue-50", text: "text-blue-700", ring: "ring-blue-200" },
-  AVERAGE: { label: "보통", bg: "bg-slate-50", text: "text-slate-600", ring: "ring-slate-200" },
-  NEEDS_WORK: { label: "보완필요", bg: "bg-amber-50", text: "text-amber-700", ring: "ring-amber-200" },
+  EXCELLENT: { label: "훌륭", bg: "bg-emerald-500/10", text: "text-emerald-700", ring: "ring-emerald-500/30" },
+  GOOD: { label: "양호", bg: "bg-blue-500/10", text: "text-blue-700", ring: "ring-blue-500/30" },
+  AVERAGE: { label: "보통", bg: "bg-muted", text: "text-muted-foreground", ring: "ring-border" },
+  NEEDS_WORK: { label: "보완필요", bg: "bg-amber-500/10", text: "text-amber-700", ring: "ring-amber-500/30" },
 };
 
 function AiFeedbackPanel({
@@ -954,7 +954,7 @@ function AiFeedbackPanel({
           <Sparkles className="w-4 h-4" />
           AI 피드백 생성
         </button>
-        <p className="text-[11px] font-medium text-slate-400 mt-1.5 leading-relaxed">
+        <p className="text-[11px] font-medium text-muted-foreground mt-1.5 leading-relaxed">
           제출 본문과 첨부 파일(PDF·텍스트)을 과제 주제와 비교해 AI 가 피드백 초안을 만들어드려요.
           백그라운드로 처리되니 패널을 닫고 다른 작업을 해도 결과가 캐시에 저장됩니다.
         </p>
@@ -964,7 +964,7 @@ function AiFeedbackPanel({
 
   if (isPending) {
     return (
-      <div className="mb-4 bg-violet-50/50 border border-violet-100 rounded-2xl p-5 flex items-center justify-between gap-3">
+      <div className="mb-4 bg-violet-500/10 border border-violet-500/20 rounded-2xl p-5 flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <Loader2 className="w-5 h-5 text-violet-500 animate-spin" />
           <p className="text-sm font-bold text-violet-700">
@@ -974,7 +974,7 @@ function AiFeedbackPanel({
         <button
           type="button"
           onClick={onClear}
-          className="text-slate-400 hover:text-slate-600"
+          className="text-muted-foreground hover:text-muted-foreground"
           title="패널 닫기 (작업은 백그라운드에서 계속됨)"
         >
           <X className="w-4 h-4" />
@@ -985,7 +985,7 @@ function AiFeedbackPanel({
 
   if (isFailed) {
     return (
-      <div className="mb-4 bg-rose-50/60 border border-rose-100 rounded-2xl p-5">
+      <div className="mb-4 bg-rose-500/10 border border-rose-500/20 rounded-2xl p-5">
         <div className="flex items-start justify-between gap-3 mb-3">
           <div className="flex items-center gap-2">
             <AlertTriangle className="w-4 h-4 text-rose-500" />
@@ -994,7 +994,7 @@ function AiFeedbackPanel({
           <button
             type="button"
             onClick={onClear}
-            className="text-slate-400 hover:text-slate-600"
+            className="text-muted-foreground hover:text-muted-foreground"
           >
             <X className="w-4 h-4" />
           </button>
@@ -1020,16 +1020,16 @@ function AiFeedbackPanel({
   const meta = GRADE_STYLE[feedback!.grade] || GRADE_STYLE.AVERAGE;
 
   return (
-    <div className="mb-4 bg-gradient-to-br from-violet-50/60 to-blue-50/40 border border-violet-100 rounded-2xl p-5">
+    <div className="mb-4 bg-gradient-to-br from-violet-500/10 to-blue-500/10 border border-violet-500/20 rounded-2xl p-5">
       <div className="flex items-start justify-between gap-3 mb-4">
         <div className="flex items-center gap-3 min-w-0">
-          <div className="w-12 h-12 rounded-2xl bg-white ring-1 ring-violet-200 flex items-center justify-center shrink-0">
+          <div className="w-12 h-12 rounded-2xl bg-card ring-1 ring-violet-500/30 flex items-center justify-center shrink-0">
             <Sparkles className="w-5 h-5 text-violet-500" />
           </div>
           <div className="min-w-0">
             <p className="text-xs font-black text-violet-600 mb-0.5">AI 피드백 초안</p>
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-2xl font-black text-slate-800">{feedback!.overallScore}점</span>
+              <span className="text-2xl font-black text-foreground">{feedback!.overallScore}점</span>
               <span
                 className={`text-[11px] font-black px-2 py-0.5 rounded-full ${meta.bg} ${meta.text} ring-1 ${meta.ring}`}
               >
@@ -1050,7 +1050,7 @@ function AiFeedbackPanel({
           <button
             type="button"
             onClick={onClear}
-            className="text-slate-400 hover:text-slate-600"
+            className="text-muted-foreground hover:text-muted-foreground"
             title="패널 닫기"
           >
             <X className="w-4 h-4" />
@@ -1059,7 +1059,7 @@ function AiFeedbackPanel({
       </div>
 
       {feedback!.summary && (
-        <p className="text-sm text-slate-700 font-medium leading-relaxed mb-4 bg-white/60 rounded-xl px-4 py-3">
+        <p className="text-sm text-foreground font-medium leading-relaxed mb-4 bg-card/60 rounded-xl px-4 py-3">
           {feedback!.summary}
         </p>
       )}
@@ -1080,7 +1080,7 @@ function AiFeedbackPanel({
       </div>
 
       {feedback!.instructorDraft && (
-        <div className="bg-white border border-violet-100 rounded-2xl p-4">
+        <div className="bg-card border border-violet-500/20 rounded-2xl p-4">
           <div className="flex items-center justify-between mb-2">
             <p className="text-[11px] font-black text-violet-600 uppercase tracking-wider">
               댓글 초안
@@ -1094,13 +1094,13 @@ function AiFeedbackPanel({
               이 초안 사용하기
             </button>
           </div>
-          <p className="text-sm text-slate-700 font-medium whitespace-pre-wrap leading-relaxed">
+          <p className="text-sm text-foreground font-medium whitespace-pre-wrap leading-relaxed">
             {feedback!.instructorDraft}
           </p>
         </div>
       )}
 
-      <p className="text-[11px] font-medium text-slate-400 mt-3 leading-relaxed">
+      <p className="text-[11px] font-medium text-muted-foreground mt-3 leading-relaxed">
         ※ AI 가 생성한 초안입니다. 강사가 검토·수정한 뒤 댓글로 게시하세요.
       </p>
     </div>
@@ -1117,15 +1117,15 @@ function FeedbackList({
   dot: string;
 }) {
   return (
-    <div className="bg-white/60 rounded-xl p-3">
-      <p className="text-[11px] font-black text-slate-500 uppercase tracking-wider mb-1.5">
+    <div className="bg-card/60 rounded-xl p-3">
+      <p className="text-[11px] font-black text-muted-foreground uppercase tracking-wider mb-1.5">
         {title}
       </p>
       <ul className="space-y-1">
         {items.map((it, i) => (
           <li
             key={i}
-            className="text-xs text-slate-700 font-medium leading-relaxed pl-3 relative"
+            className="text-xs text-foreground font-medium leading-relaxed pl-3 relative"
           >
             <span className={`absolute left-0 top-1.5 w-1 h-1 rounded-full ${dot}`} />
             {it}
@@ -1270,11 +1270,11 @@ function AttachmentActions({
 
   return (
     <div className="flex flex-wrap items-center gap-2 mb-4">
-      <span className="inline-flex items-center gap-2 px-3 h-10 bg-slate-50 text-slate-700 font-bold rounded-xl text-sm">
-        <Paperclip className="w-4 h-4 text-slate-400" />
+      <span className="inline-flex items-center gap-2 px-3 h-10 bg-muted text-foreground font-bold rounded-xl text-sm">
+        <Paperclip className="w-4 h-4 text-muted-foreground" />
         {fileName}
         {kindLabel && (
-          <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-white text-slate-500 ring-1 ring-slate-200">
+          <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-card text-muted-foreground ring-1 ring-border">
             {kindLabel}
           </span>
         )}
@@ -1288,7 +1288,7 @@ function AttachmentActions({
             ? "새 탭에서 미리보기"
             : "이 파일 형식은 브라우저에서 미리볼 수 없어요. 다운로드해서 확인해주세요."
         }
-        className="inline-flex items-center gap-1.5 px-3 h-10 bg-blue-50 text-blue-700 font-bold rounded-xl text-sm hover:bg-blue-100 transition-colors disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed"
+        className="inline-flex items-center gap-1.5 px-3 h-10 bg-blue-500/10 text-blue-700 font-bold rounded-xl text-sm hover:bg-blue-500/15 transition-colors disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed"
       >
         {loading === "preview" ? (
           <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -1301,7 +1301,7 @@ function AttachmentActions({
         type="button"
         onClick={() => handle("download")}
         disabled={loading !== null}
-        className="inline-flex items-center gap-1.5 px-3 h-10 bg-emerald-50 text-emerald-700 font-bold rounded-xl text-sm hover:bg-emerald-100 transition-colors disabled:opacity-50"
+        className="inline-flex items-center gap-1.5 px-3 h-10 bg-emerald-500/10 text-emerald-700 font-bold rounded-xl text-sm hover:bg-emerald-500/15 transition-colors disabled:opacity-50"
       >
         {loading === "download" ? (
           <Loader2 className="w-3.5 h-3.5 animate-spin" />

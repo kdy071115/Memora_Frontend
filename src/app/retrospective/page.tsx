@@ -25,9 +25,9 @@ const GRADE_META: Record<
   "EXCELLENT" | "GOOD" | "NEEDS_WORK",
   { label: string; color: string; bg: string; ring: string }
 > = {
-  EXCELLENT: { label: "훌륭", color: "text-emerald-700", bg: "bg-emerald-50", ring: "ring-emerald-200" },
-  GOOD: { label: "양호", color: "text-blue-700", bg: "bg-blue-50", ring: "ring-blue-200" },
-  NEEDS_WORK: { label: "보완필요", color: "text-amber-700", bg: "bg-amber-50", ring: "ring-amber-200" },
+  EXCELLENT: { label: "훌륭", color: "text-emerald-700", bg: "bg-emerald-500/10", ring: "ring-emerald-500/30" },
+  GOOD: { label: "양호", color: "text-blue-700", bg: "bg-blue-500/10", ring: "ring-blue-500/30" },
+  NEEDS_WORK: { label: "보완필요", color: "text-amber-700", bg: "bg-amber-500/10", ring: "ring-amber-500/30" },
 };
 
 export default function RetrospectivePage() {
@@ -81,7 +81,7 @@ export default function RetrospectivePage() {
   if (!isStudent) {
     return (
       <MainLayout>
-        <div className="py-20 text-center text-slate-500 font-medium">
+        <div className="py-20 text-center text-muted-foreground font-medium">
           학생 계정에서만 이용할 수 있는 페이지입니다.
         </div>
       </MainLayout>
@@ -97,11 +97,11 @@ export default function RetrospectivePage() {
             <div className="w-11 h-11 rounded-2xl bg-violet-500/10 flex items-center justify-center">
               <Brain className="w-6 h-6 text-violet-600" />
             </div>
-            <h1 className="text-3xl md:text-4xl font-black tracking-tight text-slate-800">
+            <h1 className="text-3xl md:text-4xl font-black tracking-tight text-foreground">
               학습 회고
             </h1>
           </div>
-          <p className="text-slate-500 font-medium ml-14">
+          <p className="text-muted-foreground font-medium ml-14">
             자기 설명 기록을 모아서 보고, 내가 얼마나 성장했는지 돌아보세요.
           </p>
         </div>
@@ -109,7 +109,7 @@ export default function RetrospectivePage() {
         {isLoading ? (
           <div className="py-32 flex flex-col items-center justify-center">
             <Loader2 className="w-10 h-10 text-violet-500 animate-spin mb-4" />
-            <p className="text-slate-500 font-medium">기록을 불러오는 중입니다...</p>
+            <p className="text-muted-foreground font-medium">기록을 불러오는 중입니다...</p>
           </div>
         ) : history.length === 0 ? (
           <EmptyState />
@@ -140,12 +140,12 @@ export default function RetrospectivePage() {
 
 function EmptyState() {
   return (
-    <div className="bg-white border border-slate-200 rounded-3xl p-16 flex flex-col items-center justify-center text-center shadow-sm">
-      <div className="w-16 h-16 rounded-2xl bg-violet-50 flex items-center justify-center mb-5">
+    <div className="bg-card border border-border rounded-3xl p-16 flex flex-col items-center justify-center text-center shadow-sm">
+      <div className="w-16 h-16 rounded-2xl bg-violet-500/10 flex items-center justify-center mb-5">
         <Brain className="w-8 h-8 text-violet-400" />
       </div>
-      <h2 className="text-xl font-black text-slate-700 mb-2">아직 자기 설명 기록이 없어요</h2>
-      <p className="text-slate-400 font-medium mb-6">
+      <h2 className="text-xl font-black text-foreground mb-2">아직 자기 설명 기록이 없어요</h2>
+      <p className="text-muted-foreground font-medium mb-6">
         강의 학습 페이지에서 본인 말로 설명을 작성하면 여기에 모입니다.
       </p>
       <Link
@@ -161,12 +161,12 @@ function EmptyState() {
 
 function StatCard({ label, value, icon }: { label: string; value: string; icon: React.ReactNode }) {
   return (
-    <div className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm">
+    <div className="bg-card border border-border rounded-2xl p-5 shadow-sm">
       <div className="flex items-center justify-between mb-2">
-        <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">{label}</p>
+        <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">{label}</p>
         <div className="text-violet-400">{icon}</div>
       </div>
-      <p className="text-2xl font-black text-slate-800">{value}</p>
+      <p className="text-2xl font-black text-foreground">{value}</p>
     </div>
   );
 }
@@ -174,19 +174,19 @@ function StatCard({ label, value, icon }: { label: string; value: string; icon: 
 function GrowthCard({ first, latest, growth }: { first: number; latest: number; growth: number }) {
   const positive = growth > 0;
   const negative = growth < 0;
-  const colorClass = positive ? "text-emerald-600" : negative ? "text-rose-600" : "text-slate-500";
+  const colorClass = positive ? "text-emerald-600" : negative ? "text-rose-600" : "text-muted-foreground";
   const Icon = positive ? TrendingUp : negative ? TrendingDown : Minus;
   return (
-    <div className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm">
+    <div className="bg-card border border-border rounded-2xl p-5 shadow-sm">
       <div className="flex items-center justify-between mb-2">
-        <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">성장 추이</p>
+        <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">성장 추이</p>
         <Icon className={`w-5 h-5 ${colorClass}`} />
       </div>
       <p className={`text-2xl font-black ${colorClass}`}>
         {positive ? "+" : ""}
         {growth}점
       </p>
-      <p className="text-[11px] font-bold text-slate-400 mt-1">
+      <p className="text-[11px] font-bold text-muted-foreground mt-1">
         {first}점 → {latest}점
       </p>
     </div>
@@ -216,11 +216,11 @@ function LectureGroup({
   const growth = latest - first;
 
   return (
-    <div className="bg-white border border-slate-200 rounded-3xl shadow-sm overflow-hidden">
+    <div className="bg-card border border-border rounded-3xl shadow-sm overflow-hidden">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="w-full px-7 py-5 flex items-center justify-between gap-4 hover:bg-slate-50/50 transition-colors"
+        className="w-full px-7 py-5 flex items-center justify-between gap-4 hover:bg-muted/50 transition-colors"
       >
         <div className="flex items-center gap-4 min-w-0">
           <div className="w-11 h-11 rounded-2xl bg-violet-500/10 flex items-center justify-center shrink-0">
@@ -230,8 +230,8 @@ function LectureGroup({
             {group.courseTitle && (
               <p className="text-xs font-bold text-violet-600 mb-0.5 truncate">{group.courseTitle}</p>
             )}
-            <h2 className="text-lg font-black text-slate-800 truncate">{group.lectureTitle}</h2>
-            <p className="text-xs font-bold text-slate-400 mt-0.5">
+            <h2 className="text-lg font-black text-foreground truncate">{group.lectureTitle}</h2>
+            <p className="text-xs font-bold text-muted-foreground mt-0.5">
               {group.items.length}회 작성 · 평균 {Math.round(
                 chronological.reduce((a, b) => a + (b.overallScore ?? 0), 0) / chronological.length
               )}점
@@ -243,10 +243,10 @@ function LectureGroup({
             <span
               className={`text-xs font-black px-3 py-1.5 rounded-full ${
                 growth > 0
-                  ? "bg-emerald-100 text-emerald-700"
+                  ? "bg-emerald-500/15 text-emerald-700"
                   : growth < 0
-                  ? "bg-rose-100 text-rose-700"
-                  : "bg-slate-100 text-slate-600"
+                  ? "bg-rose-500/15 text-rose-700"
+                  : "bg-muted text-muted-foreground"
               }`}
             >
               {growth > 0 ? "▲" : growth < 0 ? "▼" : "—"} {Math.abs(growth)}점
@@ -259,7 +259,7 @@ function LectureGroup({
           >
             학습으로 <ArrowRight className="w-3 h-3" />
           </Link>
-          <ChevronDown className={`w-5 h-5 text-slate-400 transition-transform ${open ? "rotate-180" : ""}`} />
+          <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${open ? "rotate-180" : ""}`} />
         </div>
       </button>
 
@@ -296,10 +296,10 @@ function ScoreSparkline({ items }: { items: SelfExplainHistoryItem[] }) {
     .join(" ");
 
   return (
-    <div className="bg-gradient-to-br from-violet-50 to-blue-50/50 rounded-2xl p-4 flex items-center gap-4">
+    <div className="bg-gradient-to-br from-violet-500/10 to-blue-500/10 rounded-2xl p-4 flex items-center gap-4">
       <div>
-        <p className="text-[11px] font-black text-slate-500 uppercase tracking-wider">점수 추이</p>
-        <p className="text-xs font-bold text-slate-400 mt-0.5">
+        <p className="text-[11px] font-black text-muted-foreground uppercase tracking-wider">점수 추이</p>
+        <p className="text-xs font-bold text-muted-foreground mt-0.5">
           {items.length}개의 기록 (오래된 순 →)
         </p>
       </div>
@@ -331,7 +331,7 @@ function RecordCard({ item }: { item: SelfExplainHistoryItem }) {
   ).padStart(2, "0")} ${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
 
   return (
-    <details className="bg-slate-50/60 border border-slate-100 rounded-2xl px-5 py-4 group">
+    <details className="bg-muted/60 border border-border rounded-2xl px-5 py-4 group">
       <summary className="cursor-pointer flex items-center justify-between gap-3">
         <div className="flex items-center gap-4 min-w-0">
           <div
@@ -340,19 +340,19 @@ function RecordCard({ item }: { item: SelfExplainHistoryItem }) {
             <span className={`text-base font-black ${meta.color}`}>{item.overallScore ?? "-"}</span>
           </div>
           <div className="min-w-0">
-            <p className="text-xs font-bold text-slate-400">{dateStr}</p>
-            <p className="text-sm font-bold text-slate-700 truncate">
+            <p className="text-xs font-bold text-muted-foreground">{dateStr}</p>
+            <p className="text-sm font-bold text-foreground truncate">
               {item.focusTopic || (item.explanation ? item.explanation.slice(0, 60) + "…" : "자기 설명")}
             </p>
           </div>
         </div>
-        <ChevronDown className="w-4 h-4 text-slate-400 shrink-0 group-open:rotate-180 transition-transform" />
+        <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0 group-open:rotate-180 transition-transform" />
       </summary>
-      <div className="mt-4 pt-4 border-t border-slate-200 space-y-4">
+      <div className="mt-4 pt-4 border-t border-border space-y-4">
         {item.explanation && (
           <div>
-            <p className="text-xs font-black text-slate-400 mb-1.5">내가 작성한 설명</p>
-            <p className="text-sm text-slate-600 font-medium whitespace-pre-wrap leading-relaxed">
+            <p className="text-xs font-black text-muted-foreground mb-1.5">내가 작성한 설명</p>
+            <p className="text-sm text-muted-foreground font-medium whitespace-pre-wrap leading-relaxed">
               {item.explanation}
             </p>
           </div>
@@ -374,10 +374,10 @@ function RecordCard({ item }: { item: SelfExplainHistoryItem }) {
 function DetailList({ title, items, dot }: { title: string; items: string[]; dot: string }) {
   return (
     <div>
-      <p className="text-xs font-black text-slate-400 mb-1.5">{title}</p>
+      <p className="text-xs font-black text-muted-foreground mb-1.5">{title}</p>
       <ul className="space-y-1.5">
         {items.map((it, i) => (
-          <li key={i} className="text-sm text-slate-600 font-medium pl-4 relative leading-relaxed">
+          <li key={i} className="text-sm text-muted-foreground font-medium pl-4 relative leading-relaxed">
             <span className={`absolute left-0 top-2 w-1.5 h-1.5 rounded-full ${dot}`} />
             {it}
           </li>

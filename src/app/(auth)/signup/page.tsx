@@ -58,10 +58,10 @@ export default function SignupPage() {
       <div className="w-full max-w-md relative z-10">
         <div className="flex justify-center mb-8">
           <Link href="/" className="flex items-center space-x-2">
-            <div className="w-10 h-10 rounded-xl overflow-hidden relative shadow-lg border border-slate-200">
+            <div className="w-10 h-10 rounded-xl overflow-hidden relative shadow-lg border border-border">
                <Image src="/images/logo.png" alt="Memora Logo" fill sizes="40px" className="object-cover" />
             </div>
-            <span className="font-bold text-3xl tracking-tight text-slate-800">
+            <span className="font-bold text-3xl tracking-tight text-foreground">
               Memora
             </span>
           </Link>
