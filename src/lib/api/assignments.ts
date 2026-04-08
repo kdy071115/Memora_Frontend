@@ -6,6 +6,7 @@ import type {
   Submission,
   SubmissionComment,
   SubmissionInput,
+  AiFeedbackResult,
 } from "../../types/assignment";
 
 // ── Assignments ──────────────────────────────────────────
@@ -139,4 +140,26 @@ export const addSubmissionComment = async (
 
 export const deleteSubmissionComment = async (commentId: number): Promise<void> => {
   await memoraApi.delete(`/submissions/comments/${commentId}`);
+};
+
+// ── AI 피드백 ──────────────────────────────────────────
+
+/** 강사용 — 학생 제출물에 대한 AI 피드백 초안 생성 (캐시에도 저장됨) */
+export const requestAiFeedback = async (
+  submissionId: number
+): Promise<AiFeedbackResult> => {
+  const { data } = await memoraApi.post<ApiResponse<AiFeedbackResult>>(
+    `/submissions/${submissionId}/ai-feedback`
+  );
+  return data.data;
+};
+
+/** 강사용 — 캐시된 AI 피드백 조회. 없으면 null */
+export const getCachedAiFeedback = async (
+  submissionId: number
+): Promise<AiFeedbackResult | null> => {
+  const { data } = await memoraApi.get<ApiResponse<AiFeedbackResult | null>>(
+    `/submissions/${submissionId}/ai-feedback`
+  );
+  return data.data ?? null;
 };

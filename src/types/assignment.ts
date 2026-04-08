@@ -55,3 +55,14 @@ export interface SubmissionInput {
   visibility: SubmissionVisibility;
   teamId?: number | null;
 }
+
+export interface AiFeedbackResult {
+  overallScore: number;
+  grade: "EXCELLENT" | "GOOD" | "AVERAGE" | "NEEDS_WORK" | string;
+  summary: string;
+  strengths: string[];
+  improvements: string[];
+  missingPoints: string[];
+  suggestions: string[];
+  instructorDraft: string;
+}
