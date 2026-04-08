@@ -7,7 +7,7 @@ import { getCourseById, enrollCourse, updateCourse, deleteCourse } from "@/lib/a
 import { getLectures, createLecture, updateLecture, deleteLecture, uploadDocument } from "@/lib/api/lectures";
 import { getNotices, createNotice } from "@/lib/api/notices";
 import { useAuthStore } from "@/lib/store/useAuthStore";
-import { BookOpen, Users, Key, AlertTriangle, Loader2, Plus, ArrowRight, Bell, Send, Pencil, Check, X, Copy, UploadCloud, FileText, Trash2 } from "lucide-react";
+import { BookOpen, Users, Key, AlertTriangle, Loader2, Plus, ArrowRight, Bell, Send, Pencil, Check, X, Copy, UploadCloud, FileText, Trash2, ClipboardList } from "lucide-react";
 import Link from "next/link";
 
 export default function CourseDetailPage({ params }: { params: Promise<{ courseId: string }> }) {
@@ -385,10 +385,25 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
               <span className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center mr-2 text-lg">👨‍🏫</span>
               <span>담당교수: <strong className="text-slate-700">{course.instructor.name}</strong></span>
             </div>
-            <div className="flex items-center">
-              <Users className="w-5 h-5 mr-2" />
-              <span>수강생 <strong className="text-slate-700">{course.studentCount}명</strong></span>
-            </div>
+            {isInstructor ? (
+              <Link
+                href={`/courses/${resolvedParams.courseId}/students`}
+                className="flex items-center group hover:text-blue-600 transition-colors"
+              >
+                <Users className="w-5 h-5 mr-2" />
+                <span>
+                  수강생 <strong className="text-slate-700 group-hover:text-blue-600">{course.studentCount}명</strong>
+                </span>
+                <span className="ml-2 text-xs font-bold text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity">
+                  관리 →
+                </span>
+              </Link>
+            ) : (
+              <div className="flex items-center">
+                <Users className="w-5 h-5 mr-2" />
+                <span>수강생 <strong className="text-slate-700">{course.studentCount}명</strong></span>
+              </div>
+            )}
           </div>
           
           {isInstructor && course.inviteCode && (
@@ -422,6 +437,43 @@ export default function CourseDetailPage({ params }: { params: Promise<{ courseI
             </div>
           )}
         </div>
+
+        {/* 협업 / 과제 진입 카드 */}
+        {(isEnrolled || isInstructor) && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+            <Link
+              href={`/courses/${resolvedParams.courseId}/assignments`}
+              className="group bg-white border border-slate-100 rounded-2xl p-5 shadow-sm hover:border-emerald-200 hover:shadow-md transition-all flex items-center gap-4"
+            >
+              <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center shrink-0 group-hover:bg-emerald-500/20 transition-colors">
+                <ClipboardList className="w-6 h-6 text-emerald-600" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="font-black text-slate-800">과제</p>
+                <p className="text-xs font-bold text-slate-400 mt-0.5">
+                  과제를 보고 제출하거나 피드백을 주고받으세요
+                </p>
+              </div>
+              <ArrowRight className="w-5 h-5 text-slate-300 group-hover:text-emerald-500 transition-colors shrink-0" />
+            </Link>
+
+            <Link
+              href={`/courses/${resolvedParams.courseId}/teams`}
+              className="group bg-white border border-slate-100 rounded-2xl p-5 shadow-sm hover:border-violet-200 hover:shadow-md transition-all flex items-center gap-4"
+            >
+              <div className="w-12 h-12 rounded-2xl bg-violet-500/10 flex items-center justify-center shrink-0 group-hover:bg-violet-500/20 transition-colors">
+                <Users className="w-6 h-6 text-violet-600" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="font-black text-slate-800">팀</p>
+                <p className="text-xs font-bold text-slate-400 mt-0.5">
+                  팀을 만들고 같은 강의 수강생을 초대하세요
+                </p>
+              </div>
+              <ArrowRight className="w-5 h-5 text-slate-300 group-hover:text-violet-500 transition-colors shrink-0" />
+            </Link>
+          </div>
+        )}
 
         {/* 차시 목록 영역 */}
         <div className="mb-8">

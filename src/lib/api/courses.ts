@@ -2,6 +2,19 @@ import { memoraApi } from "../axios";
 import type { Course, EnrollByCodeRequest } from "../../types/course";
 import type { PageResponse, ApiResponse } from "../../types/api";
 
+export interface CourseMember {
+  userId: number;
+  name: string;
+  email: string;
+}
+
+export const getCourseMembers = async (courseId: number): Promise<CourseMember[]> => {
+  const { data } = await memoraApi.get<ApiResponse<CourseMember[]>>(
+    `/courses/${courseId}/members`
+  );
+  return data.data ?? [];
+};
+
 /**
  * 백엔드 Lombok+Jackson 의 boolean is* 직렬화 이슈로
  * 응답 JSON 키가 "isEnrolled" 가 아닌 "enrolled" 로 올 수 있어서

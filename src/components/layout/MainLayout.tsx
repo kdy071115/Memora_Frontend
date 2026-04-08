@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import { useRouter } from "next/navigation";
 import { User, LogOut, ChevronDown, LayoutDashboard, BookOpen, BarChart2, Brain } from "lucide-react";
+import InvitationBell from "./InvitationBell";
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -82,7 +83,9 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
           {/* Right side */}
           <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
             {isAuthenticated && user ? (
-              <div className="relative" ref={menuRef}>
+              <div className="flex items-center gap-2">
+                <InvitationBell />
+                <div className="relative" ref={menuRef}>
                 <button
                   onClick={() => setMenuOpen(!menuOpen)}
                   className="flex items-center gap-2 h-9 px-3 rounded-xl hover:bg-slate-100 transition-colors group"
@@ -127,6 +130,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
                     </div>
                   </div>
                 )}
+                </div>
               </div>
             ) : (
               <nav className="flex items-center space-x-2">
