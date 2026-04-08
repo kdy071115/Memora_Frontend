@@ -18,6 +18,22 @@ export const getAnalysis = async (): Promise<AnalysisData> => {
   return data.data || data;
 };
 
+// 학생 대시보드 요약 — GET /api/analysis/me/dashboard-summary
+export interface StudentDashboardSummary {
+  thisWeekStudyTime: number;
+  totalStudyTime: number;
+  pendingAssignments: number;
+  averageScore: number;
+  overallCorrectRate: number;
+}
+
+export const getStudentDashboardSummary = async (): Promise<StudentDashboardSummary> => {
+  const { data } = await memoraApi.get<ApiResponse<StudentDashboardSummary>>(
+    "/analysis/me/dashboard-summary"
+  );
+  return data.data;
+};
+
 // 강의별 개인 분석 (학생) — GET /api/analysis/me/courses/{courseId}
 export const getCourseAnalysis = async (courseId: number): Promise<any> => {
   const { data } = await memoraApi.get<ApiResponse<any>>(`/analysis/me/courses/${courseId}`);

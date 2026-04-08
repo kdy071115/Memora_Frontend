@@ -7,6 +7,8 @@ import type {
   SubmissionComment,
   SubmissionInput,
   AiFeedbackResult,
+  UpcomingAssignment,
+  AssignmentStats,
 } from "../../types/assignment";
 
 // ── Assignments ──────────────────────────────────────────
@@ -51,6 +53,22 @@ export const updateAssignment = async (
 
 export const deleteAssignment = async (assignmentId: number): Promise<void> => {
   await memoraApi.delete(`/assignments/${assignmentId}`);
+};
+
+/** 강사용 — 과제 조기 마감 (dueDate 와 무관하게 잠금) */
+export const closeAssignmentEarly = async (assignmentId: number): Promise<Assignment> => {
+  const { data } = await memoraApi.post<ApiResponse<Assignment>>(
+    `/assignments/${assignmentId}/close`
+  );
+  return data.data;
+};
+
+/** 강사용 — 조기 마감 해제 */
+export const reopenAssignment = async (assignmentId: number): Promise<Assignment> => {
+  const { data } = await memoraApi.post<ApiResponse<Assignment>>(
+    `/assignments/${assignmentId}/reopen`
+  );
+  return data.data;
 };
 
 // ── Submissions ──────────────────────────────────────────
@@ -162,4 +180,39 @@ export const getCachedAiFeedback = async (
     `/submissions/${submissionId}/ai-feedback`
   );
   return data.data ?? null;
+};
+
+/** 학생 대시보드 — 마감 임박 과제 (최대 limit) */
+export const getUpcomingAssignments = async (limit = 5): Promise<UpcomingAssignment[]> => {
+  const { data } = await memoraApi.get<ApiResponse<UpcomingAssignment[]>>(
+    `/me/upcoming-assignments?limit=${limit}`
+  );
+  return data.data ?? [];
+};
+
+/** 강사용 — 과제 제출 통계 + 미제출자 명단 */
+export const getAssignmentStats = async (assignmentId: number): Promise<AssignmentStats> => {
+  const { data } = await memoraApi.get<ApiResponse<AssignmentStats>>(
+    `/assignments/${assignmentId}/stats`
+  );
+  return data.data;
+};
+
+// ── Notifications ──────────────────────────────────────────
+
+export interface NotificationCounts {
+  teamInvitations: number;
+  unseenFeedback: number;
+  total: number;
+}
+
+export const getNotificationCounts = async (): Promise<NotificationCounts> => {
+  const { data } = await memoraApi.get<ApiResponse<NotificationCounts>>(
+    `/me/notifications`
+  );
+  return data.data ?? { teamInvitations: 0, unseenFeedback: 0, total: 0 };
+};
+
+export const markFeedbackSeen = async (): Promise<void> => {
+  await memoraApi.post(`/me/notifications/feedback/mark-seen`);
 };

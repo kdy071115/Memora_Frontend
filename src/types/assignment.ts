@@ -10,6 +10,10 @@ export interface Assignment {
   description: string;
   dueDate: string | null;
   allowTeamSubmission: boolean;
+  /** 강사가 dueDate 도래 전에 수동 조기 마감했는지 */
+  closedEarly: boolean;
+  /** dueDate 또는 closedEarly 가 발동되어 학생 제출이 막힌 상태 */
+  closed: boolean;
   submissionCount: number;
   mySubmissionExists: boolean;
   createdAt: string;
@@ -56,6 +60,15 @@ export interface SubmissionInput {
   teamId?: number | null;
 }
 
+export interface UpcomingAssignment {
+  id: number;
+  title: string;
+  courseId: number;
+  courseTitle: string;
+  dueDate: string;
+  mySubmissionExists: boolean;
+}
+
 export interface AiFeedbackResult {
   overallScore: number;
   grade: "EXCELLENT" | "GOOD" | "AVERAGE" | "NEEDS_WORK" | string;
@@ -65,4 +78,11 @@ export interface AiFeedbackResult {
   missingPoints: string[];
   suggestions: string[];
   instructorDraft: string;
+}
+
+export interface AssignmentStats {
+  totalStudents: number;
+  submittedStudents: number;
+  submissionRate: number;
+  missing: { userId: number; name: string; email: string }[];
 }

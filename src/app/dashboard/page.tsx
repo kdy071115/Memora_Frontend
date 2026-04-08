@@ -1,13 +1,15 @@
 "use client";
 import MainLayout from "@/components/layout/MainLayout";
 import Link from "next/link";
-import { Plus, BookOpen, Clock, Activity, ArrowUpRight, Loader2, MessageSquareText } from "lucide-react";
+import { Plus, BookOpen, Clock, Activity, ArrowUpRight, Loader2, MessageSquareText, ClipboardList, AlarmClock, CheckCircle2, Target, Award } from "lucide-react";
 import Image from "next/image";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import { useQuery } from "@tanstack/react-query";
 import { getCourses } from "@/lib/api/courses";
-import { getAnalysis } from "@/lib/api/analysis";
+import { getAnalysis, getStudentDashboardSummary } from "@/lib/api/analysis";
 import { getStudentFeedback } from "@/lib/api/feedback";
+import { getUpcomingAssignments } from "@/lib/api/assignments";
+import { dueStatus } from "@/lib/dueDate";
 
 export default function DashboardPage() {
   const user = useAuthStore((state) => state.user);
@@ -31,6 +33,18 @@ export default function DashboardPage() {
     enabled: isStudent,
   });
 
+  const { data: upcoming = [] } = useQuery({
+    queryKey: ["upcomingAssignments"],
+    queryFn: () => getUpcomingAssignments(5),
+    enabled: isStudent,
+  });
+
+  const { data: dashboardSummary } = useQuery({
+    queryKey: ["studentDashboardSummary"],
+    queryFn: getStudentDashboardSummary,
+    enabled: isStudent,
+  });
+
   const isLoading = isCoursesLoading;
   const recentCourse = courses.length > 0 ? courses[0] : null;
 
@@ -39,6 +53,11 @@ export default function DashboardPage() {
     const h = Math.floor(seconds / 3600);
     const m = Math.floor((seconds % 3600) / 60);
     return `${h}시간 ${m}분`;
+  };
+
+  const formatDueDateTime = (s: string) => {
+    const d = new Date(s);
+    return `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
   };
 
   return (
@@ -64,6 +83,88 @@ export default function DashboardPage() {
             {isInstructor ? "새 강의 개설하기" : "새 학습 자료 추가하기"}
           </Link>
         </div>
+
+        {/* ===== 학생 전용 — 학습 요약 카드 4개 ===== */}
+        {isStudent && dashboardSummary && (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <SummaryCard
+              icon={<Clock className="w-5 h-5 text-blue-500" />}
+              label="이번 주 학습"
+              value={formatTime(dashboardSummary.thisWeekStudyTime)}
+            />
+            <SummaryCard
+              icon={<AlarmClock className="w-5 h-5 text-orange-500" />}
+              label="남은 과제"
+              value={`${dashboardSummary.pendingAssignments}건`}
+              accent={dashboardSummary.pendingAssignments > 0 ? "text-orange-600" : "text-slate-800"}
+            />
+            <SummaryCard
+              icon={<Award className="w-5 h-5 text-emerald-500" />}
+              label="평균 점수"
+              value={`${dashboardSummary.averageScore}점`}
+            />
+            <SummaryCard
+              icon={<Target className="w-5 h-5 text-violet-500" />}
+              label="정답률"
+              value={`${dashboardSummary.overallCorrectRate}%`}
+            />
+          </div>
+        )}
+
+        {/* ===== 학생 전용 — 곧 마감되는 과제 ===== */}
+        {isStudent && upcoming.length > 0 && (
+          <div className="bg-white border border-orange-100 rounded-[2rem] p-6 shadow-sm mb-8">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-orange-50 flex items-center justify-center">
+                  <AlarmClock className="w-5 h-5 text-orange-500" />
+                </div>
+                <div>
+                  <h2 className="text-base font-black text-slate-800">곧 마감되는 과제</h2>
+                  <p className="text-xs font-bold text-slate-400">
+                    {upcoming.length}건이 마감을 앞두고 있어요
+                  </p>
+                </div>
+              </div>
+            </div>
+            <ul className="space-y-2">
+              {upcoming.map((a) => {
+                const due = dueStatus(a.dueDate);
+                return (
+                  <li key={a.id}>
+                    <Link
+                      href={`/courses/${a.courseId}/assignments/${a.id}`}
+                      className="flex items-center justify-between gap-3 p-3 bg-slate-50 hover:bg-slate-100 rounded-2xl transition-colors group"
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <ClipboardList className="w-4 h-4 text-slate-400 shrink-0" />
+                        <div className="min-w-0">
+                          <p className="text-sm font-black text-slate-800 truncate">{a.title}</p>
+                          <p className="text-[11px] font-bold text-slate-400 truncate">
+                            {a.courseTitle} · 마감 {formatDueDateTime(a.dueDate)}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        {a.mySubmissionExists && (
+                          <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200 flex items-center gap-1">
+                            <CheckCircle2 className="w-3 h-3" />
+                            제출
+                          </span>
+                        )}
+                        <span
+                          className={`text-[11px] font-black px-2.5 py-1 rounded-full ring-1 ${due.bgClass} ${due.textClass} ${due.ringClass}`}
+                        >
+                          {due.label}
+                        </span>
+                      </div>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        )}
 
         {/* ===== 히어로 + 스탯 카드 ===== */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
@@ -298,5 +399,27 @@ export default function DashboardPage() {
         )}
       </div>
     </MainLayout>
+  );
+}
+
+function SummaryCard({
+  icon,
+  label,
+  value,
+  accent,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  accent?: string;
+}) {
+  return (
+    <div className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm">
+      <div className="flex items-center justify-between mb-2">
+        <p className="text-xs font-black text-slate-400 uppercase tracking-wider">{label}</p>
+        {icon}
+      </div>
+      <p className={`text-2xl font-black ${accent ?? "text-slate-800"}`}>{value}</p>
+    </div>
   );
 }
