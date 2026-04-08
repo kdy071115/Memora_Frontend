@@ -1,17 +1,18 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Bell, Check, X, Loader2, Users } from "lucide-react";
+import { Bell, Check, X, Loader2, Users, MessageSquare } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   getMyPendingInvitations,
   acceptInvitation,
   rejectInvitation,
 } from "@/lib/api/teams";
+import { getNotificationCounts, markFeedbackSeen } from "@/lib/api/assignments";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 
 /**
- * 헤더에 표시되는 팀 초대 알림 벨.
+ * 헤더에 표시되는 알림 벨 — 팀 초대 + 미확인 피드백 통합.
  * - 학생 계정에서만 fetch
  * - 30 초마다 자동 갱신
  */
@@ -40,10 +41,24 @@ export default function InvitationBell() {
     refetchOnWindowFocus: true,
   });
 
+  const { data: counts } = useQuery({
+    queryKey: ["notificationCounts"],
+    queryFn: getNotificationCounts,
+    enabled: isStudent,
+    refetchInterval: 30000,
+    refetchOnWindowFocus: true,
+  });
+
+  const markSeenMutation = useMutation({
+    mutationFn: markFeedbackSeen,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["notificationCounts"] }),
+  });
+
   const acceptMutation = useMutation({
     mutationFn: (id: number) => acceptInvitation(id),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["myPendingInvitations"] });
+      queryClient.invalidateQueries({ queryKey: ["notificationCounts"] });
       queryClient.invalidateQueries({ queryKey: ["teams", data.courseId] });
     },
     onError: (err: any) => alert(err?.response?.data?.message || "수락 실패"),
@@ -51,40 +66,69 @@ export default function InvitationBell() {
 
   const rejectMutation = useMutation({
     mutationFn: (id: number) => rejectInvitation(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["myPendingInvitations"] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["myPendingInvitations"] });
+      queryClient.invalidateQueries({ queryKey: ["notificationCounts"] });
+    },
     onError: (err: any) => alert(err?.response?.data?.message || "거절 실패"),
   });
 
   if (!isStudent) return null;
 
-  const count = invitations.length;
+  const inviteCount = invitations.length;
+  const feedbackCount = counts?.unseenFeedback ?? 0;
+  const totalCount = inviteCount + feedbackCount;
+
+  const handleToggle = () => {
+    const next = !open;
+    setOpen(next);
+    // 종을 열면 피드백 알림은 확인된 것으로 처리
+    if (next && feedbackCount > 0) {
+      markSeenMutation.mutate();
+    }
+  };
 
   return (
     <div className="relative" ref={ref}>
       <button
         type="button"
-        onClick={() => setOpen((v) => !v)}
+        onClick={handleToggle}
         className="relative w-9 h-9 rounded-xl hover:bg-slate-100 flex items-center justify-center transition-colors"
-        aria-label={`초대장 ${count}건`}
+        aria-label={`알림 ${totalCount}건`}
       >
         <Bell className="w-4 h-4 text-slate-600" />
-        {count > 0 && (
+        {totalCount > 0 && (
           <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-500 text-white text-[10px] font-black flex items-center justify-center ring-2 ring-white">
-            {count > 9 ? "9+" : count}
+            {totalCount > 9 ? "9+" : totalCount}
           </span>
         )}
       </button>
 
       {open && (
         <div className="absolute right-0 top-11 w-80 bg-white border border-slate-100 rounded-2xl shadow-xl shadow-slate-200/60 z-50 animate-in fade-in slide-in-from-top-2 duration-150 overflow-hidden">
+          {/* ── 피드백 알림 섹션 ── */}
+          {feedbackCount > 0 && (
+            <div className="px-4 py-3 border-b border-slate-100 bg-blue-50/40">
+              <div className="flex items-center gap-2 mb-1">
+                <MessageSquare className="w-4 h-4 text-blue-500" />
+                <p className="text-sm font-black text-slate-800">
+                  새 피드백 {feedbackCount}건
+                </p>
+              </div>
+              <p className="text-[11px] font-medium text-slate-500 leading-relaxed">
+                내 제출물에 강사 또는 팀원이 새 댓글을 남겼어요. 과제 페이지에서 확인하세요.
+              </p>
+            </div>
+          )}
+
           <div className="px-4 py-3 border-b border-slate-100">
             <p className="text-xs font-bold text-slate-400 mb-0.5">팀 초대</p>
             <p className="text-sm font-black text-slate-800">
-              {count > 0 ? `${count}건의 새 초대` : "받은 초대가 없습니다"}
+              {inviteCount > 0 ? `${inviteCount}건의 새 초대` : "받은 초대가 없습니다"}
             </p>
           </div>
 
-          {count === 0 ? (
+          {inviteCount === 0 ? (
             <div className="py-8 px-4 flex flex-col items-center text-center">
               <Users className="w-10 h-10 text-slate-200 mb-2" />
               <p className="text-xs font-medium text-slate-400">
