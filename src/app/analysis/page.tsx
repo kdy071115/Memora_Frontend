@@ -85,12 +85,15 @@ export default function AnalysisPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [analysis]);
 
+  // 학생 레이더 — 6개 학습 역량 (개념 이해력 / 수학적 사고 / 비판적 추론 / 암기력 / 응용력 / 문제 해결)
+  // 백엔드는 0~150 스케일의 Map<String, Integer> 로 반환한다.
   const studentRadarData = useMemo(() => {
-    if (!analysis?.weakConcepts) return [];
-    return analysis.weakConcepts.map((wc) => ({
-      subject: wc.concept,
-      A: Math.round(wc.correctRate * 100),
-      fullMark: 100,
+    const comp = analysis?.competencies;
+    if (!comp || Object.keys(comp).length === 0) return [];
+    return Object.entries(comp).map(([subject, value]) => ({
+      subject,
+      A: value,
+      fullMark: 150,
     }));
   }, [analysis]);
 
@@ -286,13 +289,15 @@ export default function AnalysisPage() {
             </div>
           </div>
 
-          {/* 레이더 차트 */}
+          {/* 레이더 차트 — 학생: 6대 학습 역량 / 강사: 학급 전체 취약 개념 정답률 */}
           <div className="bg-white border border-slate-100 rounded-[2.5rem] p-8 shadow-sm">
             <h3 className="text-xl font-bold mb-2 text-slate-800">
-              {isInstructor ? "학급 전체 취약 개념 정답률" : "나의 취약 개념 정답률 (%)"}
+              {isInstructor ? "학급 전체 취약 개념 정답률" : "나의 학습 역량 분석"}
             </h3>
             <p className="text-sm font-medium text-slate-500 mb-6">
-              AI가 진단한 부족한 개념들을 파악하세요 (100%에 가까울수록 우수)
+              {isInstructor
+                ? "AI가 진단한 학급 평균 취약 개념입니다 (100%에 가까울수록 우수)"
+                : "개념 이해력 · 수학적 사고 · 비판적 추론 · 암기력 · 응용력 · 문제 해결 (150에 가까울수록 우수)"}
             </p>
             <div className="w-full h-72">
               {(isInstructor ? instructorRadarData : studentRadarData).length === 0 ? (
