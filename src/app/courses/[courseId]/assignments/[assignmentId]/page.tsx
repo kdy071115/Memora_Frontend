@@ -26,6 +26,8 @@ import {
   ExternalLink,
   Sparkles,
   ClipboardCopy,
+  LockKeyhole,
+  UnlockKeyhole,
 } from "lucide-react";
 import {
   getAssignment,
@@ -37,9 +39,12 @@ import {
   addSubmissionComment,
   deleteSubmissionComment,
   deleteAssignment,
+  closeAssignmentEarly,
+  reopenAssignment,
   fetchSubmissionFileBlob,
   requestAiFeedback,
   getCachedAiFeedback,
+  getAssignmentStats,
 } from "@/lib/api/assignments";
 import { getCourseTeams } from "@/lib/api/teams";
 import { getCourseById } from "@/lib/api/courses";
@@ -49,6 +54,7 @@ import type {
   SubmissionInput,
   SubmissionVisibility,
   AiFeedbackResult,
+  AssignmentStats,
 } from "@/types/assignment";
 
 export default function AssignmentDetailPage({
@@ -87,6 +93,13 @@ export default function AssignmentDetailPage({
   const isInstructor =
     user?.role === "INSTRUCTOR" && course?.instructor.id === Number(user.id);
 
+  // 강사용 — 제출 통계 + 미제출자 명단
+  const { data: stats } = useQuery({
+    queryKey: ["assignmentStats", assignmentId],
+    queryFn: () => getAssignmentStats(assignmentId),
+    enabled: !!isInstructor,
+  });
+
   // 내가 멤버인 팀만 (학생일 때 팀 선택용)
   const myTeams = useMemo(
     () => teams.filter((t) => t.members.some((m) => m.userId === Number(user?.id))),
@@ -120,6 +133,24 @@ export default function AssignmentDetailPage({
     onError: (err: any) => alert(err?.response?.data?.message || "삭제 실패"),
   });
 
+  const closeMutation = useMutation({
+    mutationFn: () => closeAssignmentEarly(assignmentId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["assignment", assignmentId] });
+      queryClient.invalidateQueries({ queryKey: ["assignments", courseId] });
+    },
+    onError: (err: any) => alert(err?.response?.data?.message || "조기 마감 실패"),
+  });
+
+  const reopenMutation = useMutation({
+    mutationFn: () => reopenAssignment(assignmentId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["assignment", assignmentId] });
+      queryClient.invalidateQueries({ queryKey: ["assignments", courseId] });
+    },
+    onError: (err: any) => alert(err?.response?.data?.message || "마감 해제 실패"),
+  });
+
   if (isLoading || !assignment) {
     return (
       <MainLayout>
@@ -130,7 +161,9 @@ export default function AssignmentDetailPage({
     );
   }
 
-  const overdue = assignment.dueDate && new Date(assignment.dueDate).getTime() < Date.now();
+  // 백엔드의 closed (closedEarly OR dueDate 지남) 를 우선 신뢰
+  const overdue = assignment.closed;
+  const dueOver = assignment.dueDate && new Date(assignment.dueDate).getTime() < Date.now();
 
   return (
     <MainLayout>
@@ -159,18 +192,55 @@ export default function AssignmentDetailPage({
               </div>
             </div>
             {isInstructor && (
-              <button
-                type="button"
-                onClick={() => {
-                  if (confirm("과제와 모든 제출물·댓글을 삭제합니다. 계속하시겠습니까?")) {
-                    deleteAssignmentMutation.mutate();
-                  }
-                }}
-                className="px-4 h-10 bg-white border border-rose-200 text-rose-500 font-bold rounded-xl hover:bg-rose-50 transition-colors flex items-center gap-2 shrink-0"
-              >
-                <Trash2 className="w-4 h-4" />
-                삭제
-              </button>
+              <div className="flex items-center gap-2 shrink-0">
+                {assignment.closedEarly ? (
+                  <button
+                    type="button"
+                    disabled={reopenMutation.isPending}
+                    onClick={() => reopenMutation.mutate()}
+                    className="px-4 h-10 bg-white border border-emerald-200 text-emerald-600 font-bold rounded-xl hover:bg-emerald-50 transition-colors flex items-center gap-2 disabled:opacity-50"
+                  >
+                    {reopenMutation.isPending ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <UnlockKeyhole className="w-4 h-4" />
+                    )}
+                    마감 해제
+                  </button>
+                ) : (
+                  !dueOver && (
+                    <button
+                      type="button"
+                      disabled={closeMutation.isPending}
+                      onClick={() => {
+                        if (confirm("지금 즉시 마감 처리합니다. 학생은 더 이상 제출/수정할 수 없습니다. 계속하시겠습니까?")) {
+                          closeMutation.mutate();
+                        }
+                      }}
+                      className="px-4 h-10 bg-white border border-amber-200 text-amber-600 font-bold rounded-xl hover:bg-amber-50 transition-colors flex items-center gap-2 disabled:opacity-50"
+                    >
+                      {closeMutation.isPending ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <LockKeyhole className="w-4 h-4" />
+                      )}
+                      조기 마감
+                    </button>
+                  )
+                )}
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (confirm("과제와 모든 제출물·댓글을 삭제합니다. 계속하시겠습니까?")) {
+                      deleteAssignmentMutation.mutate();
+                    }
+                  }}
+                  className="px-4 h-10 bg-white border border-rose-200 text-rose-500 font-bold rounded-xl hover:bg-rose-50 transition-colors flex items-center gap-2"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  삭제
+                </button>
+              </div>
             )}
           </div>
 
@@ -204,6 +274,11 @@ export default function AssignmentDetailPage({
           </div>
         </div>
 
+        {/* 강사: 제출 통계 + 미제출자 패널 */}
+        {isInstructor && stats && (
+          <InstructorStatsPanel stats={stats} />
+        )}
+
         {/* 학생: 내 제출물 영역 */}
         {!isInstructor && (
           <SubmissionEditor
@@ -211,6 +286,9 @@ export default function AssignmentDetailPage({
             existing={mySubmission}
             allowTeam={assignment.allowTeamSubmission}
             myTeams={myTeams}
+            overdue={!!overdue}
+            closedEarly={assignment.closedEarly}
+            dueDate={assignment.dueDate}
             onChange={() => {
               queryClient.invalidateQueries({ queryKey: ["submissions", assignmentId] });
               queryClient.invalidateQueries({ queryKey: ["assignment", assignmentId] });
@@ -272,12 +350,18 @@ function SubmissionEditor({
   existing,
   allowTeam,
   myTeams,
+  overdue,
+  closedEarly,
+  dueDate,
   onChange,
 }: {
   assignmentId: number;
   existing: Submission | null;
   allowTeam: boolean;
   myTeams: { id: number; name: string }[];
+  overdue: boolean;
+  closedEarly: boolean;
+  dueDate: string | null;
   onChange: () => void;
 }) {
   const [content, setContent] = useState(existing?.content ?? "");
@@ -289,6 +373,7 @@ function SubmissionEditor({
   const [removeAttachment, setRemoveAttachment] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const isEditing = !!existing;
+  const locked = overdue;
 
   // existing 이 비동기로 들어오면 form 동기화
   React.useEffect(() => {
@@ -332,12 +417,22 @@ function SubmissionEditor({
   });
 
   return (
-    <div className="bg-white border border-emerald-100 rounded-3xl p-6 shadow-sm">
+    <div
+      className={`bg-white border rounded-3xl p-6 shadow-sm ${
+        locked ? "border-slate-200" : "border-emerald-100"
+      }`}
+    >
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-black text-slate-800">
-          {isEditing ? "내 제출물 수정" : "내 제출물 작성"}
+          {locked
+            ? isEditing
+              ? "내 제출물 (마감됨 — 읽기 전용)"
+              : "마감된 과제"
+            : isEditing
+            ? "내 제출물 수정"
+            : "내 제출물 작성"}
         </h2>
-        {isEditing && (
+        {isEditing && !locked && (
           <button
             type="button"
             onClick={() => {
@@ -351,12 +446,39 @@ function SubmissionEditor({
         )}
       </div>
 
+      {/* 마감 안내 배너 */}
+      {locked && (
+        <div className="mb-4 flex items-start gap-3 px-4 py-3 rounded-xl bg-rose-50 border border-rose-100">
+          <AlertTriangle className="w-4 h-4 text-rose-500 mt-0.5 shrink-0" />
+          <div className="text-xs leading-relaxed">
+            <p className="font-black text-rose-700 mb-0.5">
+              {closedEarly
+                ? "강사가 이 과제를 조기 마감했습니다"
+                : dueDate
+                ? `마감되었습니다 (${formatDateTime(dueDate)})`
+                : "마감되었습니다"}
+            </p>
+            <p className="text-rose-600 font-medium">
+              {isEditing
+                ? "마감 이후에는 본문과 첨부를 수정할 수 없습니다. 강사 피드백은 아래에서 확인하세요."
+                : "마감 이후에는 새로 제출할 수 없습니다."}
+            </p>
+          </div>
+        </div>
+      )}
+
       <textarea
         value={content}
         onChange={(e) => setContent(e.target.value)}
         rows={8}
         placeholder="과제 내용을 작성해주세요. (markdown 지원)"
-        className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 font-medium resize-y mb-4"
+        readOnly={locked}
+        disabled={locked}
+        className={`w-full px-4 py-3 rounded-xl border font-medium resize-y mb-4 ${
+          locked
+            ? "border-slate-200 bg-slate-50 text-slate-500 cursor-not-allowed"
+            : "border-slate-200 focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+        }`}
       />
 
       {/* 첨부 */}
@@ -385,11 +507,12 @@ function SubmissionEditor({
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="text-xs font-bold text-emerald-600 hover:underline"
+            disabled={locked}
+            className="text-xs font-bold text-emerald-600 hover:underline disabled:text-slate-400 disabled:no-underline disabled:cursor-not-allowed"
           >
             파일 선택
           </button>
-          {(file || (existing?.attachmentName && !removeAttachment)) && (
+          {!locked && (file || (existing?.attachmentName && !removeAttachment)) && (
             <button
               type="button"
               onClick={() => {
@@ -409,8 +532,9 @@ function SubmissionEditor({
       <div className="flex flex-wrap items-center gap-3 mb-4">
         <button
           type="button"
+          disabled={locked}
           onClick={() => setVisibility(visibility === "PUBLIC" ? "PRIVATE" : "PUBLIC")}
-          className={`h-10 px-4 rounded-xl border font-bold text-sm flex items-center gap-2 transition-all ${
+          className={`h-10 px-4 rounded-xl border font-bold text-sm flex items-center gap-2 transition-all disabled:cursor-not-allowed disabled:opacity-60 ${
             visibility === "PUBLIC"
               ? "bg-blue-50 border-blue-300 text-blue-700"
               : "bg-slate-50 border-slate-200 text-slate-600"
@@ -423,8 +547,9 @@ function SubmissionEditor({
         {allowTeam && (
           <select
             value={teamId ?? ""}
+            disabled={locked}
             onChange={(e) => setTeamId(e.target.value ? Number(e.target.value) : null)}
-            className="h-10 px-4 rounded-xl border border-slate-200 font-bold text-sm text-slate-700 bg-white"
+            className="h-10 px-4 rounded-xl border border-slate-200 font-bold text-sm text-slate-700 bg-white disabled:cursor-not-allowed disabled:opacity-60"
           >
             <option value="">개인 제출</option>
             {myTeams.map((t) => (
@@ -435,19 +560,21 @@ function SubmissionEditor({
           </select>
         )}
 
-        <button
-          type="button"
-          disabled={mutation.isPending || !content.trim()}
-          onClick={() => mutation.mutate()}
-          className="ml-auto h-10 px-5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl flex items-center gap-2 transition-colors disabled:opacity-50"
-        >
-          {mutation.isPending ? (
-            <Loader2 className="w-4 h-4 animate-spin" />
-          ) : (
-            <Send className="w-4 h-4" />
-          )}
-          {isEditing ? "수정 제출" : "제출하기"}
-        </button>
+        {!locked && (
+          <button
+            type="button"
+            disabled={mutation.isPending || !content.trim()}
+            onClick={() => mutation.mutate()}
+            className="ml-auto h-10 px-5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl flex items-center gap-2 transition-colors disabled:opacity-50"
+          >
+            {mutation.isPending ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Send className="w-4 h-4" />
+            )}
+            {isEditing ? "수정 제출" : "제출하기"}
+          </button>
+        )}
       </div>
     </div>
   );
@@ -699,6 +826,94 @@ function SubmissionCard({
 function formatDateTime(s: string) {
   const d = new Date(s);
   return `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+}
+
+// ─────────────────────────────────────────────────────────────────
+// 강사용 제출 통계 + 미제출자 패널
+// ─────────────────────────────────────────────────────────────────
+function InstructorStatsPanel({ stats }: { stats: AssignmentStats }) {
+  const [showMissing, setShowMissing] = useState(false);
+  const rate = stats.submissionRate;
+  const rateColor =
+    rate >= 80 ? "text-emerald-600" : rate >= 50 ? "text-blue-600" : "text-rose-600";
+  const barColor =
+    rate >= 80
+      ? "bg-emerald-500"
+      : rate >= 50
+      ? "bg-blue-500"
+      : "bg-rose-500";
+
+  return (
+    <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm mb-6">
+      <div className="flex items-center justify-between gap-4 mb-4">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="w-10 h-10 rounded-2xl bg-blue-50 flex items-center justify-center shrink-0">
+            <UsersIcon className="w-5 h-5 text-blue-600" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-xs font-bold text-slate-400">제출 현황</p>
+            <p className="text-sm font-black text-slate-800">
+              {stats.submittedStudents} / {stats.totalStudents}명 제출
+            </p>
+          </div>
+        </div>
+        <div className="text-right shrink-0">
+          <p className={`text-3xl font-black leading-none ${rateColor}`}>{rate}%</p>
+          <p className="text-[10px] font-bold text-slate-400 mt-0.5">제출률</p>
+        </div>
+      </div>
+
+      <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden mb-4">
+        <div
+          className={`h-2 rounded-full ${barColor} transition-all duration-700`}
+          style={{ width: `${rate}%` }}
+        />
+      </div>
+
+      {stats.missing.length > 0 ? (
+        <div>
+          <button
+            type="button"
+            onClick={() => setShowMissing((v) => !v)}
+            className="w-full flex items-center justify-between gap-2 px-3 py-2 rounded-xl bg-rose-50/60 hover:bg-rose-50 transition-colors text-left"
+          >
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 text-rose-500" />
+              <span className="text-xs font-black text-rose-700">
+                미제출 {stats.missing.length}명
+              </span>
+            </div>
+            <span className="text-[11px] font-bold text-rose-600">
+              {showMissing ? "숨기기" : "명단 보기"}
+            </span>
+          </button>
+          {showMissing && (
+            <ul className="mt-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+              {stats.missing.map((m) => (
+                <li
+                  key={m.userId}
+                  className="flex items-center gap-2 p-2 bg-slate-50 rounded-xl"
+                >
+                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-rose-400 to-rose-500 flex items-center justify-center text-white text-xs font-black shrink-0">
+                    {m.name.charAt(0)}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs font-bold text-slate-700 truncate">{m.name}</p>
+                    <p className="text-[10px] font-medium text-slate-400 truncate">{m.email}</p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      ) : (
+        <p className="text-xs font-bold text-emerald-600 flex items-center gap-1.5">
+          <Sparkles className="w-3.5 h-3.5" />
+          모든 수강생이 제출했어요!
+        </p>
+      )}
+    </div>
+  );
 }
 
 // ─────────────────────────────────────────────────────────────────

@@ -18,6 +18,7 @@ import {
 import { getCourseAssignments, createAssignment } from "@/lib/api/assignments";
 import { getCourseById } from "@/lib/api/courses";
 import { useAuthStore } from "@/lib/store/useAuthStore";
+import { dueStatus } from "@/lib/dueDate";
 import type { AssignmentInput } from "@/types/assignment";
 
 export default function AssignmentsListPage({
@@ -227,8 +228,11 @@ export default function AssignmentsListPage({
         ) : (
           <div className="space-y-3">
             {assignments.map((assignment) => {
-              const overdue =
-                assignment.dueDate && new Date(assignment.dueDate).getTime() < Date.now();
+              const due = dueStatus(assignment.dueDate);
+              const showDueBadge =
+                !assignment.closedEarly &&
+                due.kind !== "NONE" &&
+                !(isInstructor === false && assignment.mySubmissionExists);
               return (
                 <Link
                   key={assignment.id}
@@ -250,9 +254,16 @@ export default function AssignmentsListPage({
                             제출 완료
                           </span>
                         )}
-                        {overdue && (
+                        {assignment.closedEarly && (
                           <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 ring-1 ring-rose-200">
-                            마감
+                            조기 마감
+                          </span>
+                        )}
+                        {showDueBadge && (
+                          <span
+                            className={`text-[10px] font-black px-2 py-0.5 rounded-full ring-1 ${due.bgClass} ${due.textClass} ${due.ringClass}`}
+                          >
+                            {due.label}
                           </span>
                         )}
                       </div>
