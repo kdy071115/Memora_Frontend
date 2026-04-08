@@ -70,14 +70,18 @@ export interface UpcomingAssignment {
 }
 
 export interface AiFeedbackResult {
-  overallScore: number;
-  grade: "EXCELLENT" | "GOOD" | "AVERAGE" | "NEEDS_WORK" | string;
-  summary: string;
-  strengths: string[];
-  improvements: string[];
-  missingPoints: string[];
-  suggestions: string[];
-  instructorDraft: string;
+  /** 비동기 캐시 상태. PENDING / READY / FAILED. 없으면 READY 로 간주. */
+  status?: "PENDING" | "READY" | "FAILED" | string;
+  /** FAILED 일 때 에러 메시지 */
+  errorMessage?: string;
+  overallScore?: number;
+  grade?: "EXCELLENT" | "GOOD" | "AVERAGE" | "NEEDS_WORK" | string;
+  summary?: string;
+  strengths?: string[];
+  improvements?: string[];
+  missingPoints?: string[];
+  suggestions?: string[];
+  instructorDraft?: string;
 }
 
 export interface AssignmentStats {

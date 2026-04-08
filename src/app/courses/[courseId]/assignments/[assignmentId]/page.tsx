@@ -611,26 +611,25 @@ function SubmissionCard({
   const canComment = isInstructor || isOwner || isMyTeam;
 
   const [commentText, setCommentText] = useState("");
-  const [aiFeedback, setAiFeedback] = useState<AiFeedbackResult | null>(null);
+  const [dismissedAiFeedback, setDismissedAiFeedback] = useState(false);
 
-  // 강사일 때만 캐시된 AI 피드백을 가져온다 (열리는 순간 자동 로딩)
-  const { data: cachedAiFeedback } = useQuery({
+  // 강사일 때만 캐시된 AI 피드백을 가져온다.
+  // status 가 PENDING 이면 2초 간격으로 polling, READY/FAILED 면 멈춤.
+  const { data: aiFeedback } = useQuery({
     queryKey: ["aiFeedbackCache", submission.id],
     queryFn: () => getCachedAiFeedback(submission.id),
-    enabled: open && isInstructor,
-    staleTime: 60_000,
+    enabled: open && isInstructor && !dismissedAiFeedback,
+    refetchInterval: (query) => {
+      const data = query.state.data as AiFeedbackResult | null;
+      return data?.status === "PENDING" ? 2000 : false;
+    },
   });
-
-  // 캐시 응답이 도착하면 내부 state 에 반영. 강사가 새로 생성하면 mutation 결과로 덮어쓴다.
-  React.useEffect(() => {
-    if (cachedAiFeedback && !aiFeedback) setAiFeedback(cachedAiFeedback);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cachedAiFeedback]);
 
   const aiFeedbackMutation = useMutation({
     mutationFn: () => requestAiFeedback(submission.id),
-    onSuccess: (data) => {
-      setAiFeedback(data);
+    onSuccess: () => {
+      setDismissedAiFeedback(false);
+      // 즉시 PENDING 상태가 캐시에 반영되도록 polling 재시작
       queryClient.invalidateQueries({ queryKey: ["aiFeedbackCache", submission.id] });
     },
     onError: (err: any) => alert(err?.response?.data?.message || "AI 피드백 생성 실패"),
@@ -773,14 +772,14 @@ function SubmissionCard({
             {/* 강사용 AI 피드백 패널 */}
             {isInstructor && (
               <AiFeedbackPanel
-                feedback={aiFeedback}
-                loading={aiFeedbackMutation.isPending}
+                feedback={aiFeedback ?? null}
+                loading={aiFeedbackMutation.isPending || aiFeedback?.status === "PENDING"}
                 onGenerate={() => aiFeedbackMutation.mutate()}
                 onUseDraft={(text) => {
                   setCommentText(text);
                   // 결과는 그대로 두어 강사가 다시 확인할 수 있게 함
                 }}
-                onClear={() => setAiFeedback(null)}
+                onClear={() => setDismissedAiFeedback(true)}
               />
             )}
 
@@ -939,6 +938,11 @@ function AiFeedbackPanel({
   onUseDraft: (text: string) => void;
   onClear: () => void;
 }) {
+  const status = feedback?.status;
+  const isPending = loading || status === "PENDING";
+  const isFailed = status === "FAILED";
+  const hasResult = !!feedback && status !== "PENDING" && status !== "FAILED" && feedback.overallScore != null;
+
   if (!feedback && !loading) {
     return (
       <div className="mb-4">
@@ -952,21 +956,65 @@ function AiFeedbackPanel({
         </button>
         <p className="text-[11px] font-medium text-slate-400 mt-1.5 leading-relaxed">
           제출 본문과 첨부 파일(PDF·텍스트)을 과제 주제와 비교해 AI 가 피드백 초안을 만들어드려요.
+          백그라운드로 처리되니 패널을 닫고 다른 작업을 해도 결과가 캐시에 저장됩니다.
         </p>
       </div>
     );
   }
 
-  if (loading) {
+  if (isPending) {
     return (
-      <div className="mb-4 bg-violet-50/50 border border-violet-100 rounded-2xl p-5 flex items-center gap-3">
-        <Loader2 className="w-5 h-5 text-violet-500 animate-spin" />
-        <p className="text-sm font-bold text-violet-700">
-          AI 가 제출물을 읽는 중입니다... (PDF 는 10-30초 정도 걸려요)
-        </p>
+      <div className="mb-4 bg-violet-50/50 border border-violet-100 rounded-2xl p-5 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <Loader2 className="w-5 h-5 text-violet-500 animate-spin" />
+          <p className="text-sm font-bold text-violet-700">
+            AI 가 제출물을 읽는 중입니다... (PDF 는 10-30초 정도 걸려요)
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={onClear}
+          className="text-slate-400 hover:text-slate-600"
+          title="패널 닫기 (작업은 백그라운드에서 계속됨)"
+        >
+          <X className="w-4 h-4" />
+        </button>
       </div>
     );
   }
+
+  if (isFailed) {
+    return (
+      <div className="mb-4 bg-rose-50/60 border border-rose-100 rounded-2xl p-5">
+        <div className="flex items-start justify-between gap-3 mb-3">
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="w-4 h-4 text-rose-500" />
+            <p className="text-sm font-black text-rose-700">AI 피드백 생성에 실패했어요</p>
+          </div>
+          <button
+            type="button"
+            onClick={onClear}
+            className="text-slate-400 hover:text-slate-600"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+        {feedback?.errorMessage && (
+          <p className="text-xs font-medium text-rose-600 mb-3">{feedback.errorMessage}</p>
+        )}
+        <button
+          type="button"
+          onClick={onGenerate}
+          className="inline-flex items-center gap-2 px-4 h-9 rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-bold text-xs"
+        >
+          <Sparkles className="w-3.5 h-3.5" />
+          다시 시도
+        </button>
+      </div>
+    );
+  }
+
+  if (!hasResult) return null;
 
   // feedback 존재
   const meta = GRADE_STYLE[feedback!.grade] || GRADE_STYLE.AVERAGE;
@@ -1017,17 +1065,17 @@ function AiFeedbackPanel({
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
-        {feedback!.strengths.length > 0 && (
-          <FeedbackList title="잘한 점" items={feedback!.strengths} dot="bg-emerald-400" />
+        {(feedback!.strengths?.length ?? 0) > 0 && (
+          <FeedbackList title="잘한 점" items={feedback!.strengths!} dot="bg-emerald-400" />
         )}
-        {feedback!.improvements.length > 0 && (
-          <FeedbackList title="보완 포인트" items={feedback!.improvements} dot="bg-amber-400" />
+        {(feedback!.improvements?.length ?? 0) > 0 && (
+          <FeedbackList title="보완 포인트" items={feedback!.improvements!} dot="bg-amber-400" />
         )}
-        {feedback!.missingPoints.length > 0 && (
-          <FeedbackList title="빠뜨린 항목" items={feedback!.missingPoints} dot="bg-rose-400" />
+        {(feedback!.missingPoints?.length ?? 0) > 0 && (
+          <FeedbackList title="빠뜨린 항목" items={feedback!.missingPoints!} dot="bg-rose-400" />
         )}
-        {feedback!.suggestions.length > 0 && (
-          <FeedbackList title="다음 단계 제안" items={feedback!.suggestions} dot="bg-blue-400" />
+        {(feedback!.suggestions?.length ?? 0) > 0 && (
+          <FeedbackList title="다음 단계 제안" items={feedback!.suggestions!} dot="bg-blue-400" />
         )}
       </div>
 
@@ -1039,7 +1087,7 @@ function AiFeedbackPanel({
             </p>
             <button
               type="button"
-              onClick={() => onUseDraft(feedback!.instructorDraft)}
+              onClick={() => onUseDraft(feedback!.instructorDraft!)}
               className="inline-flex items-center gap-1 text-xs font-bold text-violet-600 hover:text-violet-700"
             >
               <ClipboardCopy className="w-3.5 h-3.5" />
@@ -1094,6 +1142,39 @@ function isUseful(mime: string): boolean {
   return true;
 }
 
+/** 파일명만 보고 브라우저가 새 탭에서 직접 렌더 가능한지 판단. */
+function isBrowserPreviewable(name: string): boolean {
+  const lower = (name || "").toLowerCase();
+  return (
+    lower.endsWith(".pdf") ||
+    lower.endsWith(".png") ||
+    lower.endsWith(".jpg") ||
+    lower.endsWith(".jpeg") ||
+    lower.endsWith(".gif") ||
+    lower.endsWith(".webp") ||
+    lower.endsWith(".svg") ||
+    lower.endsWith(".txt") ||
+    lower.endsWith(".md") ||
+    lower.endsWith(".csv") ||
+    lower.endsWith(".html") ||
+    lower.endsWith(".htm") ||
+    lower.endsWith(".json")
+  );
+}
+
+/** 사용자에게 보여줄 파일 종류 라벨. */
+function fileKindLabel(name: string): string | null {
+  const lower = (name || "").toLowerCase();
+  if (lower.endsWith(".pdf")) return "PDF";
+  if (/\.(png|jpe?g|gif|webp|svg)$/.test(lower)) return "이미지";
+  if (/\.(txt|md|csv|html?|json)$/.test(lower)) return "텍스트";
+  if (/\.(docx?|odt)$/.test(lower)) return "Word 문서";
+  if (/\.(xlsx?|ods)$/.test(lower)) return "Excel 문서";
+  if (/\.(pptx?|odp)$/.test(lower)) return "PowerPoint 문서";
+  if (/\.zip$/.test(lower)) return "압축 파일";
+  return null;
+}
+
 function guessMimeFromName(name: string): string {
   const lower = name.toLowerCase();
   if (lower.endsWith(".pdf")) return "application/pdf";
@@ -1121,6 +1202,8 @@ function AttachmentActions({
   fileName: string;
 }) {
   const [loading, setLoading] = React.useState<"preview" | "download" | null>(null);
+  const previewable = isBrowserPreviewable(fileName);
+  const kindLabel = fileKindLabel(fileName);
 
   const handle = async (mode: "preview" | "download") => {
     // 미리보기는 await 이후 window.open 을 부르면 사용자 제스처가 끊겨
@@ -1190,12 +1273,22 @@ function AttachmentActions({
       <span className="inline-flex items-center gap-2 px-3 h-10 bg-slate-50 text-slate-700 font-bold rounded-xl text-sm">
         <Paperclip className="w-4 h-4 text-slate-400" />
         {fileName}
+        {kindLabel && (
+          <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-white text-slate-500 ring-1 ring-slate-200">
+            {kindLabel}
+          </span>
+        )}
       </span>
       <button
         type="button"
         onClick={() => handle("preview")}
-        disabled={loading !== null}
-        className="inline-flex items-center gap-1.5 px-3 h-10 bg-blue-50 text-blue-700 font-bold rounded-xl text-sm hover:bg-blue-100 transition-colors disabled:opacity-50"
+        disabled={loading !== null || !previewable}
+        title={
+          previewable
+            ? "새 탭에서 미리보기"
+            : "이 파일 형식은 브라우저에서 미리볼 수 없어요. 다운로드해서 확인해주세요."
+        }
+        className="inline-flex items-center gap-1.5 px-3 h-10 bg-blue-50 text-blue-700 font-bold rounded-xl text-sm hover:bg-blue-100 transition-colors disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed"
       >
         {loading === "preview" ? (
           <Loader2 className="w-3.5 h-3.5 animate-spin" />
