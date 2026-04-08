@@ -4,17 +4,22 @@ import Link from "next/link";
 import Image from "next/image";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import { useRouter } from "next/navigation";
-import { User, LogOut, ChevronDown, LayoutDashboard, BookOpen, BarChart2, Brain } from "lucide-react";
+import { User, LogOut, ChevronDown, LayoutDashboard, BookOpen, BarChart2, Brain, Menu, X, Sun, Moon } from "lucide-react";
+import { usePathname } from "next/navigation";
 import InvitationBell from "./InvitationBell";
+import { useTheme } from "@/lib/hooks/useTheme";
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
+  const pathname = usePathname();
   const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   const [menuOpen, setMenuOpen] = useState(false);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const { theme, toggle: toggleTheme, mounted: themeMounted } = useTheme();
 
   // 메뉴 외부 클릭 시 닫기
   useEffect(() => {
@@ -27,6 +32,11 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
+  // 라우팅이 바뀌면 모바일 nav 닫기
+  useEffect(() => {
+    setMobileNavOpen(false);
+  }, [pathname]);
+
   const handleLogout = () => {
     logout();
     router.push("/login");
@@ -36,7 +46,29 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
     <div className="min-h-screen flex flex-col w-full bg-background">
       <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-14 max-w-screen-2xl items-center mx-auto px-4">
-          {/* Logo + Nav */}
+          {/* 모바일 햄버거 + 로고 */}
+          <div className="flex md:hidden items-center gap-2 mr-2">
+            {isAuthenticated && (
+              <button
+                type="button"
+                onClick={() => setMobileNavOpen((v) => !v)}
+                className="w-9 h-9 rounded-xl hover:bg-slate-100 flex items-center justify-center"
+                aria-label="메뉴 열기"
+              >
+                {mobileNavOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              </button>
+            )}
+            <Link href="/" className="flex items-center space-x-2">
+              <div className="w-7 h-7 rounded-md overflow-hidden relative border border-slate-200">
+                <Image src="/images/logo.png" alt="Memora Logo" fill sizes="28px" className="object-cover" />
+              </div>
+              <span className="font-bold bg-gradient-to-r from-primary to-blue-500 bg-clip-text text-transparent text-lg tracking-tight">
+                Memora
+              </span>
+            </Link>
+          </div>
+
+          {/* 데스크톱 Logo + Nav */}
           <div className="mr-4 hidden md:flex">
             <Link href="/" className="mr-6 flex items-center space-x-2">
               <div className="w-7 h-7 rounded-md overflow-hidden relative border border-slate-200">
@@ -84,6 +116,21 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
           <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
             {isAuthenticated && user ? (
               <div className="flex items-center gap-2">
+                {themeMounted && (
+                  <button
+                    type="button"
+                    onClick={toggleTheme}
+                    className="w-9 h-9 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center transition-colors"
+                    aria-label={theme === "dark" ? "라이트 모드로 전환" : "다크 모드로 전환"}
+                    title={theme === "dark" ? "라이트 모드로 전환" : "다크 모드로 전환"}
+                  >
+                    {theme === "dark" ? (
+                      <Sun className="w-4 h-4 text-amber-400" />
+                    ) : (
+                      <Moon className="w-4 h-4 text-slate-600" />
+                    )}
+                  </button>
+                )}
                 <InvitationBell />
                 <div className="relative" ref={menuRef}>
                 <button
@@ -150,6 +197,42 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
             )}
           </div>
         </div>
+
+        {/* 모바일 펼침 nav */}
+        {isAuthenticated && mobileNavOpen && (
+          <nav className="md:hidden border-t border-slate-100 bg-white px-4 py-3 flex flex-col gap-1 animate-in slide-in-from-top-2 duration-150">
+            <Link
+              href="/dashboard"
+              className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-100 text-sm font-bold text-slate-700"
+            >
+              <LayoutDashboard className="w-4 h-4 text-slate-400" />
+              대시보드
+            </Link>
+            <Link
+              href="/courses"
+              className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-100 text-sm font-bold text-slate-700"
+            >
+              <BookOpen className="w-4 h-4 text-slate-400" />
+              강의
+            </Link>
+            <Link
+              href="/analysis"
+              className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-100 text-sm font-bold text-slate-700"
+            >
+              <BarChart2 className="w-4 h-4 text-slate-400" />
+              분석
+            </Link>
+            {user?.role === "STUDENT" && (
+              <Link
+                href="/retrospective"
+                className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-100 text-sm font-bold text-slate-700"
+              >
+                <Brain className="w-4 h-4 text-slate-400" />
+                회고
+              </Link>
+            )}
+          </nav>
+        )}
       </header>
       <main className="flex-1 w-full max-w-screen-2xl mx-auto p-4 flex flex-col">
         {children}
