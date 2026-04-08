@@ -2,11 +2,24 @@
 import React, { useState, use, useEffect, useMemo } from "react";
 import MainLayout from "@/components/layout/MainLayout";
 import Link from "next/link";
-import { ArrowLeft, CheckCircle2, ChevronRight, Loader2, Settings, Sparkles } from "lucide-react";
+import {
+  ArrowLeft,
+  CheckCircle2,
+  ChevronRight,
+  Loader2,
+  Settings,
+  Sparkles,
+  History,
+  ChevronDown,
+  TrendingUp,
+  Target,
+  XCircle,
+} from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getQuizzes, submitQuiz } from "@/lib/api/quiz";
+import { getQuizzes, submitQuiz, getQuizAttemptHistory } from "@/lib/api/quiz";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import { useLearningHeartbeat } from "@/lib/hooks/useLearningHeartbeat";
+import type { QuizAttemptHistoryItem } from "@/types/quiz";
 
 // Fisher–Yates 셔플 (불변 — 새 배열 반환)
 function shuffleArray<T>(arr: T[]): T[] {
@@ -48,13 +61,22 @@ export default function QuizPage({ params }: { params: Promise<{ lectureId: stri
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [quizzes[currentQuizIndex]?.id, currentQuizIndex]);
 
+  // 학생 본인의 풀이 점수 기록 (정답·해설 미포함)
+  const { data: history = [] } = useQuery({
+    queryKey: ["quizAttemptHistory", lectureId],
+    queryFn: () => getQuizAttemptHistory(lectureId),
+    enabled: !isInstructor,
+  });
+  const [historyOpen, setHistoryOpen] = useState(false);
+
   const submitMutation = useMutation({
-    mutationFn: (args: { answer: string; timeSpent: number }) => 
+    mutationFn: (args: { answer: string; timeSpent: number }) =>
       submitQuiz(quizzes[currentQuizIndex].id, { userAnswer: args.answer, timeSpent: args.timeSpent }),
     onSuccess: () => {
       setShowResult(true);
-      // Refetch quizzes to get updated feedback/history if needed
-      queryClient.invalidateQueries({ queryKey: ['analysis'] });
+      // 새 시도 기록을 즉시 반영
+      queryClient.invalidateQueries({ queryKey: ["quizAttemptHistory", lectureId] });
+      queryClient.invalidateQueries({ queryKey: ["analysis"] });
     },
     onError: () => {
       alert("답안 제출에 실패했습니다.");
@@ -185,9 +207,18 @@ export default function QuizPage({ params }: { params: Promise<{ lectureId: stri
              </div>
           </div>
 
-          <div className="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden mb-10">
+          <div className="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden mb-6">
              <div className="bg-orange-500 h-2.5 rounded-full transition-all duration-500" style={{ width: `${((currentQuizIndex + 1) / quizzes.length) * 100}%` }} />
           </div>
+
+          {/* 내 풀이 기록 (학생만) */}
+          {!isInstructor && history.length > 0 && (
+            <AttemptHistoryPanel
+              history={history}
+              open={historyOpen}
+              onToggle={() => setHistoryOpen((v) => !v)}
+            />
+          )}
 
           <div className="bg-white border border-slate-100 rounded-[2.5rem] p-8 md:p-12 shadow-xl relative overflow-hidden flex-1 flex flex-col">
              
@@ -294,5 +325,181 @@ export default function QuizPage({ params }: { params: Promise<{ lectureId: stri
           </div>
        </div>
     </MainLayout>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────
+// 내 풀이 기록 패널 — 점수/일시만 표시 (정답·해설 노출 금지)
+// ─────────────────────────────────────────────────────────────────
+function AttemptHistoryPanel({
+  history,
+  open,
+  onToggle,
+}: {
+  history: QuizAttemptHistoryItem[];
+  open: boolean;
+  onToggle: () => void;
+}) {
+  // 최신순 정렬은 백엔드가 보장. 통계는 전체 기록 기준.
+  const total = history.length;
+  const correctCount = history.filter((h) => h.isCorrect).length;
+  const correctRate = total === 0 ? 0 : Math.round((correctCount / total) * 100);
+  const avgScore =
+    total === 0 ? 0 : Math.round(history.reduce((acc, h) => acc + (h.score ?? 0), 0) / total);
+
+  // 같은 quizId 의 점수 변화로 성장 판단 (가장 오래된 vs 가장 최근)
+  const latestByQuiz = new Map<number, QuizAttemptHistoryItem>();
+  const oldestByQuiz = new Map<number, QuizAttemptHistoryItem>();
+  for (const h of history) {
+    // history 는 최신순이므로 latest 는 첫 등장, oldest 는 마지막 등장
+    if (!latestByQuiz.has(h.quizId)) latestByQuiz.set(h.quizId, h);
+    oldestByQuiz.set(h.quizId, h);
+  }
+  let growthPoints = 0;
+  let growthCount = 0;
+  latestByQuiz.forEach((latest, quizId) => {
+    const oldest = oldestByQuiz.get(quizId);
+    if (oldest && oldest.attemptId !== latest.attemptId) {
+      growthPoints += (latest.score ?? 0) - (oldest.score ?? 0);
+      growthCount += 1;
+    }
+  });
+  const avgGrowth = growthCount === 0 ? null : Math.round(growthPoints / growthCount);
+
+  return (
+    <div className="mb-8 bg-white border border-slate-200 rounded-3xl shadow-sm overflow-hidden">
+      <button
+        type="button"
+        onClick={onToggle}
+        className="w-full px-6 py-4 flex items-center justify-between gap-4 hover:bg-slate-50/60 transition-colors"
+      >
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="w-10 h-10 rounded-2xl bg-orange-50 flex items-center justify-center shrink-0">
+            <History className="w-5 h-5 text-orange-500" />
+          </div>
+          <div className="text-left min-w-0">
+            <p className="text-sm font-black text-slate-800">내 풀이 기록</p>
+            <p className="text-xs font-bold text-slate-400">
+              총 {total}회 · 정답률 {correctRate}% · 평균 {avgScore}점
+              {avgGrowth !== null && (
+                <span
+                  className={`ml-2 ${
+                    avgGrowth > 0
+                      ? "text-emerald-600"
+                      : avgGrowth < 0
+                      ? "text-rose-600"
+                      : "text-slate-400"
+                  }`}
+                >
+                  {avgGrowth > 0 ? "▲" : avgGrowth < 0 ? "▼" : "—"} 평균 {Math.abs(avgGrowth)}점
+                </span>
+              )}
+            </p>
+          </div>
+        </div>
+        <ChevronDown
+          className={`w-5 h-5 text-slate-400 shrink-0 transition-transform ${
+            open ? "rotate-180" : ""
+          }`}
+        />
+      </button>
+
+      {open && (
+        <div className="px-6 pb-6">
+          {/* 통계 */}
+          <div className="grid grid-cols-3 gap-3 mb-5">
+            <StatBox
+              icon={<Target className="w-4 h-4 text-emerald-500" />}
+              label="정답률"
+              value={`${correctRate}%`}
+            />
+            <StatBox
+              icon={<TrendingUp className="w-4 h-4 text-blue-500" />}
+              label="평균 점수"
+              value={`${avgScore}점`}
+            />
+            <StatBox
+              icon={<History className="w-4 h-4 text-orange-500" />}
+              label="총 시도"
+              value={`${total}회`}
+            />
+          </div>
+
+          {/* 시도 목록 */}
+          <ul className="space-y-2 max-h-80 overflow-y-auto pr-1">
+            {history.map((h) => (
+              <AttemptRow key={h.attemptId} item={h} />
+            ))}
+          </ul>
+          <p className="text-[11px] font-bold text-slate-400 mt-3 leading-relaxed">
+            ※ 정답과 해설은 표시되지 않습니다. 다시 풀어보면서 확실히 익혀보세요.
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function StatBox({
+  icon,
+  label,
+  value,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="bg-slate-50 rounded-2xl p-3">
+      <div className="flex items-center justify-between mb-1">
+        <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">
+          {label}
+        </span>
+        {icon}
+      </div>
+      <p className="text-base font-black text-slate-800">{value}</p>
+    </div>
+  );
+}
+
+function AttemptRow({ item }: { item: QuizAttemptHistoryItem }) {
+  const date = new Date(item.attemptedAt);
+  const dateStr = `${date.getMonth() + 1}/${date.getDate()} ${String(date.getHours()).padStart(
+    2,
+    "0"
+  )}:${String(date.getMinutes()).padStart(2, "0")}`;
+  const difficultyLabel =
+    item.difficulty === "HARD" ? "어려움" : item.difficulty === "EASY" ? "쉬움" : "보통";
+
+  return (
+    <li className="flex items-center gap-3 p-3 bg-white border border-slate-100 rounded-2xl">
+      <div
+        className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
+          item.isCorrect ? "bg-emerald-50" : "bg-rose-50"
+        }`}
+      >
+        {item.isCorrect ? (
+          <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+        ) : (
+          <XCircle className="w-5 h-5 text-rose-500" />
+        )}
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-bold text-slate-700 truncate">{item.question}</p>
+        <p className="text-[11px] font-bold text-slate-400 mt-0.5">
+          {dateStr} · {difficultyLabel}
+          {item.conceptTag && ` · ${item.conceptTag}`}
+        </p>
+      </div>
+      <div className="text-right shrink-0">
+        <p
+          className={`text-base font-black ${
+            item.isCorrect ? "text-emerald-600" : "text-rose-500"
+          }`}
+        >
+          {item.score}점
+        </p>
+      </div>
+    </li>
   );
 }

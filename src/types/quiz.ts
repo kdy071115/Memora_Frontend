@@ -53,3 +53,18 @@ export interface QuizResult {
   aiFeedback: string;
   timeSpent: number;
 }
+
+/**
+ * 학생용 안전 풀이 기록 — 점수/일시만 노출, 정답·해설은 미포함.
+ * 백엔드 GET /api/lectures/{lectureId}/quizzes/history 응답 형태.
+ */
+export interface QuizAttemptHistoryItem {
+  attemptId: number;
+  quizId: number;
+  question: string;
+  conceptTag: string | null;
+  difficulty: 'EASY' | 'MEDIUM' | 'HARD' | string;
+  score: number;
+  isCorrect: boolean;
+  attemptedAt: string;
+}

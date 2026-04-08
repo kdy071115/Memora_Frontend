@@ -1,5 +1,5 @@
 import { memoraApi } from "../axios";
-import type { Quiz, QuizDetail, QuizCreateRequest, QuizUpdateRequest, QuizGenerateRequest, QuizSubmitRequest, QuizResult } from "../../types/quiz";
+import type { Quiz, QuizDetail, QuizCreateRequest, QuizUpdateRequest, QuizGenerateRequest, QuizSubmitRequest, QuizResult, QuizAttemptHistoryItem } from "../../types/quiz";
 import type { ApiResponse } from "../../types/api";
 
 // 퀴즈 자동 생성 (수강생)
@@ -32,12 +32,22 @@ export const submitQuiz = async (quizId: number, request: QuizSubmitRequest): Pr
   return data.data;
 };
 
-// 내 풀이 기록 조회
+// 내 풀이 기록 조회 (정답·해설 포함 — 향후 "오답 다시 보기" 용)
 export const getQuizAttempts = async (lectureId: number): Promise<QuizResult[]> => {
   const { data } = await memoraApi.get<ApiResponse<QuizResult[]>>(
     `/lectures/${lectureId}/quizzes/attempts`
   );
   return data.data;
+};
+
+// 내 점수 기록 조회 (정답·해설 미포함 — 안전한 학습 회고용)
+export const getQuizAttemptHistory = async (
+  lectureId: number
+): Promise<QuizAttemptHistoryItem[]> => {
+  const { data } = await memoraApi.get<ApiResponse<QuizAttemptHistoryItem[]>>(
+    `/lectures/${lectureId}/quizzes/history`
+  );
+  return data.data ?? [];
 };
 
 // 문제 수동 생성 (교강사)
