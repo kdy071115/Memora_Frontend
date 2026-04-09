@@ -11,6 +11,7 @@ import type { DocumentItem } from "@/types/document";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import { useLearningHeartbeat } from "@/lib/hooks/useLearningHeartbeat";
 import SelfExplanationPanel from "@/components/domain/learn/SelfExplanationPanel";
+import AudioNotePanel from "@/components/domain/learn/AudioNotePanel";
 
 const DocumentSummaryView = ({ document }: { document: DocumentItem }) => {
   const { data, isLoading } = useQuery({
@@ -222,6 +223,11 @@ export default function LearnPage({ params }: { params: Promise<{ lectureId: str
         {/* Document Area (남은 공간 전체) */}
         <div ref={documentScrollRef} className="flex-1 h-full bg-muted overflow-y-auto custom-scrollbar min-w-0">
           <div className="max-w-[820px] mx-auto py-10 px-4 md:px-8">
+            {/* AI 음성 노트 — 자료 위에 가장 먼저 노출 */}
+            <div className="mb-8">
+              <AudioNotePanel lectureId={lectureId} isInstructor={isInstructor} />
+            </div>
+
             {docLoading ? (
               <div className="flex flex-col items-center justify-center py-32">
                 <Loader2 className="w-10 h-10 text-primary animate-spin mb-4" />
