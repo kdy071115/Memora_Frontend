@@ -9,6 +9,7 @@ import { getCourses } from "@/lib/api/courses";
 import { getAnalysis, getStudentDashboardSummary } from "@/lib/api/analysis";
 import { getStudentFeedback } from "@/lib/api/feedback";
 import { getUpcomingAssignments } from "@/lib/api/assignments";
+import { getMyDailyMissions, type DailyMission } from "@/lib/api/aiCoach";
 import { dueStatus } from "@/lib/dueDate";
 
 export default function DashboardPage() {
@@ -43,6 +44,14 @@ export default function DashboardPage() {
     queryKey: ["studentDashboardSummary"],
     queryFn: getStudentDashboardSummary,
     enabled: isStudent,
+  });
+
+  // 데일리 미션 — 5분간 staleTime 으로 부담 줄임
+  const { data: dailyMissions, isLoading: isMissionsLoading } = useQuery({
+    queryKey: ["myDailyMissions"],
+    queryFn: getMyDailyMissions,
+    enabled: isStudent,
+    staleTime: 5 * 60 * 1000,
   });
 
   const isLoading = isCoursesLoading;
@@ -109,6 +118,14 @@ export default function DashboardPage() {
               value={`${dashboardSummary.overallCorrectRate}%`}
             />
           </div>
+        )}
+
+        {/* ===== 학생 전용 — AI 데일리 미션 ===== */}
+        {isStudent && (isMissionsLoading || dailyMissions) && (
+          <DailyMissionsWidget
+            data={dailyMissions ?? null}
+            loading={isMissionsLoading}
+          />
         )}
 
         {/* ===== 학생 전용 — 곧 마감되는 과제 ===== */}
@@ -420,6 +437,91 @@ function SummaryCard({
         {icon}
       </div>
       <p className={`text-2xl font-black ${accent ?? "text-foreground"}`}>{value}</p>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────
+// 학생 — AI 데일리 미션 위젯
+// ─────────────────────────────────────────────────────────────────
+const MISSION_TYPE_META: Record<string, { label: string; icon: string; color: string }> = {
+  READ: { label: "읽기", icon: "📖", color: "bg-blue-500/15 text-blue-700" },
+  QUIZ: { label: "퀴즈", icon: "❓", color: "bg-orange-500/15 text-orange-700" },
+  SELF_EXPLAIN: { label: "자기 설명", icon: "💭", color: "bg-violet-500/15 text-violet-700" },
+  SUBMIT: { label: "과제 제출", icon: "📝", color: "bg-emerald-500/15 text-emerald-700" },
+  REVIEW: { label: "회고", icon: "🌱", color: "bg-amber-500/15 text-amber-700" },
+};
+
+function DailyMissionsWidget({
+  data,
+  loading,
+}: {
+  data: { summary: string; motivation: string; missions: DailyMission[] } | null;
+  loading: boolean;
+}) {
+  return (
+    <div className="bg-gradient-to-br from-violet-500/10 to-blue-500/10 border border-violet-500/20 rounded-[2rem] p-6 mb-8 shadow-sm">
+      <div className="flex items-center justify-between mb-4 gap-4">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="w-11 h-11 rounded-2xl bg-violet-500/15 flex items-center justify-center shrink-0">
+            <span className="text-xl">✨</span>
+          </div>
+          <div className="min-w-0">
+            <p className="text-xs font-black text-violet-600">AI 학습 코치</p>
+            <p className="text-base font-black text-foreground truncate">
+              {data?.summary || "오늘의 학습 미션"}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {loading || !data ? (
+        <div className="py-10 flex flex-col items-center text-center">
+          <Loader2 className="w-8 h-8 text-violet-500 animate-spin mb-3" />
+          <p className="text-xs font-bold text-muted-foreground">
+            AI 가 오늘의 미션을 큐레이션 중이에요...
+          </p>
+        </div>
+      ) : (
+        <>
+          <ul className="space-y-2">
+            {data.missions.map((m, i) => {
+              const meta = MISSION_TYPE_META[m.type] || MISSION_TYPE_META.REVIEW;
+              return (
+                <li
+                  key={i}
+                  className="bg-card border border-border rounded-2xl p-4 flex items-start gap-3"
+                >
+                  <div
+                    className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 text-base ${meta.color}`}
+                  >
+                    {meta.icon}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2 mb-1 flex-wrap">
+                      <p className="text-sm font-black text-foreground">{m.title}</p>
+                      <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
+                        {m.estimatedMinutes}분
+                      </span>
+                    </div>
+                    <p className="text-xs text-muted-foreground font-medium leading-relaxed mb-1">
+                      {m.description}
+                    </p>
+                    {m.why && (
+                      <p className="text-[11px] text-violet-600 font-bold">💡 {m.why}</p>
+                    )}
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+          {data.motivation && (
+            <p className="text-xs font-bold text-violet-700 mt-4 text-center">
+              {data.motivation}
+            </p>
+          )}
+        </>
+      )}
     </div>
   );
 }
