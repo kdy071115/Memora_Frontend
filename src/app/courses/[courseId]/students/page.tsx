@@ -3,9 +3,15 @@ import React, { use, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import MainLayout from "@/components/layout/MainLayout";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { getCourseStudents } from "@/lib/api/analysis";
 import { getCourseById } from "@/lib/api/courses";
+import {
+  getAtRiskStudents,
+  generateCareMessage,
+  type AtRiskStudent,
+  type CareMessage,
+} from "@/lib/api/aiCoach";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import {
   ArrowLeft,
@@ -16,6 +22,11 @@ import {
   Clock,
   Target,
   Award,
+  AlertTriangle,
+  Sparkles,
+  X,
+  ClipboardCopy,
+  Heart,
 } from "lucide-react";
 import type { CourseStudentSummary, StudentStatus } from "@/types/analysis";
 
@@ -63,6 +74,14 @@ export default function CourseStudentsPage({
     queryFn: () => getCourseStudents(courseId),
     enabled: isInstructor,
   });
+
+  const { data: atRiskStudents = [] } = useQuery({
+    queryKey: ["atRiskStudents", courseId],
+    queryFn: () => getAtRiskStudents(courseId, 10),
+    enabled: isInstructor,
+  });
+
+  const [careTarget, setCareTarget] = useState<AtRiskStudent | null>(null);
 
   const filtered = useMemo(() => {
     let list = [...students];
@@ -157,6 +176,14 @@ export default function CourseStudentsPage({
           </div>
         ) : (
           <>
+            {/* AI — 케어가 필요한 학생 */}
+            {atRiskStudents.length > 0 && (
+              <AtRiskPanel
+                items={atRiskStudents}
+                onCare={(s) => setCareTarget(s)}
+              />
+            )}
+
             {/* 분포 카드 */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
               {(Object.keys(STATUS_META) as StudentStatus[]).map((status) => {
@@ -234,7 +261,264 @@ export default function CourseStudentsPage({
           </>
         )}
       </div>
+
+      {/* AI 케어 메시지 모달 */}
+      {careTarget && (
+        <CareMessageModal
+          courseId={courseId}
+          target={careTarget}
+          onClose={() => setCareTarget(null)}
+        />
+      )}
     </MainLayout>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────
+// At-Risk 패널 — 강사 진입 시 자동 표시
+// ─────────────────────────────────────────────────────────────────
+function AtRiskPanel({
+  items,
+  onCare,
+}: {
+  items: AtRiskStudent[];
+  onCare: (s: AtRiskStudent) => void;
+}) {
+  const [expanded, setExpanded] = useState(true);
+  const high = items.filter((i) => i.riskLevel === "HIGH").length;
+
+  return (
+    <div className="bg-gradient-to-br from-rose-500/10 to-amber-500/10 border border-rose-500/20 rounded-3xl p-6 mb-6 shadow-sm">
+      <button
+        type="button"
+        onClick={() => setExpanded((v) => !v)}
+        className="w-full flex items-center justify-between gap-4"
+      >
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="w-11 h-11 rounded-2xl bg-rose-500/15 flex items-center justify-center shrink-0">
+            <Heart className="w-5 h-5 text-rose-600" />
+          </div>
+          <div className="text-left">
+            <p className="text-sm font-black text-foreground">
+              케어가 필요한 학생 {items.length}명
+              {high > 0 && (
+                <span className="ml-2 text-[11px] font-black text-rose-700">
+                  (위험 {high}명)
+                </span>
+              )}
+            </p>
+            <p className="text-[11px] font-bold text-muted-foreground mt-0.5">
+              AI 가 학습 활동·정답률·과제 제출 등을 종합해 진단했어요
+            </p>
+          </div>
+        </div>
+        <span className="text-xs font-bold text-rose-600">
+          {expanded ? "접기" : "펼치기"}
+        </span>
+      </button>
+
+      {expanded && (
+        <ul className="mt-4 space-y-2">
+          {items.map((s) => (
+            <AtRiskRow key={s.userId} student={s} onCare={() => onCare(s)} />
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+function AtRiskRow({
+  student,
+  onCare,
+}: {
+  student: AtRiskStudent;
+  onCare: () => void;
+}) {
+  const levelMeta =
+    student.riskLevel === "HIGH"
+      ? { label: "위험", bg: "bg-rose-500/15", text: "text-rose-700", ring: "ring-rose-500/30" }
+      : { label: "주의", bg: "bg-amber-500/15", text: "text-amber-700", ring: "ring-amber-500/30" };
+
+  return (
+    <li className="flex items-center justify-between gap-3 p-3 bg-card border border-border rounded-2xl">
+      <div className="flex items-center gap-3 min-w-0 flex-1">
+        <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-rose-500 to-amber-500 flex items-center justify-center text-white font-black shrink-0">
+          {student.name.charAt(0)}
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2 mb-0.5 flex-wrap">
+            <p className="text-sm font-black text-foreground truncate">
+              {student.name}
+            </p>
+            <span
+              className={`text-[10px] font-black px-2 py-0.5 rounded-full ring-1 ${levelMeta.bg} ${levelMeta.text} ${levelMeta.ring}`}
+            >
+              {levelMeta.label} · {student.riskScore}점
+            </span>
+          </div>
+          {student.reasons.length > 0 && (
+            <p className="text-[11px] font-medium text-muted-foreground line-clamp-1">
+              {student.reasons.join(" · ")}
+            </p>
+          )}
+        </div>
+      </div>
+      <button
+        type="button"
+        onClick={onCare}
+        className="shrink-0 inline-flex items-center gap-1 px-3 h-9 bg-gradient-to-r from-violet-500 to-blue-500 text-white text-xs font-bold rounded-xl hover:shadow-md transition-all"
+      >
+        <Sparkles className="w-3.5 h-3.5" />
+        AI 케어 메시지
+      </button>
+    </li>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────
+// 케어 메시지 모달 — AI 가 즉석에서 초안 생성
+// ─────────────────────────────────────────────────────────────────
+function CareMessageModal({
+  courseId,
+  target,
+  onClose,
+}: {
+  courseId: number;
+  target: AtRiskStudent;
+  onClose: () => void;
+}) {
+  const [result, setResult] = useState<CareMessage | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  const mutation = useMutation({
+    mutationFn: () => generateCareMessage(courseId, target.userId),
+    onSuccess: (data) => setResult(data),
+    onError: (err: any) => alert(err?.response?.data?.message || "생성 실패"),
+  });
+
+  // 모달 열리는 순간 자동 호출
+  React.useEffect(() => {
+    mutation.mutate();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleCopy = async () => {
+    if (!result?.message) return;
+    try {
+      await navigator.clipboard.writeText(result.message);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      alert("복사 실패");
+    }
+  };
+
+  return (
+    <div
+      className="fixed inset-0 z-50 bg-foreground/50 backdrop-blur-sm flex items-center justify-center p-4"
+      onClick={onClose}
+    >
+      <div
+        className="bg-card border border-border rounded-3xl shadow-2xl max-w-lg w-full max-h-[80vh] overflow-y-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="px-6 py-5 border-b border-border flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-10 h-10 rounded-2xl bg-violet-500/15 flex items-center justify-center shrink-0">
+              <Sparkles className="w-5 h-5 text-violet-600" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs font-bold text-violet-600">AI 케어 메시지 초안</p>
+              <p className="text-sm font-black text-foreground truncate">
+                {target.name}님께 보낼 메시지
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="text-muted-foreground hover:text-foreground"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="p-6">
+          {/* 위험 사유 컨텍스트 */}
+          {target.reasons.length > 0 && (
+            <div className="mb-4 p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl">
+              <p className="text-[11px] font-black text-amber-700 mb-1.5 flex items-center gap-1">
+                <AlertTriangle className="w-3 h-3" />
+                관찰된 어려움
+              </p>
+              <ul className="space-y-1">
+                {target.reasons.map((r, i) => (
+                  <li key={i} className="text-xs font-medium text-amber-800">
+                    · {r}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {mutation.isPending || !result ? (
+            <div className="py-12 flex flex-col items-center text-center">
+              <Loader2 className="w-8 h-8 text-violet-500 animate-spin mb-3" />
+              <p className="text-sm font-bold text-muted-foreground">
+                AI 가 따뜻한 메시지를 작성 중입니다...
+              </p>
+            </div>
+          ) : (
+            <>
+              <div className="bg-muted rounded-2xl p-4 mb-4">
+                <p className="text-sm text-foreground font-medium whitespace-pre-wrap leading-relaxed">
+                  {result.message}
+                </p>
+              </div>
+
+              {result.suggestedActions.length > 0 && (
+                <div className="mb-4">
+                  <p className="text-[11px] font-black text-muted-foreground uppercase tracking-wider mb-2">
+                    추가로 할 수 있는 액션
+                  </p>
+                  <ul className="space-y-1">
+                    {result.suggestedActions.map((a, i) => (
+                      <li key={i} className="text-xs font-medium text-foreground pl-3 relative">
+                        <span className="absolute left-0 top-1.5 w-1 h-1 rounded-full bg-violet-500" />
+                        {a}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleCopy}
+                  className="flex-1 h-10 bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold rounded-xl flex items-center justify-center gap-2 transition-colors"
+                >
+                  <ClipboardCopy className="w-3.5 h-3.5" />
+                  {copied ? "복사됨!" : "메시지 복사하기"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => mutation.mutate()}
+                  className="px-4 h-10 bg-card border border-border hover:bg-muted text-muted-foreground text-xs font-bold rounded-xl"
+                >
+                  재생성
+                </button>
+              </div>
+
+              <p className="text-[11px] font-medium text-muted-foreground mt-3 leading-relaxed">
+                ※ AI 초안입니다. 검토·수정 후 학생에게 직접 전달하세요.
+              </p>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
   );
 }
 
