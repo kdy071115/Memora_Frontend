@@ -25,7 +25,10 @@ export interface Source {
   preview: string;
 }
 
+export type QaMode = 'NORMAL' | 'SOCRATIC';
+
 export interface AskRequest {
   content: string;
   difficulty?: 'EASY' | 'MEDIUM' | 'HARD';
+  mode?: QaMode;
 }

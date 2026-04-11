@@ -112,3 +112,29 @@ export const getAudioNote = async (lectureId: number): Promise<AudioNote | null>
 export const deleteAudioNote = async (lectureId: number): Promise<void> => {
   await memoraApi.delete(`/lectures/${lectureId}/audio-note`);
 };
+
+// ── Concept Knowledge Graph ──────────────────────────────────────────
+
+export interface ConceptNode {
+  id: string;
+  label: string;
+  importance: number;
+}
+
+export interface ConceptEdge {
+  source: string;
+  target: string;
+  label: string;
+}
+
+export interface ConceptGraph {
+  nodes: ConceptNode[];
+  edges: ConceptEdge[];
+}
+
+export const getConceptGraph = async (lectureId: number): Promise<ConceptGraph> => {
+  const { data } = await memoraApi.get<ApiResponse<ConceptGraph>>(
+    `/lectures/${lectureId}/concept-graph`
+  );
+  return data.data;
+};

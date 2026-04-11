@@ -1,10 +1,10 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
-import { Send, Sparkles, RefreshCw, Loader2, BookOpen, Lightbulb, HelpCircle } from "lucide-react";
+import { Send, Sparkles, RefreshCw, Loader2, BookOpen, Lightbulb, HelpCircle, Brain } from "lucide-react";
 import Image from "next/image";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getSessions, createSession, getSession, sendMessage } from "@/lib/api/qa";
-import type { QaMessage } from "@/types/qa";
+import type { QaMessage, QaMode } from "@/types/qa";
 import ReactMarkdown from "react-markdown";
 
 const SUGGESTIONS = [
@@ -16,6 +16,7 @@ const SUGGESTIONS = [
 export default function AiSidebar({ lectureId }: { lectureId: number }) {
   const queryClient = useQueryClient();
   const [inputVal, setInputVal] = useState("");
+  const [qaMode, setQaMode] = useState<QaMode>("NORMAL");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   // 낙관적 UI: 사용자 메시지가 즉시 표시되도록 로컬에 추가
@@ -86,7 +87,7 @@ export default function AiSidebar({ lectureId }: { lectureId: number }) {
   }, [serverMessages.length]);
 
   const sendMutation = useMutation({
-    mutationFn: (text: string) => sendMessage(currentSessionId!, { content: text }),
+    mutationFn: (text: string) => sendMessage(currentSessionId!, { content: text, mode: qaMode }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["qaSession", currentSessionId] });
     },
@@ -272,6 +273,20 @@ export default function AiSidebar({ lectureId }: { lectureId: number }) {
 
       {/* Input Area */}
       <div className="px-4 pb-4 pt-3 bg-card border-t border-border shrink-0 space-y-3">
+        {/* 소크라테스 모드 토글 */}
+        <button
+          type="button"
+          onClick={() => setQaMode((m) => (m === "NORMAL" ? "SOCRATIC" : "NORMAL"))}
+          className={`w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold transition-all ${
+            qaMode === "SOCRATIC"
+              ? "bg-violet-500/15 text-violet-700 border border-violet-500/30"
+              : "bg-muted text-muted-foreground border border-border hover:bg-muted/80"
+          }`}
+        >
+          <Brain className="w-3.5 h-3.5" />
+          {qaMode === "SOCRATIC" ? "🧠 소크라테스 모드 ON — 역질문으로 생각을 끌어냅니다" : "💬 일반 모드 — 바로 답변합니다"}
+        </button>
+
         {/* Suggestion chips */}
         <div className="flex gap-2 overflow-x-auto hide-scrollbar pb-0.5">
           {SUGGESTIONS.map(({ icon: Icon, text }, i) => (

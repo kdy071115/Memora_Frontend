@@ -2,7 +2,7 @@
 import React, { use, useRef, useState, useCallback, useEffect } from "react";
 import AiSidebar from "@/components/domain/learn/AiSidebar";
 import Link from "next/link";
-import { ArrowLeft, BookOpen, CheckCircle, Loader2, FileText, AlertCircle, GripVertical, UploadCloud, Plus, Settings } from "lucide-react";
+import { ArrowLeft, BookOpen, CheckCircle, Loader2, FileText, AlertCircle, GripVertical, UploadCloud, Plus, Settings, Network } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getDocuments, getDocumentSummary, uploadDocument } from "@/lib/api/lectures";
 import ReactMarkdown from "react-markdown";
@@ -208,6 +208,13 @@ export default function LearnPage({ params }: { params: Promise<{ lectureId: str
               퀴즈 관리
             </Link>
           )}
+          <Link
+            href={`/learn/${resolvedParams.lectureId}/concept-graph`}
+            className="px-4 h-9 bg-violet-500/15 border border-violet-500/30 text-violet-700 text-sm font-bold rounded-full hover:bg-violet-500/25 transition-all shadow-sm flex items-center gap-2"
+          >
+            <Network className="w-4 h-4" />
+            개념 그래프
+          </Link>
           <Link
             href={`/learn/${resolvedParams.lectureId}/quiz`}
             className="px-5 h-9 bg-gradient-to-r from-foreground to-foreground/80 text-white text-sm font-bold rounded-full hover:opacity-90 transition-all shadow-sm flex items-center gap-2"
