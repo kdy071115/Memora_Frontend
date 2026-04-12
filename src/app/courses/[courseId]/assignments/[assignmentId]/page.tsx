@@ -1017,7 +1017,7 @@ function AiFeedbackPanel({
   if (!hasResult) return null;
 
   // feedback 존재
-  const meta = GRADE_STYLE[feedback!.grade] || GRADE_STYLE.AVERAGE;
+  const meta = GRADE_STYLE[feedback!.grade ?? "AVERAGE"] || GRADE_STYLE.AVERAGE;
 
   return (
     <div className="mb-4 bg-gradient-to-br from-violet-500/10 to-blue-500/10 border border-violet-500/20 rounded-2xl p-5">

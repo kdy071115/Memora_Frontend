@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { Suspense, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowRight, BookOpen, Mail, Lock, Loader2, AlertCircle, Eye, EyeOff } from "lucide-react";
@@ -9,6 +9,14 @@ import { useMutation } from "@tanstack/react-query";
 import { login } from "@/lib/api/auth";
 
 export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginPageInner />
+    </Suspense>
+  );
+}
+
+function LoginPageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const expired = searchParams.get("expired") === "1";
