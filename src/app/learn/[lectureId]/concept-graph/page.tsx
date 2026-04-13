@@ -1,5 +1,5 @@
 "use client";
-import React, { use, useMemo, useRef, useEffect, useState, useCallback } from "react";
+import { use, useMemo, useRef, useEffect, useState } from "react";
 import Link from "next/link";
 import MainLayout from "@/components/layout/MainLayout";
 import { useQuery } from "@tanstack/react-query";
@@ -46,7 +46,7 @@ function useForceLayout(
         y: cy + r * Math.sin(angle) + (Math.random() - 0.5) * 20,
         vx: 0,
         vy: 0,
-        radius: 8 + (n.importance / 100) * 22,
+        radius: 16 + (n.importance / 100) * 18,
       };
     });
 
@@ -62,9 +62,9 @@ function useForceLayout(
     const tick = () => {
       frameRef.current++;
       const damping = 0.85;
-      const repulsion = 3000;
-      const attraction = 0.005;
-      const centerPull = 0.001;
+      const repulsion = 10000;
+      const attraction = 0.002;
+      const centerPull = 0.0008;
 
       for (let i = 0; i < initial.length; i++) {
         const a = initial[i];
@@ -90,7 +90,6 @@ function useForceLayout(
         if (!a || !b) continue;
         const dx = b.x - a.x;
         const dy = b.y - a.y;
-        const dist = Math.sqrt(dx * dx + dy * dy) || 1;
         a.vx += dx * attraction;
         a.vy += dy * attraction;
         b.vx -= dx * attraction;
@@ -269,33 +268,63 @@ export default function ConceptGraphPage({
                   ))}
                 </g>
 
-                {/* 엣지 */}
+                {/* 엣지 — 곡선 + 라벨 배경 pill */}
                 {edges.map((e, i) => {
                   const a = nodeMap.get(e.source);
                   const b = nodeMap.get(e.target);
                   if (!a || !b) return null;
                   const mx = (a.x + b.x) / 2;
                   const my = (a.y + b.y) / 2;
+                  // 살짝 곡선 — 수직 오프셋으로 라벨과 선이 겹치지 않게
+                  const dx = b.x - a.x;
+                  const dy = b.y - a.y;
+                  const perpX = -dy * 0.08;
+                  const perpY = dx * 0.08;
+                  const cx1 = mx + perpX;
+                  const cy1 = my + perpY;
+                  const labelLen = (e.label || "").length;
+                  const pillW = Math.max(40, labelLen * 9 + 16);
                   return (
                     <g key={`e-${i}`}>
-                      <line
-                        x1={a.x}
-                        y1={a.y}
-                        x2={b.x}
-                        y2={b.y}
+                      <path
+                        d={`M ${a.x} ${a.y} Q ${cx1} ${cy1} ${b.x} ${b.y}`}
+                        fill="none"
                         stroke="currentColor"
-                        strokeOpacity={0.15}
+                        strokeOpacity={0.12}
                         strokeWidth={1.5}
+                        className="text-foreground"
+                      />
+                      {/* 라벨 배경 pill */}
+                      <rect
+                        x={cx1 - pillW / 2}
+                        y={cy1 - 10}
+                        width={pillW}
+                        height={20}
+                        rx={10}
+                        fill="currentColor"
+                        className="text-card"
+                        opacity={0.9}
+                      />
+                      <rect
+                        x={cx1 - pillW / 2}
+                        y={cy1 - 10}
+                        width={pillW}
+                        height={20}
+                        rx={10}
+                        fill="none"
+                        stroke="currentColor"
+                        strokeOpacity={0.1}
+                        strokeWidth={1}
+                        className="text-foreground"
                       />
                       <text
-                        x={mx}
-                        y={my - 4}
+                        x={cx1}
+                        y={cy1 + 4}
                         textAnchor="middle"
-                        fontSize={9}
-                        fontWeight={600}
+                        fontSize={10}
+                        fontWeight={700}
                         fill="currentColor"
                         className="text-muted-foreground"
-                        opacity={0.6}
                       >
                         {e.label}
                       </text>
@@ -308,35 +337,79 @@ export default function ConceptGraphPage({
                   const c = getColor(n.importance);
                   return (
                     <g key={n.id}>
+                      {/* 그림자 */}
+                      <circle
+                        cx={n.x + 2}
+                        cy={n.y + 2}
+                        r={n.radius}
+                        fill="black"
+                        opacity={0.08}
+                      />
+                      {/* 메인 원 */}
                       <circle
                         cx={n.x}
                         cy={n.y}
                         r={n.radius}
                         fill={c.fill}
-                        opacity={0.85}
-                        className="transition-all duration-300"
+                        opacity={0.9}
+                        stroke="white"
+                        strokeWidth={2}
+                        strokeOpacity={0.3}
                       />
+                      {/* importance 숫자 */}
                       <text
                         x={n.x}
-                        y={n.y + n.radius + 14}
+                        y={n.y + 5}
                         textAnchor="middle"
-                        fontSize={11}
+                        fontSize={12}
                         fontWeight={800}
-                        fill="currentColor"
-                        className="text-foreground"
-                      >
-                        {n.label}
-                      </text>
-                      <text
-                        x={n.x}
-                        y={n.y + 4}
-                        textAnchor="middle"
-                        fontSize={9}
-                        fontWeight={700}
                         fill={c.text}
                       >
                         {n.importance}
                       </text>
+                      {/* 라벨 — 배경 pill + 텍스트 */}
+                      {(() => {
+                        const labelLen = n.label.length;
+                        const labelW = Math.max(50, labelLen * 11 + 16);
+                        const ly = n.y + n.radius + 18;
+                        return (
+                          <>
+                            <rect
+                              x={n.x - labelW / 2}
+                              y={ly - 12}
+                              width={labelW}
+                              height={22}
+                              rx={11}
+                              fill="currentColor"
+                              className="text-card"
+                              opacity={0.85}
+                            />
+                            <rect
+                              x={n.x - labelW / 2}
+                              y={ly - 12}
+                              width={labelW}
+                              height={22}
+                              rx={11}
+                              fill="none"
+                              stroke="currentColor"
+                              strokeOpacity={0.08}
+                              strokeWidth={1}
+                              className="text-foreground"
+                            />
+                            <text
+                              x={n.x}
+                              y={ly + 3}
+                              textAnchor="middle"
+                              fontSize={12}
+                              fontWeight={800}
+                              fill="currentColor"
+                              className="text-foreground"
+                            >
+                              {n.label}
+                            </text>
+                          </>
+                        );
+                      })()}
                     </g>
                   );
                 })}
