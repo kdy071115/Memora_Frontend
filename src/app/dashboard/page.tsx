@@ -322,7 +322,7 @@ export default function DashboardPage() {
                 return (
                   <Link
                     key={course.id}
-                    href={isInstructor ? `/courses/${course.id}` : `/learn/${course.id}`}
+                    href={`/courses/${course.id}`}
                     className="group bg-card border border-border rounded-[2rem] overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all"
                   >
                     <div className={`h-40 bg-gradient-to-br ${colorTheme.grad} flex items-center justify-center p-6 relative overflow-hidden`}>
