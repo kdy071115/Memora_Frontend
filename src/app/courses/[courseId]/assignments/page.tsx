@@ -190,16 +190,26 @@ export default function AssignmentsListPage({
                       value={form.dueDate ?? ""}
                       onChange={(e) => setForm({ ...form, dueDate: e.target.value })}
                       placeholder="2026-04-20 23:59"
-                      className="flex-1 h-11 px-4 rounded-xl border border-border focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 font-medium"
+                      className="flex-1 h-11 px-4 rounded-xl border border-border focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 font-medium bg-card"
                     />
-                    <input
-                      type="datetime-local"
-                      value={toDatetimeLocalValue(form.dueDate)}
-                      onChange={(e) => setForm({ ...form, dueDate: e.target.value.replace("T", " ") })}
-                      className="h-11 w-11 px-2 rounded-xl border border-border focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 cursor-pointer"
-                      aria-label="달력에서 선택"
-                      title="달력에서 선택"
-                    />
+                    <div className="relative w-11 h-11 shrink-0">
+                      <input
+                        type="datetime-local"
+                        value={toDatetimeLocalValue(form.dueDate)}
+                        onChange={(e) => setForm({ ...form, dueDate: e.target.value.replace("T", " ") })}
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                        aria-label="달력에서 선택"
+                        title="달력에서 선택"
+                      />
+                      <div className="w-11 h-11 rounded-xl border border-border bg-card flex items-center justify-center pointer-events-none">
+                        <svg className="w-5 h-5 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <rect x="3" y="4" width="18" height="18" rx="2" />
+                          <line x1="16" y1="2" x2="16" y2="6" />
+                          <line x1="8" y1="2" x2="8" y2="6" />
+                          <line x1="3" y1="10" x2="21" y2="10" />
+                        </svg>
+                      </div>
+                    </div>
                   </div>
                 </div>
                 <div>

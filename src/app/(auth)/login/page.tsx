@@ -1,7 +1,7 @@
 "use client";
 import React, { Suspense, useState } from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { ArrowRight, BookOpen, Mail, Lock, Loader2, AlertCircle, Eye, EyeOff } from "lucide-react";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import Image from "next/image";
@@ -17,7 +17,6 @@ export default function LoginPage() {
 }
 
 function LoginPageInner() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const expired = searchParams.get("expired") === "1";
   const loginStore = useAuthStore((state) => state.login);
@@ -29,7 +28,8 @@ function LoginPageInner() {
     mutationFn: login,
     onSuccess: (data) => {
       loginStore(data.user, data.accessToken, data.refreshToken);
-      router.push("/dashboard");
+      // 전체 리로드로 인증 상태 확실히 반영
+      window.location.href = "/dashboard";
     },
     onError: (error) => {
       console.error(error);

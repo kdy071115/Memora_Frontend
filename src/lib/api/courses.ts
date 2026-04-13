@@ -29,8 +29,11 @@ const normalizeCourse = (raw: any): Course => {
 // 강의 목록 — GET /api/courses
 export const getCourses = async (): Promise<Course[]> => {
   const { data } = await memoraApi.get("/courses");
+  console.log("[getCourses] raw:", JSON.stringify(data).slice(0, 800));
   const pageResponse: PageResponse<Course> = data.data;
-  return (pageResponse?.content ?? []).map(normalizeCourse);
+  const result = (pageResponse?.content ?? []).map(normalizeCourse);
+  console.log("[getCourses] parsed count:", result.length);
+  return result;
 };
 
 // 강의 상세 — GET /api/courses/{courseId}
