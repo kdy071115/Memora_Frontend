@@ -8,8 +8,9 @@ export const memoraApi = axios.create({
   baseURL: BASE_URL,
   headers: {
     "Content-Type": "application/json",
+    "ngrok-skip-browser-warning": "true",
   },
-  withCredentials: true, // 쿠키 기반 세션/인증 사용 가능성 대비
+  withCredentials: false,
 });
 
 // Request Interceptor: 요청마다 로컬 스토리지 등에 보관된 토큰을 가져와 헤더에 삽입
