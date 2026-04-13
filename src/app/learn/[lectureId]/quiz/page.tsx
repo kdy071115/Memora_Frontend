@@ -31,6 +31,14 @@ function shuffleArray<T>(arr: T[]): T[] {
   return next;
 }
 
+// "A. 텍스트" → "텍스트" 접두사 제거 후 정규화 비교
+function stripLabel(s: string): string {
+  return s.replace(/^[A-Da-d][.)]\s*/, "").trim().toLowerCase();
+}
+function mcMatch(a: string, b: string): boolean {
+  return stripLabel(a) === stripLabel(b);
+}
+
 export default function QuizPage({ params }: { params: Promise<{ lectureId: string }> }) {
   const resolvedParams = use(params);
   const lectureId = Number(resolvedParams.lectureId);
@@ -247,7 +255,7 @@ export default function QuizPage({ params }: { params: Promise<{ lectureId: stri
                     const isSelected = selectedOptIndex === idx;
                     // For multiple choice, if we don't have resultData yet, we show pending
                     if (resultData) {
-                       const isCorrectAnswer = resultData.correctAnswer === opt;
+                       const isCorrectAnswer = mcMatch(resultData.correctAnswer, opt);
                        if (isCorrectAnswer) {
                           btnClasses += "border-green-500 bg-green-500/10 text-green-700";
                        } else if (isSelected && !isCorrectAnswer) {
