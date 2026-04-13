@@ -306,7 +306,7 @@ export default function AnalysisPage() {
                   <p className="font-medium text-sm">퀴즈를 더 풀면 분석 데이터가 쌓입니다.</p>
                 </div>
               ) : (
-                <AnalysisRadarChart data={isInstructor ? instructorRadarData : studentRadarData} />
+                <AnalysisRadarChart data={isInstructor ? instructorRadarData : studentRadarData} label={isInstructor ? "학급 평균" : "나의 역량"} />
               )}
             </div>
           </div>

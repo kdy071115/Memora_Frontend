@@ -67,7 +67,7 @@ function PolarTick({ x, y, payload, cx }: any) {
   );
 }
 
-export function AnalysisRadarChart({ data }: { data: RadarChartItem[] }) {
+export function AnalysisRadarChart({ data, label = "나의 역량" }: { data: RadarChartItem[]; label?: string }) {
   return (
     <ResponsiveContainer width="100%" height="100%">
       <RadarChart
@@ -80,7 +80,7 @@ export function AnalysisRadarChart({ data }: { data: RadarChartItem[] }) {
         <PolarGrid stroke="#e2e8f0" />
         <PolarAngleAxis dataKey="subject" tick={<PolarTick />} />
         <PolarRadiusAxis angle={30} domain={[0, 150]} tick={false} axisLine={false} />
-        <Radar name="나의 역량" dataKey="A" stroke="#8b5cf6" strokeWidth={3} fill="#8b5cf6" fillOpacity={0.4} />
+        <Radar name={label} dataKey="A" stroke="#8b5cf6" strokeWidth={3} fill="#8b5cf6" fillOpacity={0.4} />
         <Tooltip />
       </RadarChart>
     </ResponsiveContainer>

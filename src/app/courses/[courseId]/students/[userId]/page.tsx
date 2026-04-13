@@ -231,7 +231,7 @@ export default function StudentDetailPage({
             <h2 className="text-base font-black text-foreground mb-5">학습 역량</h2>
             {radarData.length > 0 ? (
               <div className="h-72">
-                <AnalysisRadarChart data={radarData} />
+                <AnalysisRadarChart data={radarData} label="학생 역량" />
               </div>
             ) : (
               <EmptyChart message="역량 데이터가 부족합니다." />
